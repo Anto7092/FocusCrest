@@ -13,6 +13,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- In-browser TSX/JSX compiler -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
       /* Custom Fonts & Global Styles */
       body {
@@ -131,6 +134,6 @@
 <body class="bg-slate-900 antialiased">
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+  <script type="text/babel" data-presets="react,typescript" src="/index.tsx"></script>
 </body>
 </html>
