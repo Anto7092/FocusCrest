@@ -17,8 +17,6 @@ const PomodoroWidget: React.FC<{
     state: PomodoroState;
     setState: (state: PomodoroState | ((prevState: PomodoroState) => PomodoroState)) => void;
 }> = ({ state, setState }) => {
-    if (!state.isActive) return null;
-
     const { isActive, mode, timeLeft, sessionName } = state;
     const modeLabel = mode.replace('B', ' B');
     

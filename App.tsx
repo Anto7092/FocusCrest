@@ -89,14 +89,11 @@ const App: React.FC = () => {
     return () => { if (timer) clearInterval(timer); };
   }, [pomodoroState.isActive, pomodoroState.timeLeft, pomodoroDurations]);
   
-  // Persist Pomodoro Durations
+  // Persist Pomodoro Durations to localStorage.
+  // The logic to update timeLeft when durations change is handled correctly within PomodoroView.
   useEffect(() => {
     localStorage.setItem(POMODORO_SETTINGS_KEY, JSON.stringify(pomodoroDurations));
-    // If work duration changes while timer is not active, update timeLeft
-    if (!pomodoroState.isActive && pomodoroState.mode === 'work') {
-       setPomodoroState(p => ({...p, timeLeft: pomodoroDurations.work * 60}));
-    }
-  }, [pomodoroDurations, pomodoroState.isActive, pomodoroState.mode]);
+  }, [pomodoroDurations]);
   
 
   const handleSetView = useCallback((view: View) => {
@@ -107,7 +104,10 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const showGlobalControls = pomodoroState.isActive;
+  const fullDuration = pomodoroDurations[pomodoroState.mode] * 60;
+  // A session is in progress if the timer has been started (and timeLeft is less than full).
+  // This ensures controls stay visible when paused.
+  const showGlobalControls = pomodoroState.timeLeft < fullDuration;
 
   return (
     <div className="flex h-screen bg-slate-950/20 font-sans texture-overlay overflow-x-hidden">
