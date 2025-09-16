@@ -2,6 +2,9 @@
   "name": "zenith-study",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "echo 'No client-side build step required. API functions will be built by Vercel.'"
+  },
   "dependencies": {
     "@google/genai": "^1.19.0"
   },
