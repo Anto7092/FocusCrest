@@ -82,8 +82,8 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
             <h1 className="text-3xl font-bold text-slate-200 mb-4">
                 Pomodoro <span className="text-emerald-300">Timer</span>
             </h1>
-            <div className="flex items-center gap-2 text-slate-300 mb-6 text-sm text-center">
-              <InfoIcon className="w-4 h-4 flex-shrink-0" />
+            <div className="flex items-center gap-2 text-slate-300 mb-6 text-sm">
+              <InfoIcon className="w-4 h-4" />
               <p>Boost your productivity by working in focused intervals.</p>
             </div>
             
@@ -98,7 +98,7 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
                 />
             </div>
 
-            <div className="relative w-64 h-64 sm:w-72 sm:h-72 flex flex-col items-center justify-center rounded-full bg-slate-900/40 shadow-2xl border-4 border-slate-700/50">
+            <div className="relative w-72 h-72 flex flex-col items-center justify-center rounded-full bg-slate-900/40 shadow-2xl border-4 border-slate-700/50">
                 <div className="absolute inset-0">
                     <svg className="w-full h-full" viewBox="0 0 100 100">
                         <circle className="stroke-current text-slate-700/50" strokeWidth="4" cx="50" cy="50" r="48" fill="transparent" />
@@ -115,36 +115,36 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
                 </div>
 
                 <div className="z-10 text-center">
-                    <p className="text-5xl sm:text-6xl font-mono font-bold tracking-widest">{formatTime(timeLeft)}</p>
-                    <p className="text-md sm:text-lg text-slate-300 mt-2">{getModeLabel(mode)}</p>
+                    <p className="text-6xl font-mono font-bold tracking-widest">{formatTime(timeLeft)}</p>
+                    <p className="text-lg text-slate-300 mt-2">{getModeLabel(mode)}</p>
                 </div>
             </div>
 
-            <div className="flex items-center space-x-2 sm:space-x-4 mt-8 sm:mt-10">
+            <div className="flex items-center space-x-4 mt-10">
                  <button 
                     onClick={() => setIsSettingsOpen(true)}
-                    className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-slate-300"
+                    className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-slate-300"
                     aria-label="Customize durations"
                 >
-                    <SettingsIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+                    <SettingsIcon className="w-8 h-8" />
                 </button>
                 <button 
                     onClick={toggleTimer} 
-                    className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full hover:from-emerald-400 hover:to-teal-500 transition-all shadow-lg hover:shadow-xl text-white"
+                    className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full hover:from-emerald-400 hover:to-teal-500 transition-all shadow-lg hover:shadow-xl text-white"
                     aria-label={isActive ? 'Pause timer' : 'Start timer'}
                 >
-                    {isActive ? <PauseIcon className="w-9 h-9 sm:w-10 sm:h-10" /> : <PlayIcon className="w-9 h-9 sm:w-10 sm:h-10" />}
+                    {isActive ? <PauseIcon className="w-10 h-10" /> : <PlayIcon className="w-10 h-10" />}
                 </button>
                 <button 
                     onClick={resetTimer} 
-                    className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-slate-300"
+                    className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-slate-300"
                     aria-label="Reset timer"
                 >
-                    <ResetIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+                    <ResetIcon className="w-8 h-8" />
                 </button>
             </div>
             
-             <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+             <div className="mt-12 flex space-x-4">
                 <button 
                     onClick={() => selectMode('work')} 
                     className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'work' ? 'bg-emerald-400/20 text-emerald-200' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'}`}

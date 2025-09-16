@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { ScrollableNumberPicker } from './ScrollableNumberPicker';
 import { SettingsIcon, XIcon } from './icons';
 import type { DurationSettings } from '../App';
@@ -16,54 +16,6 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
     durations,
     onDurationChange,
 }) => {
-    const modalRef = useRef<HTMLDivElement>(null);
-
-    // Accessibility: Trap focus within the modal when it's open
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const modalNode = modalRef.current;
-        if (!modalNode) return;
-
-        const focusableElements = modalNode.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        const handleTabKeyPress = (e: KeyboardEvent) => {
-            if (e.key !== 'Tab') return;
-
-            if (e.shiftKey) { // Shift+Tab
-                if (document.activeElement === firstElement) {
-                    lastElement.focus();
-                    e.preventDefault();
-                }
-            } else { // Tab
-                if (document.activeElement === lastElement) {
-                    firstElement.focus();
-                    e.preventDefault();
-                }
-            }
-        };
-
-        const handleEscapeKeyPress = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
-
-        firstElement?.focus();
-
-        document.addEventListener('keydown', handleTabKeyPress);
-        document.addEventListener('keydown', handleEscapeKeyPress);
-        return () => {
-            document.removeEventListener('keydown', handleTabKeyPress);
-            document.removeEventListener('keydown', handleEscapeKeyPress);
-        };
-    }, [isOpen, onClose]);
-
-
     if (!isOpen) return null;
 
     return (
@@ -74,7 +26,6 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
             role="dialog"
         >
             <div
-                ref={modalRef}
                 className="relative w-full max-w-lg m-4 p-8 bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl border border-white/10 shadow-2xl animate-futuristicModalOpen"
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
             >
@@ -95,7 +46,7 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
                     Adjust the length of your sessions. All durations are in minutes.
                 </p>
 
-                <div className="flex flex-col sm:flex-row justify-around items-center sm:items-start gap-6 sm:gap-4 text-slate-200">
+                <div className="flex justify-around items-start gap-4 text-slate-200">
                     <ScrollableNumberPicker 
                         label="Focus" 
                         value={durations.work} 

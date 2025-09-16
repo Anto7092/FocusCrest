@@ -78,18 +78,12 @@ export const NotesView: React.FC = () => {
     };
     
     const updateToolbarState = useCallback(() => {
-        // Note: document.queryCommandState is a deprecated API.
-        // For a production app, consider replacing with a modern library like Tiptap or Slate.js.
         setIsBold(document.queryCommandState('bold'));
         setIsItalic(document.queryCommandState('italic'));
         setIsUnderline(document.queryCommandState('underline'));
     }, []);
 
     const handleCommand = (command: string) => {
-        // Note: document.execCommand is a deprecated API. It's used here for simplicity
-        // as this is a prototype. For a production-grade application, this should be replaced
-        // with a robust rich text editor library (e.g., Tiptap, Slate.js) for better
-        // browser compatibility and maintainability.
         document.execCommand(command, false);
         editorRef.current?.focus();
         updateToolbarState();

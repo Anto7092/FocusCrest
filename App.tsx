@@ -19,14 +19,12 @@ export type DurationSettings = {
 };
 
 // Wrapper component to preserve view state by hiding/showing instead of mounting/unmounting
+// This is defined *outside* the App component to prevent it from being re-created on every render,
+// which was the cause of the state-loss bug.
 const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactNode }> = ({ id, activeView, children }) => {
     const isVisible = activeView === id;
     return (
-      <div 
-        style={{ display: isVisible ? 'block' : 'none', height: '100%', width: '100%' }} 
-        className={isVisible ? 'animate-dynamicViewTransition' : ''}
-        aria-hidden={!isVisible}
-      >
+      <div style={{ display: isVisible ? 'block' : 'none', height: '100%', width: '100%' }} className={isVisible ? 'animate-dynamicViewTransition' : ''}>
         {children}
       </div>
     );
@@ -113,11 +111,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-950/20 font-sans texture-overlay overflow-x-hidden">
-      {/* Mobile overlay for closing sidebar */}
-       <div 
-        onClick={() => setIsSidebarOpen(false)} 
-        className={`fixed inset-0 bg-black/50 z-10 md:hidden transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
-      />
       <Sidebar 
         activeView={activeView} 
         setActiveView={handleSetView} 

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { performEducationalSearch, isEducationalQuery } from '../services/geminiService';
+import { performEducationalSearch } from '../services/geminiService';
 import { ErrorIcon, AssistantIcon } from './icons';
 
 const SearchHomeScreen: React.FC<{ onSearch: (query: string) => void }> = ({ onSearch }) => {
@@ -142,21 +142,11 @@ export const BrowserView: React.FC = () => {
       setIsLoading(true);
       setError(null);
       setSearchResults(null);
-      
+      setLoadingMessage('Generating answer...');
       try {
-          setLoadingMessage('Analyzing query...');
-          const isEducational = await isEducationalQuery(query);
-
-          if (!isEducational) {
-              setError("This query seems unrelated to education. Please focus on your study goals.");
-              return; // Stop execution
-          }
-
-          setLoadingMessage('Generating answer...');
           const answer = await performEducationalSearch(query);
           setSearchResults({ query, answer });
           setIsSearchHome(false);
-
       } catch (err) {
           setError(err instanceof Error ? err.message : 'An unknown error occurred during the search.');
       } finally {
