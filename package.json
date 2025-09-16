@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "echo 'No client-side build step required. API functions will be built by Vercel.'"
+    "build": "mkdir dist && cp -r components services App.tsx constants.ts index.html index.tsx metadata.json types.ts dist/"
   },
   "dependencies": {
     "@google/genai": "^1.19.0"
