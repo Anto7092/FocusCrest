@@ -2,34 +2,9 @@
 // This is a Vercel Serverless Function that acts as a secure proxy
 // to the Google Gemini and YouTube APIs.
 
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
 import type { YouTubeVideo } from '../types';
-
-// Utility to parse request body
-function parseBody(req: IncomingMessage): Promise<any> {
-    return new Promise((resolve, reject) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
-            try {
-                // Handle empty body
-                if (body) {
-                    resolve(JSON.parse(body));
-                } else {
-                    resolve({});
-                }
-            } catch (e) {
-                reject(e);
-            }
-        });
-        req.on('error', err => {
-            reject(err);
-        });
-    });
-}
 
 // Check for required environment variables
 const GEMINI_API_KEY = process.env.API_KEY;
@@ -40,55 +15,52 @@ if (GEMINI_API_KEY) {
     ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 }
 
-// Main handler function
-export default async function handler(req: IncomingMessage, res: ServerResponse) {
-    res.setHeader('Content-Type', 'application/json');
-
+// Main handler function using Vercel's request/response objects
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
-        res.statusCode = 405;
-        return res.end(JSON.stringify({ error: 'Method Not Allowed' }));
+        res.setHeader('Allow', ['POST']);
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
     
     if (!GEMINI_API_KEY || !ai) {
-        res.statusCode = 500;
-        return res.end(JSON.stringify({ error: 'A server error occurred: The Gemini API key is not configured.' }));
+        return res.status(500).json({ error: 'A server error occurred: The Gemini API key is not configured.' });
     }
 
     try {
-        const { action, payload } = await parseBody(req);
+        const { action, payload } = req.body;
+
+        if (!action) {
+            return res.status(400).json({ error: 'Missing action in request body' });
+        }
         
-        // Correctly check for YouTube API key after parsing action from body
         if (!YOUTUBE_API_KEY && (action === 'findEducationalVideos' || action === 'findFocusMusic')) {
-            res.statusCode = 500;
-            return res.end(JSON.stringify({ error: 'A server error occurred: The YouTube API key is not configured.' }));
+            return res.status(500).json({ error: 'A server error occurred: The YouTube API key is not configured.' });
         }
 
         switch (action) {
             case 'isEducationalQuery':
                 const isEducational = await isEducationalQueryBackend(payload.query, ai);
-                return res.end(JSON.stringify({ result: isEducational }));
+                return res.status(200).json({ result: isEducational });
 
             case 'performSearch':
                 const answer = await performSearchBackend(payload.query, ai);
-                return res.end(JSON.stringify({ result: answer }));
+                return res.status(200).json({ result: answer });
             
             case 'findEducationalVideos':
                 const videos = await findEducationalVideosBackend(payload.query);
-                return res.end(JSON.stringify({ result: videos }));
+                return res.status(200).json({ result: videos });
 
             case 'findFocusMusic':
                 const music = await findFocusMusicBackend();
-                return res.end(JSON.stringify({ result: music }));
+                return res.status(200).json({ result: music });
 
             default:
-                res.statusCode = 400;
-                return res.end(JSON.stringify({ error: 'Invalid action specified' }));
+                return res.status(400).json({ error: 'Invalid action specified' });
         }
     } catch (error) {
         console.error("API Error:", error);
-        res.statusCode = 500;
         const message = error instanceof Error ? error.message : "An internal server error occurred.";
-        return res.end(JSON.stringify({ error: message }));
+        return res.status(500).json({ error: message });
     }
 }
 
