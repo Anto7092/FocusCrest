@@ -15,13 +15,23 @@ async function callApi<T>(action: string, payload: object): Promise<T> {
         body: JSON.stringify({ action, payload }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-        // The API returns a JSON object with an 'error' key on failure
-        throw new Error(data.error || 'An unknown server error occurred.');
+        // If the server returned an error, it might be our expected JSON error
+        // or a plain text error from a server crash.
+        const errorText = await response.text();
+        try {
+            // Try to parse it as our expected JSON error format
+            const errorJson = JSON.parse(errorText);
+            throw new Error(errorJson.error || 'An unknown server error occurred.');
+        } catch (e) {
+            // If parsing fails, it's a raw text error. Use that as the message.
+            // This prevents the "Unexpected token" crash.
+            throw new Error(errorText || 'A server error occurred with a non-JSON response.');
+        }
     }
 
+    // If response is OK, we expect valid JSON.
+    const data = await response.json();
     return data.result;
 }
 

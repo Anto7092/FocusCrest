@@ -25,6 +25,9 @@ function parseBody(req: IncomingMessage): Promise<any> {
                 reject(e);
             }
         });
+        req.on('error', err => {
+            reject(err);
+        });
     });
 }
 
@@ -48,16 +51,17 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     
     if (!GEMINI_API_KEY || !ai) {
         res.statusCode = 500;
-        return res.end(JSON.stringify({ error: 'Gemini API key is not configured on the server.' }));
-    }
-    
-    if (!YOUTUBE_API_KEY && req.url?.includes('find')) { // YouTube key only needed for video functions
-         res.statusCode = 500;
-        return res.end(JSON.stringify({ error: 'YouTube API key is not configured on the server.' }));
+        return res.end(JSON.stringify({ error: 'A server error occurred: The Gemini API key is not configured.' }));
     }
 
     try {
         const { action, payload } = await parseBody(req);
+        
+        // Correctly check for YouTube API key after parsing action from body
+        if (!YOUTUBE_API_KEY && (action === 'findEducationalVideos' || action === 'findFocusMusic')) {
+            res.statusCode = 500;
+            return res.end(JSON.stringify({ error: 'A server error occurred: The YouTube API key is not configured.' }));
+        }
 
         switch (action) {
             case 'isEducationalQuery':
@@ -174,6 +178,11 @@ async function findEducationalVideosBackend(query: string): Promise<YouTubeVideo
     
     if (!detailsResponse.ok) {
         throw new Error(detailsData.error?.message || 'Failed to fetch video details.');
+    }
+    
+    // Safety check to prevent crash if 'items' is missing
+    if (!detailsData.items) {
+        return [];
     }
 
     return detailsData.items
