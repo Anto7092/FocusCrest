@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith Study</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* Custom Fonts & Global Styles */
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      /* Futuristic Animations */
+      @keyframes futuristicViewTransition {
+        from {
+          opacity: 0;
+          transform: perspective(1200px) rotateX(-30deg) scale(0.9);
+          filter: blur(15px) brightness(1.5);
+        }
+        to {
+          opacity: 1;
+          transform: perspective(1200px) rotateX(0deg) scale(1);
+          filter: blur(0) brightness(1);
+        }
+      }
+      .animate-dynamicViewTransition {
+        animation: futuristicViewTransition 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+        transform-style: preserve-3d; /* Enables 3D transforms for child elements */
+      }
+
+      @keyframes futuristicModalOpen {
+        from {
+          opacity: 0;
+          transform: perspective(800px) translateY(50px) rotateX(-15deg) scale(0.95);
+          filter: blur(8px);
+        }
+        to {
+          opacity: 1;
+          transform: perspective(800px) translateY(0) rotateX(0deg) scale(1);
+          filter: blur(0);
+        }
+      }
+      .animate-futuristicModalOpen {
+        animation: futuristicModalOpen 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+      }
+
+      @keyframes backdropFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-backdropFadeIn {
+        animation: backdropFadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+      }
+      /* End Futuristic Animations */
+
+      .texture-overlay {
+        position: relative;
+        background-color: #0f172a; /* slate-900 */
+      }
+      .texture-overlay::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Notes View Paper Background */
+      .paper-background {
+        --paper-color: #fcfaf4;
+        --line-color: rgba(203, 213, 225, 0.9);
+        --line-height: 1.75rem; /* Matches Tailwind's text-lg */
+
+        background-color: var(--paper-color);
+        background-image: 
+          repeating-linear-gradient(
+              to bottom,
+              transparent,
+              transparent calc(var(--line-height) - 1px),
+              var(--line-color) calc(var(--line-height) - 1px),
+              var(--line-color) var(--line-height)
+          );
+        background-size: 100% var(--line-height);
+        background-position-y: 0.75rem; /* Aligns lines with pt-3 on the editor div */
+        line-height: var(--line-height);
+        color: #334155;
+      }
+      
+      /* Rich text styles on paper */
+      .paper-background b, .paper-background strong { color: #1e3a8a; }
+      .paper-background i, .paper-background em { color: #1e3a8a; }
+      .paper-background u { text-decoration-color: #1e3a8a; text-decoration-thickness: 1.5px; }
+
+      /* Notes View Placeholder */
+      .editor-placeholder:empty::before {
+        content: attr(data-placeholder);
+        color: #64748b; /* slate-500 */
+        position: absolute;
+        pointer-events: none;
+        user-select: none;
+        /* The editor div has px-6 (1.5rem) and pt-3 (0.75rem) */
+        left: 1.5rem;
+        top: 0.75rem;
+      }
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://aistudiocdn.com/react@^19.1.1/",
+        "react": "https://aistudiocdn.com/react@^19.1.1",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+      }
+    }
+    </script>
+</head>
+<body class="bg-slate-900 antialiased">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
