@@ -13,9 +13,6 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- In-browser TSX/JSX compiler -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
       /* Custom Fonts & Global Styles */
       body {
@@ -119,15 +116,16 @@
         top: 0.75rem;
       }
     </style>
-
-    <script type="importmap">
+<script type="importmap">
 {
   "imports": {
+    "http": "https://aistudiocdn.com/http@^0.0.1-security",
     "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "react": "https://aistudiocdn.com/react@^19.1.1",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "http": "https://aistudiocdn.com/http@^0.0.1-security"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
+    "vite": "https://aistudiocdn.com/vite@^7.1.5",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.2"
   }
 }
 </script>
@@ -135,6 +133,6 @@
 <body class="bg-slate-900 antialiased">
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
-  <script type="text/babel" data-presets="react,typescript" src="/index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
 </body>
 </html>
