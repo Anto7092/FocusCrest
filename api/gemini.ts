@@ -113,63 +113,77 @@ async function performChatSearchBackend(history: any[], message: string, genAI: 
     return response.text || "I am sorry, but I could not generate a response. Please try again.";
 }
 
-async function safeYouTubeFetch(url: string) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        let errorText = await response.text();
-        try {
-            const errorJson = JSON.parse(errorText);
-            const message = errorJson.error?.message || 'An unknown YouTube API error occurred.';
-            throw new Error(message);
-        } catch (e) {
-            throw new Error('The YouTube API returned an unexpected response.');
-        }
-    }
-    return response.json();
-}
+/**
+ * Parses an ISO 8601 duration string into seconds.
+ * @param isoDuration The duration string (e.g., "PT1M30S").
+ * @returns The total duration in seconds.
+ */
+const parseISO8601Duration = (isoDuration: string): number => {
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+    const matches = isoDuration.match(regex);
+    if (!matches) return 0;
+    const hours = parseInt(matches[1] || '0', 10);
+    const minutes = parseInt(matches[2] || '0', 10);
+    const seconds = parseInt(matches[3] || '0', 10);
+    return (hours * 3600) + (minutes * 60) + seconds;
+};
 
 /**
- * Radically simplified function to find educational videos.
- * It makes a single API call and is much faster and more reliable.
+ * Finds educational YouTube videos by using a two-step process to reliably filter out Shorts.
  */
 async function findEducationalVideosBackend(query: string, apiKey: string): Promise<YouTubeVideo[]> {
     try {
         const educationalQuery = `${query} tutorial lecture course documentary explanation`;
+        
+        // Step 1: Search for up to 50 video IDs
         const searchParams = new URLSearchParams({
             part: 'snippet',
             q: educationalQuery,
-            maxResults: '25', // Fetch more to filter out shorts
+            maxResults: '50',
             type: 'video',
             videoEmbeddable: 'true',
             key: apiKey,
         });
         const searchUrl = `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`;
-        const searchData = await safeYouTubeFetch(searchUrl);
+        const searchResponse = await fetch(searchUrl);
+        if (!searchResponse.ok) throw new Error("YouTube API search request failed.");
+        const searchData = await searchResponse.json();
 
-        if (!searchData || !Array.isArray(searchData.items)) {
-            // If the YouTube API returns an unexpected format, return an empty list.
-            return [];
-        }
+        if (!searchData?.items?.length) return [];
 
-        // Filter out shorts by checking the title
-        const nonShorts = searchData.items.filter((item: any) => {
-            const title = item?.snippet?.title || '';
-            return !title.toLowerCase().includes('#shorts');
+        const videoIds = searchData.items.map((item: any) => item.id.videoId).filter(Boolean);
+        if (videoIds.length === 0) return [];
+
+        // Step 2: Fetch details for the found videos to get their duration
+        const detailsParams = new URLSearchParams({
+            part: 'snippet,contentDetails',
+            id: videoIds.join(','),
+            key: apiKey,
         });
+        const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?${detailsParams.toString()}`;
+        const detailsResponse = await fetch(detailsUrl);
+        if (!detailsResponse.ok) throw new Error("YouTube API details request failed.");
+        const detailsData = await detailsResponse.json();
 
-        // Map to our video format, filter invalid ones, and take the first 10
-        return nonShorts
-            .slice(0, 10)
+        if (!detailsData?.items?.length) return [];
+
+        // Step 3: Filter out videos that are 60 seconds or less and take the top 10
+        const fullLengthVideos = detailsData.items
+            .filter((item: any) => {
+                const duration = item?.contentDetails?.duration;
+                if (!duration) return false;
+                const durationInSeconds = parseISO8601Duration(duration);
+                return durationInSeconds > 60;
+            })
             .map((item: any) => ({
-                videoId: item?.id?.videoId,
-                title: item?.snippet?.title,
-            }))
-            .filter((video: Partial<YouTubeVideo>) => video.videoId && video.title); // Ensure results are valid
+                videoId: item.id,
+                title: item.snippet.title,
+            }));
+            
+        return fullLengthVideos.slice(0, 10);
             
     } catch (error) {
-        // If any error occurs (e.g., bad API key, network issue), return an empty array.
-        // This prevents the server from crashing and allows the UI to show a "No videos found" message.
-        console.error("EduTube Search Error:", error);
-        return [];
+        console.error("EduTube Search Error (Backend):", error);
+        return []; // Fail gracefully by returning an empty array
     }
 }

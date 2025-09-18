@@ -3,7 +3,7 @@ import { Sidebar } from './components/Sidebar';
 import { BrowserView as AssistantView } from './components/BrowserView';
 import { MiniYouTubeView } from './components/MiniYouTubeView';
 import { PomodoroView } from './components/PomodoroView';
-import { CompanionPanelView } from './components/CompanionPanelView';
+import { NotesView } from './components/NotesView';
 import { FocusMusicView } from './components/FocusMusicView';
 import { GlobalControls } from './components/GlobalControls';
 import type { View, PomodoroState } from './types';
@@ -30,7 +30,6 @@ const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactN
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<View>('assistant');
-  const [isCompanionOpen, setIsCompanionOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Global Pomodoro State
@@ -92,26 +91,20 @@ const App: React.FC = () => {
     localStorage.setItem(POMODORO_SETTINGS_KEY, JSON.stringify(pomodoroDurations));
   }, [pomodoroDurations]);
 
-  // Listen for 'notes-updated' event to open the companion panel automatically.
+  // Listen for 'notes-updated' event to switch to the notes view automatically.
   useEffect(() => {
     const handleNotesUpdate = () => {
-        if (!isCompanionOpen) {
-            setIsCompanionOpen(true);
-        }
+        setActiveView('notes');
     };
     window.addEventListener('notes-updated', handleNotesUpdate);
     return () => {
         window.removeEventListener('notes-updated', handleNotesUpdate);
     };
-  }, [isCompanionOpen]);
+  }, []);
   
 
   const handleSetView = useCallback((view: View) => {
-    if (view === 'notes') {
-      setIsCompanionOpen(prev => !prev);
-    } else {
-      setActiveView(view);
-    }
+    setActiveView(view);
   }, []);
 
   const fullDuration = pomodoroDurations[pomodoroState.mode] * 60;
@@ -123,7 +116,6 @@ const App: React.FC = () => {
       <Sidebar 
         activeView={activeView} 
         setActiveView={handleSetView} 
-        isCompanionOpen={isCompanionOpen}
         isSidebarOpen={isSidebarOpen}
       />
       <div className="flex-1 flex flex-col min-w-0">
@@ -135,7 +127,7 @@ const App: React.FC = () => {
           >
             {isSidebarOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
           </button>
-          <div className={`w-full flex-1 min-h-0 transition-all duration-300 ${isCompanionOpen ? 'md:w-2/3' : 'w-full'}`}>
+          <div className="w-full flex-1 min-h-0">
             <ViewWrapper id="assistant" activeView={activeView}><AssistantView /></ViewWrapper>
             <ViewWrapper id="youtube" activeView={activeView}><MiniYouTubeView /></ViewWrapper>
             <ViewWrapper id="pomodoro" activeView={activeView}>
@@ -149,8 +141,10 @@ const App: React.FC = () => {
             <ViewWrapper id="music" activeView={activeView}>
               <FocusMusicView />
             </ViewWrapper>
+             <ViewWrapper id="notes" activeView={activeView}>
+              <NotesView />
+            </ViewWrapper>
           </div>
-          <CompanionPanelView isOpen={isCompanionOpen} onClose={() => setIsCompanionOpen(false)} />
         </main>
         {showGlobalControls && (
           <GlobalControls 

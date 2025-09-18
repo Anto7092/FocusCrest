@@ -58,9 +58,25 @@ export async function performEducationalSearch(history: any[], message: string):
     }
 }
 
+/**
+ * Parses an ISO 8601 duration string into seconds.
+ * @param isoDuration The duration string (e.g., "PT1M30S").
+ * @returns The total duration in seconds.
+ */
+const parseISO8601Duration = (isoDuration: string): number => {
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+    const matches = isoDuration.match(regex);
+    if (!matches) return 0;
+    const hours = parseInt(matches[1] || '0', 10);
+    const minutes = parseInt(matches[2] || '0', 10);
+    const seconds = parseInt(matches[3] || '0', 10);
+    return (hours * 3600) + (minutes * 60) + seconds;
+};
+
 
 /**
- * Finds educational YouTube videos by calling the YouTube Data API v3 directly.
+ * Finds educational YouTube videos, filtering out shorts.
+ * This now uses a two-step process to get video durations and filter reliably.
  *
  * @param query The user's search term (e.g., "ray optics").
  * @returns A promise that resolves to an array of YouTubeVideo objects.
@@ -68,47 +84,75 @@ export async function performEducationalSearch(history: any[], message: string):
 export const findEducationalVideos = async (query: string): Promise<YouTubeVideo[]> => {
     try {
         const educationalQuery = `${query} tutorial lecture course documentary explanation`;
+        
+        // Step 1: Search for video IDs (fetch a larger number to have a good pool after filtering)
         const searchParams = new URLSearchParams({
             part: 'snippet',
             q: educationalQuery,
-            maxResults: '25', // Fetch more to filter out shorts
+            maxResults: '50', // Fetch up to 50 results
             type: 'video',
             videoEmbeddable: 'true',
             key: YOUTUBE_API_KEY,
         });
         const searchUrl = `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`;
 
-        const response = await fetch(searchUrl);
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({})); // Gracefully handle non-JSON error responses
+        const searchResponse = await fetch(searchUrl);
+        if (!searchResponse.ok) {
+            const errorData = await searchResponse.json().catch(() => ({}));
             const reason = errorData.error?.errors?.[0]?.reason;
             if (reason === 'quotaExceeded') {
                 throw new Error('The daily YouTube API quota has been exceeded. Please try again tomorrow.');
             }
-            const message = errorData.error?.message || 'The YouTube API returned an error. Check the API key and ensure the YouTube Data API v3 is enabled in your Google Cloud console.';
+            const message = errorData.error?.message || 'The YouTube API returned an error during search. Check the API key.';
             throw new Error(message);
         }
         
-        const searchData = await response.json();
+        const searchData = await searchResponse.json();
 
-        if (!searchData || !Array.isArray(searchData.items)) {
+        if (!searchData || !Array.isArray(searchData.items) || searchData.items.length === 0) {
             return [];
         }
 
-        // Filter out shorts by checking title, then take the first 10 results.
-        const nonShorts = searchData.items.filter((item: any) => {
-            const title = item?.snippet?.title || '';
-            // A common pattern for shorts is the #shorts tag.
-            return !title.toLowerCase().includes('#shorts');
-        });
+        const videoIds = searchData.items.map((item: any) => item.id.videoId).filter(Boolean);
+        if (videoIds.length === 0) {
+            return [];
+        }
 
-        return nonShorts
-            .slice(0, 10) // Limit to a maximum of 10 videos
+        // Step 2: Fetch video details to get durations
+        const detailsParams = new URLSearchParams({
+            part: 'snippet,contentDetails',
+            id: videoIds.join(','),
+            key: YOUTUBE_API_KEY,
+        });
+        const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?${detailsParams.toString()}`;
+
+        const detailsResponse = await fetch(detailsUrl);
+        if (!detailsResponse.ok) {
+            // If this second call fails, it's better to return empty than crash.
+            console.error("Failed to fetch video details from YouTube API.");
+            return [];
+        }
+
+        const detailsData = await detailsResponse.json();
+
+        if (!detailsData || !Array.isArray(detailsData.items)) {
+            return [];
+        }
+
+        // Step 3: Filter out shorts (duration <= 60s) and map the results
+        const fullLengthVideos = detailsData.items
+            .filter((item: any) => {
+                const duration = item?.contentDetails?.duration;
+                if (!duration) return false;
+                const durationInSeconds = parseISO8601Duration(duration);
+                return durationInSeconds > 60;
+            })
             .map((item: any) => ({
-                videoId: item?.id?.videoId,
-                title: item?.snippet?.title,
-            }))
-            .filter((video: Partial<YouTubeVideo>) => video.videoId && video.title);
+                videoId: item.id,
+                title: item.snippet.title,
+            }));
+            
+        return fullLengthVideos.slice(0, 10); // Return the top 10 from the filtered list
             
     } catch (error) {
         console.error("YouTube API Error:", error);

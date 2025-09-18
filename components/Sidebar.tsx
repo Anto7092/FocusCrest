@@ -5,7 +5,6 @@ import { AssistantIcon, YouTubeIcon, TimerIcon, NotesIcon, MusicIcon, AppLogo } 
 interface SidebarProps {
   activeView: View;
   setActiveView: (view: View) => void;
-  isCompanionOpen: boolean;
   isSidebarOpen: boolean;
 }
 
@@ -31,7 +30,7 @@ const SidebarButton: React.FC<{
   );
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isCompanionOpen, isSidebarOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarOpen }) => {
   return (
     <nav className={`flex-shrink-0 flex flex-col w-64 h-full bg-slate-900/40 backdrop-blur-lg border-r border-white/10 shadow-2xl z-20 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : '-ml-64'}`}>
       <div className="flex items-center justify-center h-20 px-4 border-b border-white/10">
@@ -57,10 +56,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isC
           onClick={() => setActiveView('pomodoro')}
         />
         <SidebarButton 
-          label="Notes"
+          label="Scratch Pad"
           icon={<NotesIcon className="w-6 h-6" />}
-          isActive={isCompanionOpen} // Active state depends on companion panel
-          onClick={() => setActiveView('notes')} // 'notes' view now toggles the panel
+          isActive={activeView === 'notes'}
+          onClick={() => setActiveView('notes')}
         />
         <SidebarButton 
           label="Focus Music"
