@@ -71,7 +71,7 @@ export const findEducationalVideos = async (query: string): Promise<YouTubeVideo
         const searchParams = new URLSearchParams({
             part: 'snippet',
             q: educationalQuery,
-            maxResults: '20',
+            maxResults: '25', // Fetch more to filter out shorts
             type: 'video',
             videoEmbeddable: 'true',
             key: YOUTUBE_API_KEY,
@@ -80,7 +80,11 @@ export const findEducationalVideos = async (query: string): Promise<YouTubeVideo
 
         const response = await fetch(searchUrl);
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({})); // Gracefully handle non-JSON error responses
+            const reason = errorData.error?.errors?.[0]?.reason;
+            if (reason === 'quotaExceeded') {
+                throw new Error('The daily YouTube API quota has been exceeded. Please try again tomorrow.');
+            }
             const message = errorData.error?.message || 'The YouTube API returned an error. Check the API key and ensure the YouTube Data API v3 is enabled in your Google Cloud console.';
             throw new Error(message);
         }
@@ -91,7 +95,15 @@ export const findEducationalVideos = async (query: string): Promise<YouTubeVideo
             return [];
         }
 
-        return searchData.items
+        // Filter out shorts by checking title, then take the first 10 results.
+        const nonShorts = searchData.items.filter((item: any) => {
+            const title = item?.snippet?.title || '';
+            // A common pattern for shorts is the #shorts tag.
+            return !title.toLowerCase().includes('#shorts');
+        });
+
+        return nonShorts
+            .slice(0, 10) // Limit to a maximum of 10 videos
             .map((item: any) => ({
                 videoId: item?.id?.videoId,
                 title: item?.snippet?.title,

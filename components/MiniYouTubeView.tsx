@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { findEducationalVideos } from '../services/geminiService';
 import type { YouTubeVideo } from '../types';
-import { PlayIcon, ErrorIcon, InfoIcon } from './icons';
+import { PlayIcon, ErrorIcon } from './icons';
 
 // The "watch view" for playing a selected video distraction-free
 const WatchView: React.FC<{
@@ -30,13 +30,6 @@ const WatchView: React.FC<{
             </div>
             <h1 className="w-full max-w-4xl text-xl font-bold text-white text-left">{video.title}</h1>
         </div>
-    </div>
-);
-
-const SecurityWarning: React.FC = () => (
-    <div className="p-3 bg-yellow-500/20 text-yellow-100 border-b border-yellow-500/30 flex items-center justify-center gap-3 text-sm z-20">
-        <InfoIcon className="h-5 w-5 text-yellow-300 flex-shrink-0" />
-        <p><b>Security Warning:</b> API keys are exposed in the browser. Do not deploy this publicly with billable keys.</p>
     </div>
 );
 
@@ -118,7 +111,6 @@ export const MiniYouTubeView: React.FC = () => {
 
     return (
         <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-hidden">
-            <SecurityWarning />
             <div className="p-4 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10">
                 <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
                     <div className="relative">

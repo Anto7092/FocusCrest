@@ -16,6 +16,10 @@ const staticFocusMusicLibrary: YouTubeVideo[] = [
     { videoId: '4GnVDPD01as', title: 'lofi hip hop radio - beats to relax/study to (New)' },
     { videoId: 'UpPmnnJcy6A', title: '4K Cozy Coffee Shop Ambience' },
     { videoId: 'mdJU5ogrPMY', title: 'Deep Focus - Music For Studying, Concentration' },
+    { videoId: 'fR50AvsX914', title: 'Lofi Music for Studying & Relaxing' },
+    { videoId: 'l-2hOKIrIyI', title: 'Rain Sounds for Sleep & Study' },
+    { videoId: '5i0Z0E5yaYI', title: 'Relaxing Jazz Piano Radio' },
+    { videoId: '49hHIbJQEB0', title: 'Ambient Study Music to Concentrate' },
 ];
 
 

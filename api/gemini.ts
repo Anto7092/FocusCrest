@@ -138,7 +138,7 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
         const searchParams = new URLSearchParams({
             part: 'snippet',
             q: educationalQuery,
-            maxResults: '20', // Reduced for performance
+            maxResults: '25', // Fetch more to filter out shorts
             type: 'video',
             videoEmbeddable: 'true',
             key: apiKey,
@@ -151,8 +151,15 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
             return [];
         }
 
-        // Directly map from the search results, which is much more robust.
-        return searchData.items
+        // Filter out shorts by checking the title
+        const nonShorts = searchData.items.filter((item: any) => {
+            const title = item?.snippet?.title || '';
+            return !title.toLowerCase().includes('#shorts');
+        });
+
+        // Map to our video format, filter invalid ones, and take the first 10
+        return nonShorts
+            .slice(0, 10)
             .map((item: any) => ({
                 videoId: item?.id?.videoId,
                 title: item?.snippet?.title,
