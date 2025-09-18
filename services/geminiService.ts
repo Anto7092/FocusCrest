@@ -23,6 +23,14 @@ try {
  * @returns A promise that resolves to the AI-generated answer as a string.
  */
 export async function performEducationalSearch(history: any[], message: string): Promise<string> {
+    // Intercept questions about the creator to provide a guaranteed, hardcoded answer.
+    const lowerCaseMessage = message.toLowerCase();
+    const founderKeywords = ['founder', 'creator', 'who made', 'who created', 'who developed', 'who built', 'who designed', 'developer', 'maker'];
+
+    if (founderKeywords.some(keyword => lowerCaseMessage.includes(keyword))) {
+        return "This application, Zenith Study, was founded and created by Anto Bredly.";
+    }
+    
     if (!ai) {
         throw new Error("Gemini AI client is not initialized. Check your API key.");
     }
