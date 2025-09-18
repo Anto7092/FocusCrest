@@ -17,18 +17,19 @@ try {
 
 
 /**
- * Sends a message directly to the Gemini API, including conversation history.
+ * Sends a message to the Gemini API and streams the response.
  * @param history The previous messages in the conversation.
  * @param message The new user message.
- * @returns A promise that resolves to the AI-generated answer as a string.
+ * @returns An async generator that yields the AI-generated answer as chunks of strings.
  */
-export async function performEducationalSearch(history: any[], message: string): Promise<string> {
+export async function* performEducationalSearch(history: any[], message:string): AsyncGenerator<string> {
     // Intercept questions about the creator to provide a guaranteed, hardcoded answer.
     const lowerCaseMessage = message.toLowerCase();
     const founderKeywords = ['founder', 'creator', 'who made', 'who created', 'who developed', 'who built', 'who designed', 'developer', 'maker'];
 
     if (founderKeywords.some(keyword => lowerCaseMessage.includes(keyword))) {
-        return "This application, Zenith Study, was founded and created by Anto Bredly.";
+        yield "This application, Zenith Study, was founded and created by Anto Bredly.";
+        return;
     }
     
     if (!ai) {
@@ -41,7 +42,7 @@ export async function performEducationalSearch(history: any[], message: string):
             { role: 'user', parts: [{ text: message }] }
         ];
 
-        const response = await ai.models.generateContent({
+        const responseStream = await ai.models.generateContentStream({
             model: 'gemini-2.5-flash',
             contents: contents,
             config: {
@@ -50,11 +51,11 @@ export async function performEducationalSearch(history: any[], message: string):
             },
         });
         
-        const responseText = response.text;
-        if (!responseText) {
-             throw new Error("The AI returned an empty response.");
+        for await (const chunk of responseStream) {
+            if (chunk && chunk.text) {
+                yield chunk.text;
+            }
         }
-        return responseText;
     } catch (error) {
         console.error("Gemini API Error:", error);
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred with the AI service.";

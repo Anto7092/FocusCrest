@@ -3,26 +3,31 @@ import { performEducationalSearch } from '../services/geminiService';
 import { ErrorIcon, AssistantIcon, SaveToNotesIcon } from './icons';
 import type { ChatMessage } from '../types';
 
-const NOTES_STORAGE_KEY = 'study-focus-notes';
-
-// A simple markdown-to-HTML converter for saving notes
+// A more robust markdown-to-HTML converter for saving notes.
+// This version processes inline markdown before wrapping in block-level tags,
+// which prevents formatting from being misinterpreted as plain text.
 const markdownToHtml = (markdown: string): string => {
+    // Function to process inline markdown (bold, italic)
+    const processInline = (text: string) => {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
+    };
+
     let html = markdown
         .split('\n')
         .map(line => {
-            if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`;
-            if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`;
-            if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`;
-            if (line.startsWith('* ') || line.startsWith('- ')) return `<li>${line.substring(2)}</li>`;
-            return line.trim() === '' ? '' : `<p>${line}</p>`;
+            if (line.startsWith('### ')) return `<h3>${processInline(line.substring(4))}</h3>`;
+            if (line.startsWith('## ')) return `<h2>${processInline(line.substring(3))}</h2>`;
+            if (line.startsWith('# ')) return `<h1>${processInline(line.substring(2))}</h1>`;
+            if (line.startsWith('* ') || line.startsWith('- ')) return `<li>${processInline(line.substring(2))}</li>`;
+            // For regular paragraphs, process inline markdown then wrap in <p>
+            return line.trim() === '' ? '' : `<p>${processInline(line)}</p>`;
         })
         .join('');
 
+    // Wrap consecutive list items in <ul> tags
     html = html.replace(/(<li>.*?<\/li>)+/gs, '<ul>$&</ul>');
-
-    html = html
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
 
     return html;
 };
@@ -113,44 +118,62 @@ export const BrowserView: React.FC = () => {
   }, [chatHistory, isLoading]);
 
   const handleSaveToNotes = (content: string) => {
-      const existingNotes = localStorage.getItem(NOTES_STORAGE_KEY) || '';
+      // Prepare the HTML content to be appended in the Notes view.
       const contentAsHtml = markdownToHtml(content);
-      const separator = existingNotes ? '<hr style="border-color: #475569; margin: 1rem 0;" />' : '';
+      const separator = '<hr style="border-color: #475569; margin: 1rem 0;" />';
       const timestamp = new Date().toLocaleString();
-      const newNotes = `${existingNotes}${separator}<p><em>Saved from AI Assistant on ${timestamp}:</em></p>${contentAsHtml}`;
+      const contentToAppend = `${separator}<p><em>Saved from AI Assistant on ${timestamp}:</em></p>${contentAsHtml}`;
       
-      localStorage.setItem(NOTES_STORAGE_KEY, newNotes);
+      // Dispatch a custom event with the content for NotesView to handle.
+      window.dispatchEvent(new CustomEvent('save-to-notes', { detail: contentToAppend }));
+
+      // Dispatch the original event to trigger the view switch in App.tsx.
       window.dispatchEvent(new CustomEvent('notes-updated'));
 
+      // Provide user feedback.
       setSavedMessage(content);
       setTimeout(() => setSavedMessage(null), 2000);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
-      e.preventDefault();
-      const query = currentQuery.trim();
-      if (!query || isLoading) return;
+    e.preventDefault();
+    const query = currentQuery.trim();
+    if (!query || isLoading) return;
 
-      setError(null);
-      const newUserMessage: ChatMessage = { role: 'user', parts: query };
-      setChatHistory(prev => [...prev, newUserMessage]);
-      setCurrentQuery('');
-      setIsLoading(true);
+    setError(null);
+    
+    const newUserMessage: ChatMessage = { role: 'user', parts: query };
+    // This is the history that will be sent to the API
+    const historyForApi = [...chatHistory, newUserMessage].map(msg => ({ role: msg.role, parts: [{ text: msg.parts }] }));
+    
+    // Add user message and an empty model message placeholder to state
+    setChatHistory(prev => [...prev, newUserMessage, { role: 'model', parts: '' }]);
+    setCurrentQuery('');
+    setIsLoading(true);
 
-      try {
-          const historyForApi = chatHistory.map(msg => ({ role: msg.role, parts: [{ text: msg.parts }] }));
-          const answer = await performEducationalSearch(historyForApi, query);
-          const newModelMessage: ChatMessage = { role: 'model', parts: answer };
-          setChatHistory(prev => [...prev, newModelMessage]);
-      } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-          setError(`AI Assistant Error: ${errorMessage}`);
-          // Remove the user's message from history if the call fails
-          setChatHistory(prev => prev.slice(0, -1));
-      } finally {
-          setIsLoading(false);
-      }
+    try {
+        const stream = performEducationalSearch(historyForApi, query);
+
+        for await (const chunk of stream) {
+            setChatHistory(prev => {
+                const lastMessage = prev[prev.length - 1];
+                if (lastMessage && lastMessage.role === 'model') {
+                    const updatedLastMessage = { ...lastMessage, parts: lastMessage.parts + chunk };
+                    return [...prev.slice(0, -1), updatedLastMessage];
+                }
+                return prev;
+            });
+        }
+    } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+        setError(`AI Assistant Error: ${errorMessage}`);
+        // On error, remove the user message and the placeholder model message
+        setChatHistory(prev => prev.slice(0, -2));
+    } finally {
+        setIsLoading(false);
+    }
   };
+
 
   return (
     <div className="flex flex-col h-full bg-slate-800/20">
@@ -169,18 +192,29 @@ export const BrowserView: React.FC = () => {
             <div className={`max-w-2xl p-4 rounded-xl ${msg.role === 'user' ? 'bg-emerald-500/20 text-slate-100 rounded-br-none' : 'bg-slate-700/50 text-slate-200 rounded-bl-none'}`}>
               {msg.role === 'model' ? (
                 <div>
-                    <MarkdownRenderer content={msg.parts} />
-                    <div className="text-right mt-2">
-                        <button 
-                            onClick={() => handleSaveToNotes(msg.parts)} 
-                            className="inline-flex items-center gap-2 px-3 py-1 text-xs bg-slate-600/50 text-slate-300 rounded-full hover:bg-slate-500/50 transition-colors disabled:opacity-50"
-                            disabled={savedMessage === msg.parts}
-                            aria-label="Save to Notes"
-                        >
-                           <SaveToNotesIcon className="w-4 h-4" />
-                           {savedMessage === msg.parts ? 'Saved!' : 'Save to Notes'}
-                        </button>
-                    </div>
+                    {msg.parts ? (
+                        <MarkdownRenderer content={msg.parts} />
+                    ) : (
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-0"></div>
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-150"></div>
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-300"></div>
+                        </div>
+                    )}
+                    
+                    {(!isLoading || index < chatHistory.length - 1) && msg.parts.length > 0 && (
+                        <div className="text-right mt-2">
+                            <button 
+                                onClick={() => handleSaveToNotes(msg.parts)} 
+                                className="inline-flex items-center gap-2 px-3 py-1 text-xs bg-slate-600/50 text-slate-300 rounded-full hover:bg-slate-500/50 transition-colors disabled:opacity-50"
+                                disabled={savedMessage === msg.parts}
+                                aria-label="Save to Notes"
+                            >
+                               <SaveToNotesIcon className="w-4 h-4" />
+                               {savedMessage === msg.parts ? 'Saved!' : 'Save to Notes'}
+                            </button>
+                        </div>
+                    )}
                 </div>
               ) : (
                 <p>{msg.parts}</p>
@@ -188,16 +222,6 @@ export const BrowserView: React.FC = () => {
             </div>
           </div>
         ))}
-
-        {isLoading && (
-            <div className="flex justify-start">
-                <div className="max-w-2xl p-4 rounded-xl bg-slate-700/50 rounded-bl-none flex items-center gap-3">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-0"></div>
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-150"></div>
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-300"></div>
-                </div>
-            </div>
-        )}
         <div ref={scrollRef}></div>
       </div>
 
