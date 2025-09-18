@@ -27,6 +27,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Initialize the client safely inside the handler
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
+        if (!req.body) {
+            return res.status(400).json({ error: 'Missing request body' });
+        }
         const { action, payload } = req.body;
 
         if (!action) {
@@ -35,14 +38,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         switch (action) {
             case 'isEducationalQuery':
+                if (!payload || typeof payload.query !== 'string') {
+                    return res.status(400).json({ error: 'Invalid payload for isEducationalQuery' });
+                }
                 const isEducational = await isEducationalQueryBackend(payload.query, ai);
                 return res.status(200).json({ result: isEducational });
 
             case 'performSearch':
+                if (!payload || !Array.isArray(payload.history) || typeof payload.message !== 'string') {
+                    return res.status(400).json({ error: 'Invalid payload for performSearch' });
+                }
                 const answer = await startOrContinueChatBackend(payload.history, payload.message, ai);
                 return res.status(200).json({ result: answer });
             
             case 'findEducationalVideos':
+                if (!payload || typeof payload.query !== 'string') {
+                    return res.status(400).json({ error: 'Invalid payload for findEducationalVideos' });
+                }
                 const videos = await findEducationalVideosBackend(payload.query, YOUTUBE_API_KEY);
                 return res.status(200).json({ result: videos });
 
@@ -139,7 +151,11 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
         throw new Error(searchData.error?.message || 'Failed to search for videos.');
     }
 
-    const videoIds = searchData.items?.map((item: any) => item.id.videoId).join(',');
+    const videoIds = searchData.items
+        ?.map((item: any) => item?.id?.videoId)
+        .filter(Boolean) // Filter out any null/undefined IDs from malformed items
+        .join(',');
+
     if (!videoIds) return [];
 
     const detailsParams = new URLSearchParams({
@@ -161,15 +177,16 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
 
     return detailsData.items
         .filter((item: any) => {
-            const duration = item.contentDetails?.duration;
+            const duration = item?.contentDetails?.duration;
             if (!duration) return false;
             const durationInSeconds = parseISO8601Duration(duration);
             return durationInSeconds > 65;
         })
         .map((item: any) => ({
-            videoId: item.id,
-            title: item.snippet.title,
-        }));
+            videoId: item?.id,
+            title: item?.snippet?.title,
+        }))
+        .filter((video: Partial<YouTubeVideo>) => video.videoId && video.title);
 }
 
 async function findFocusMusicBackend(apiKey: string): Promise<YouTubeVideo[]> {
@@ -198,8 +215,8 @@ async function findFocusMusicBackend(apiKey: string): Promise<YouTubeVideo[]> {
 
     return data.items
         .map((item: any) => ({
-            videoId: item.id.videoId,
-            title: item.snippet.title,
+            videoId: item?.id?.videoId,
+            title: item?.snippet?.title,
         }))
-        .filter((video: YouTubeVideo) => video.videoId && video.title);
+        .filter((video: Partial<YouTubeVideo>) => video.videoId && video.title);
 }
