@@ -3,15 +3,49 @@ import * as React from 'react';
 type IconProps = React.SVGProps<SVGSVGElement>;
 
 export const AppLogo: React.FC<IconProps> = (props) => (
-    <svg {...props} viewBox="0 0 180 32" xmlns="http://www.w3.org/2000/svg" aria-label="Zenith Study Logo">
-        <g transform="translate(0, 4) scale(1.1)">
-            <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" fill="#34D399" />
-            <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" fill="#34D399" />
+    <svg {...props} viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg" aria-label="Zenith Study Logo">
+        <defs>
+            <linearGradient id="zenithLogoGradient" x1="0.5" y1="0" x2="0.5" y2="1">
+                <stop offset="0%" stopColor="#E0F2FE" />
+                <stop offset="100%" stopColor="#7DD3FC" />
+            </linearGradient>
+        </defs>
+        
+        {/* Icon part */}
+        <g transform="translate(120, 40) scale(1.3)">
+            {/* Fanned pages (bottom layer) */}
+            <path d="M0,0 L-40,-25 L-25,0 Z" fill="url(#zenithLogoGradient)" opacity="0.6" />
+            <path d="M0,0 L-28,-20 L-13,0 Z" fill="url(#zenithLogoGradient)" opacity="0.7" />
+            <path d="M0,0 L-15,-15 L-2,0 Z" fill="url(#zenithLogoGradient)" opacity="0.8" />
+            <path d="M0,0 L15,-15 L2,0 Z" fill="url(#zenithLogoGradient)" opacity="0.8" />
+            <path d="M0,0 L28,-20 L13,0 Z" fill="url(#zenithLogoGradient)" opacity="0.7" />
+            <path d="M0,0 L40,-25 L25,0 Z" fill="url(#zenithLogoGradient)" opacity="0.6" />
+
+            {/* Fanned pages (top layer) */}
+            <path d="M0,-12 L-30,-25 L-5,-12 Z" fill="#E0F2FE" />
+            <path d="M0,-12 L30,-25 L5,-12 Z" fill="#E0F2FE" />
+            
+            {/* Arrow in the middle */}
+            <path d="M0,-22 L-6,-15 L6,-15 Z" fill="#FFFFFF" />
+            
+            {/* Sun rays */}
+            <g stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round">
+                <path d="M0,-25 L0,-35" />         {/* Center */}
+                <path d="M-5,-24 L-15,-33" />     {/* Inner left */}
+                <path d="M5,-24 L15,-33" />      {/* Inner right */}
+                <path d="M-10,-22 L-25,-28" />    {/* Outer left */}
+                <path d="M10,-22 L25,-28" />     {/* Outer right */}
+            </g>
         </g>
-        <text x="36" y="24" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="bold">
-            <tspan fill="#34D399">Zenith</tspan>
-            <tspan fill="#F3F4F6"> Study</tspan>
-        </text>
+        
+        {/* Text Part */}
+        <g>
+            <text x="50%" y="80" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="30" letterSpacing="-0.5">
+                <tspan fill="#FFFFFF" fontWeight="bold">Zenith</tspan>
+                <tspan fill="#7DD3FC" fontWeight="500">Study</tspan>
+            </text>
+            <line x1="38" y1="88" x2="132" stroke="#FFFFFF" strokeWidth="2.5" />
+        </g>
     </svg>
 );
 
@@ -139,7 +173,14 @@ export const PenIcon: React.FC<IconProps> = (props) => (
 
 export const TextIcon: React.FC<IconProps> = (props) => (
     <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H4.5m3 0h3m-3 0V4.5m0 0v1.125c0 .621.504 1.125 1.125 1.125h3.75c.621 0 1.125-.504 1.125-1.125V4.5m-3.75 0v.75m0-1.125v.75m1.5-1.5V4.5m0 0V3.75m0 0h3m-3 0h-3m3 0h3M3 3.75h.75m-3.75 0h.75m16.5 0h.75m-3.75 0h.75M3 12h18M3 12v9m0 0h18m0 0v-9m0 0H3m18 0v-9m0 0h-3.375a1.125 1.125 0 01-1.125-1.125V3.75m-1.125 0H12m-3.75 0H8.25m1.125 0h3.75M3 12h18" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.75a.75.75 0 0 0-.75-.75H10.5a.75.75 0 0 0-.75.75v.75a.75.75 0 0 0 .75.75h3a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75a.75.75 0 0 0-.75-.75H3a.75.75 0 0 0-.75.75v.75c0 .414.336.75.75.75h.75a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 12.75a.75.75 0 0 0-.75-.75H8.25a.75.75 0 0 0-.75.75v.75c0 .414.336.75.75.75h.75a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12.75a.75.75 0 0 0-.75-.75h-.75a.75.75 0 0 0-.75.75v.75c0 .414.336.75.75.75h.75a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 12.75a.75.75 0 0 0-.75-.75h-.75a.75.75 0 0 0-.75.75v.75c0 .414.336.75.75.75h.75a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 17.25a.75.75 0 0 0-.75-.75H5.25a.75.75 0 0 0-.75.75v.75c0 .414.336.75.75.75h.75a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 17.25a.75.75 0 0 0-.75-.75h-9a.75.75 0 0 0-.75.75v.75c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-.75Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v12.75c0 .621.504 1.125 1.125 1.125Z" />
     </svg>
 );
 
