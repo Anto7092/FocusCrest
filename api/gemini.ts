@@ -75,7 +75,13 @@ async function isEducationalQueryBackend(query: string, genAI: GoogleGenAI): Pro
             },
         });
         
-        const classification = response.text.trim().toUpperCase();
+        const textResponse = response.text;
+        if (!textResponse) {
+            // If the model gives no text response, err on the side of caution and allow the query.
+            return true;
+        }
+        
+        const classification = textResponse.trim().toUpperCase();
         return classification === 'EDUCATIONAL';
     } catch (error) {
         console.error("Gemini query classification failed:", error);
@@ -95,7 +101,8 @@ async function startOrContinueChatBackend(history: any[], message: string, genAI
         });
 
         const response = await chat.sendMessage({ message });
-        return response.text;
+        // Ensure we always return a string, providing a fallback message if the response text is empty.
+        return response.text || "I am sorry, but I could not generate a response. Please try again.";
     } catch (error) {
         console.error("Gemini chat failed:", error);
         throw new Error("The AI-powered search is currently unavailable. Please try again later.");
