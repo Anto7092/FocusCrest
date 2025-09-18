@@ -112,7 +112,9 @@ async function startOrContinueChatBackend(history: any[], message: string, genAI
             history,
         });
 
+        // FIX: The sendMessage method expects an object with a `message` property.
         const response = await chat.sendMessage({ message });
+        
         // Ensure we always return a string, providing a fallback message if the response text is empty.
         return response.text || "I am sorry, but I could not generate a response. Please try again.";
     } catch (error) {
@@ -132,6 +134,27 @@ function parseISO8601Duration(duration: string): number {
     return hours * 3600 + minutes * 60 + seconds;
 }
 
+// A helper function to safely handle fetch responses from YouTube API
+async function safeYouTubeFetch(url: string) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        let errorText = await response.text();
+        try {
+            // Try to parse the error for a more specific message from the API
+            const errorJson = JSON.parse(errorText);
+            const message = errorJson.error?.message || 'An unknown YouTube API error occurred.';
+            console.error("YouTube API Error:", message);
+            throw new Error(message);
+        } catch (e) {
+            // If parsing fails, the error was not JSON (e.g., an HTML page)
+            console.error("Non-JSON YouTube API Error:", errorText);
+            throw new Error('The YouTube API returned an unexpected response.');
+        }
+    }
+    return response.json();
+}
+
+
 async function findEducationalVideosBackend(query: string, apiKey: string): Promise<YouTubeVideo[]> {
     const educationalQuery = `${query} tutorial lecture course documentary explanation class`;
 
@@ -144,16 +167,16 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
         key: apiKey,
     });
     const searchUrl = `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`;
-    const searchResponse = await fetch(searchUrl);
-    const searchData = await searchResponse.json();
+    const searchData = await safeYouTubeFetch(searchUrl);
 
-    if (!searchResponse.ok) {
-        throw new Error(searchData.error?.message || 'Failed to search for videos.');
+    // CRASH-PROOF VALIDATION: Ensure `items` exists and is an array before processing.
+    if (!searchData || !Array.isArray(searchData.items)) {
+        return [];
     }
 
     const videoIds = searchData.items
-        ?.map((item: any) => item?.id?.videoId)
-        .filter(Boolean) // Filter out any null/undefined IDs from malformed items
+        .map((item: any) => item?.id?.videoId)
+        .filter(Boolean)
         .join(',');
 
     if (!videoIds) return [];
@@ -164,14 +187,10 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
         key: apiKey,
     });
     const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?${detailsParams.toString()}`;
-    const detailsResponse = await fetch(detailsUrl);
-    const detailsData = await detailsResponse.json();
+    const detailsData = await safeYouTubeFetch(detailsUrl);
     
-    if (!detailsResponse.ok) {
-        throw new Error(detailsData.error?.message || 'Failed to fetch video details.');
-    }
-    
-    if (!detailsData.items) {
+    // CRASH-PROOF VALIDATION: Ensure `items` exists and is an array on the second API call.
+    if (!detailsData || !Array.isArray(detailsData.items)) {
         return [];
     }
 
@@ -200,16 +219,10 @@ async function findFocusMusicBackend(apiKey: string): Promise<YouTubeVideo[]> {
         key: apiKey,
     });
     const url = `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (!response.ok) {
-        console.error("YouTube API Error:", data);
-        const errorMessage = data.error?.message || 'An unknown error occurred with the YouTube API.';
-        throw new Error(`Failed to fetch videos from YouTube: ${errorMessage}`);
-    }
-
-    if (!data.items || data.items.length === 0) {
+    const data = await safeYouTubeFetch(url);
+    
+    // CRASH-PROOF VALIDATION: Ensure `items` exists and is an array before processing.
+    if (!data || !Array.isArray(data.items) || data.items.length === 0) {
         return [];
     }
 
