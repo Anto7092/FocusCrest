@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { findEducationalVideos, isEducationalQuery } from '../services/geminiService';
+import { findEducationalVideos } from '../services/geminiService';
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon, InfoIcon } from './icons';
 
@@ -33,6 +33,12 @@ const WatchView: React.FC<{
     </div>
 );
 
+const SecurityWarning: React.FC = () => (
+    <div className="p-3 bg-yellow-500/20 text-yellow-100 border-b border-yellow-500/30 flex items-center justify-center gap-3 text-sm z-20">
+        <InfoIcon className="h-5 w-5 text-yellow-300 flex-shrink-0" />
+        <p><b>Security Warning:</b> API keys are exposed in the browser. Do not deploy this publicly with billable keys.</p>
+    </div>
+);
 
 export const MiniYouTubeView: React.FC = () => {
     const [query, setQuery] = useState('');
@@ -41,7 +47,6 @@ export const MiniYouTubeView: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchedQuery, setSearchedQuery] = useState('');
     const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
-    const [loadingMessage, setLoadingMessage] = useState('');
 
     const handleSearch = useCallback(async (e?: React.FormEvent<HTMLFormElement>) => {
         if (e) e.preventDefault();
@@ -51,17 +56,8 @@ export const MiniYouTubeView: React.FC = () => {
         setError(null);
         setVideos([]);
         setSearchedQuery(query);
-        setLoadingMessage('Analyzing query...');
 
         try {
-            const isEducational = await isEducationalQuery(query);
-            if (!isEducational) {
-                setError("This search seems unrelated to your studies. Please focus on your goals.");
-                setVideos([]);
-                return;
-            }
-
-            setLoadingMessage('Finding educational videos...');
             const results = await findEducationalVideos(query);
             setVideos(results);
             if (results.length === 0) {
@@ -72,7 +68,6 @@ export const MiniYouTubeView: React.FC = () => {
             setError(`EduTube Error: ${errorMessage}`);
         } finally {
             setIsLoading(false);
-            setLoadingMessage('');
         }
     }, [query]);
     
@@ -123,6 +118,7 @@ export const MiniYouTubeView: React.FC = () => {
 
     return (
         <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-hidden">
+            <SecurityWarning />
             <div className="p-4 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10">
                 <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
                     <div className="relative">
@@ -149,7 +145,7 @@ export const MiniYouTubeView: React.FC = () => {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <p className="mt-4 text-lg text-slate-300">{loadingMessage}</p>
+                            <p className="mt-4 text-lg text-slate-300">Finding educational videos...</p>
                         </div>
                     </div>
                 )}

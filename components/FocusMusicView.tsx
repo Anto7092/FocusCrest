@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { findFocusMusic } from '../services/geminiService';
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon, MusicIcon } from './icons';
+
+// As commanded, the video list is now hardcoded directly into the UI.
+// This feature is now static and requires no backend communication, guaranteeing it will always load.
+const staticFocusMusicLibrary: YouTubeVideo[] = [
+    { videoId: 'qQzf-xzZO7M', title: 'lofi hip hop radio - beats to relax/study to' },
+    { videoId: '_4kHxtiuML0', title: '3-Hour Classical Music for Studying' },
+    { videoId: 'FxJ3zPUU6Y4', title: 'Focus & Creativity - Music for Work' },
+    { videoId: 'lyrJThjjF0g', title: 'Tokyo Lofi Beats to Study/Relax' },
+    { videoId: 'W02ZF0qIGUo', title: 'Deep Concentration - Ambient Music' },
+    { videoId: 'DtYrxTp_1fA', title: '24/7 Lofi HipHop Radio - Beats to Study' },
+    { videoId: '28QvSs2_zec', title: 'Peaceful Piano for Concentration' },
+    { videoId: '0w80F8FffQ4', title: 'Rain & Ambient Music for Sleep and Study' },
+    { videoId: '4GnVDPD01as', title: 'lofi hip hop radio - beats to relax/study to (New)' },
+    { videoId: 'UpPmnnJcy6A', title: '4K Cozy Coffee Shop Ambience' },
+    { videoId: 'mdJU5ogrPMY', title: 'Deep Focus - Music For Studying, Concentration' },
+];
+
 
 // The "watch view" for playing a selected video distraction-free
 const WatchView: React.FC<{
@@ -66,23 +82,16 @@ export const FocusMusicView: React.FC = () => {
     const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
 
     useEffect(() => {
-        const fetchMusic = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const results = await findFocusMusic();
-                setVideos(results);
-                if (results.length === 0) {
-                  setError("Could not find any focus music at the moment. Please try again later.");
-                }
-            } catch (err) {
-                 const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-                 setError(`Focus Music Error: ${errorMessage}`);
-            } finally {
-                setIsLoading(false);
+        // This feature is now static. It loads the hardcoded list instantly.
+        // A small timeout is used to prevent a jarring flash of content on view change.
+        const timer = setTimeout(() => {
+            setVideos(staticFocusMusicLibrary);
+            if (staticFocusMusicLibrary.length === 0) {
+              setError("No focus music has been configured.");
             }
-        };
-        fetchMusic();
+            setIsLoading(false);
+        }, 150);
+        return () => clearTimeout(timer);
     }, []);
 
     if (selectedVideo) {
@@ -105,7 +114,7 @@ export const FocusMusicView: React.FC = () => {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <p className="mt-4 text-lg text-slate-300">Finding focus music...</p>
+                            <p className="mt-4 text-lg text-slate-300">Loading music...</p>
                         </div>
                     </div>
                 )}

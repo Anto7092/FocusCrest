@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { performEducationalSearch } from '../services/geminiService';
-import { ErrorIcon, AssistantIcon, SaveToNotesIcon } from './icons';
+import { ErrorIcon, AssistantIcon, SaveToNotesIcon, InfoIcon } from './icons';
 import type { ChatMessage } from '../types';
 
 const NOTES_STORAGE_KEY = 'study-focus-notes';
@@ -100,6 +100,12 @@ const WelcomeScreen: React.FC = () => (
     </div>
 );
 
+const SecurityWarning: React.FC = () => (
+    <div className="p-3 bg-yellow-500/20 text-yellow-100 border-b border-yellow-500/30 flex items-center justify-center gap-3 text-sm z-20">
+        <InfoIcon className="h-5 w-5 text-yellow-300 flex-shrink-0" />
+        <p><b>Security Warning:</b> API keys are exposed in the browser. Do not deploy this publicly with billable keys.</p>
+    </div>
+);
 
 export const BrowserView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
@@ -155,6 +161,7 @@ export const BrowserView: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-slate-800/20">
+      <SecurityWarning />
       {error && (
         <div className="p-3 bg-red-500/20 text-red-100 border-b border-red-500/30 flex items-center justify-center gap-3 text-sm z-20">
           <ErrorIcon className="h-5 w-5 text-red-300" />
