@@ -48,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (!payload || !Array.isArray(payload.history) || typeof payload.message !== 'string') {
                     return res.status(400).json({ error: 'Invalid payload for performSearch' });
                 }
-                const answer = await startOrContinueChatBackend(payload.history, payload.message, ai);
+                const answer = await performChatSearchBackend(payload.history, payload.message, ai);
                 return res.status(200).json({ result: answer });
             
             case 'findEducationalVideos':
@@ -101,24 +101,28 @@ async function isEducationalQueryBackend(query: string, genAI: GoogleGenAI): Pro
     }
 }
 
-async function startOrContinueChatBackend(history: any[], message: string, genAI: GoogleGenAI): Promise<string> {
+async function performChatSearchBackend(history: any[], message: string, genAI: GoogleGenAI): Promise<string> {
     try {
-        const chat = genAI.chats.create({
+        // Construct the full conversation history including the new message.
+        // This stateless approach is more robust for serverless environments.
+        const contents = [
+            ...history,
+            { role: 'user', parts: [{ text: message }] }
+        ];
+
+        const response = await genAI.models.generateContent({
             model: 'gemini-2.5-flash',
+            contents: contents, // Pass the full history and new message.
             config: {
                 systemInstruction: "You are Zenith Study, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
                 tools: [{ googleSearch: {} }],
             },
-            history,
         });
 
-        // FIX: The sendMessage method expects an object with a `message` property.
-        const response = await chat.sendMessage({ message });
-        
         // Ensure we always return a string, providing a fallback message if the response text is empty.
         return response.text || "I am sorry, but I could not generate a response. Please try again.";
     } catch (error) {
-        console.error("Gemini chat failed:", error);
+        console.error("Gemini generateContent failed:", error);
         throw new Error("The AI-powered search is currently unavailable. Please try again later.");
     }
 }
