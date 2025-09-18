@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import * as React from 'react';
 import { PlayIcon, PauseIcon, ResetIcon, InfoIcon, SettingsIcon } from './icons';
 import { PomodoroSettingsModal } from './PomodoroSettingsModal';
 import type { PomodoroState } from '../types';
@@ -18,9 +18,9 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
     setGlobalState,
 }) => {
     const { isActive, mode, timeLeft, sessionName } = globalState;
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
-    const getDuration = useCallback((currentMode: PomodoroState['mode']): number => {
+    const getDuration = React.useCallback((currentMode: PomodoroState['mode']): number => {
         return (durations[currentMode] || durations.work) * 60;
     }, [durations]);
 

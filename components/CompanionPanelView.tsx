@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { NotesView } from './NotesView';
 import { XIcon } from './icons';
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import * as React from 'react';
 import { InfoIcon, BoldIcon, ItalicIcon, UnderlineIcon } from './icons';
 
 const NOTES_STORAGE_KEY = 'study-focus-notes';
@@ -46,7 +46,7 @@ const RichTextToolbar: React.FC<{
 };
 
 export const NotesView: React.FC = () => {
-    const [notes, setNotes] = useState<string>(() => {
+    const [notes, setNotes] = React.useState<string>(() => {
         const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY);
         // Handle backward compatibility: if saved notes are the old placeholder, treat as empty.
         if (savedNotes === null || savedNotes === OLD_PLACEHOLDER_CONTENT) {
@@ -54,25 +54,25 @@ export const NotesView: React.FC = () => {
         }
         return savedNotes;
     });
-    const editorRef = useRef<HTMLDivElement>(null);
-    const [isBold, setIsBold] = useState(false);
-    const [isItalic, setIsItalic] = useState(false);
-    const [isUnderline, setIsUnderline] = useState(false);
+    const editorRef = React.useRef<HTMLDivElement>(null);
+    const [isBold, setIsBold] = React.useState(false);
+    const [isItalic, setIsItalic] = React.useState(false);
+    const [isUnderline, setIsUnderline] = React.useState(false);
 
     // Set initial content of the editor only once on mount
-    useEffect(() => {
+    React.useEffect(() => {
         if (editorRef.current) {
             editorRef.current.innerHTML = notes;
         }
     }, []); // Empty dependency array ensures this runs only once.
 
     // Save notes to local storage whenever they change
-    useEffect(() => {
+    React.useEffect(() => {
         localStorage.setItem(NOTES_STORAGE_KEY, notes);
     }, [notes]);
 
     // Listen for external updates (e.g., from AI Assistant save)
-    useEffect(() => {
+    React.useEffect(() => {
         const handleNotesUpdate = () => {
             const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY) || '';
             setNotes(savedNotes);
@@ -94,7 +94,7 @@ export const NotesView: React.FC = () => {
         setNotes(newContent);
     };
     
-    const updateToolbarState = useCallback(() => {
+    const updateToolbarState = React.useCallback(() => {
         setIsBold(document.queryCommandState('bold'));
         setIsItalic(document.queryCommandState('italic'));
         setIsUnderline(document.queryCommandState('underline'));

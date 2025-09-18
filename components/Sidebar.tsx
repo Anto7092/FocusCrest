@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import type { View } from '../types';
 import { AssistantIcon, YouTubeIcon, TimerIcon, NotesIcon, MusicIcon, AppLogo } from './icons';
 

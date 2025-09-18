@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import * as React from 'react';
 import { Sidebar } from './components/Sidebar';
 import { BrowserView as AssistantView } from './components/BrowserView';
 import { MiniYouTubeView } from './components/MiniYouTubeView';
@@ -8,6 +8,8 @@ import { FocusMusicView } from './components/FocusMusicView';
 import { GlobalControls } from './components/GlobalControls';
 import type { View, PomodoroState } from './types';
 import { MenuIcon, XIcon } from './components/icons';
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 const SESSIONS_PER_LONG_BREAK = 4;
 const POMODORO_SETTINGS_KEY = 'study-focus-pomodoro-settings';
@@ -29,11 +31,11 @@ const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactN
 };
 
 const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<View>('assistant');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeView, setActiveView] = React.useState<View>('assistant');
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
 
   // Global Pomodoro State
-  const [pomodoroDurations, setPomodoroDurations] = useState<DurationSettings>(() => {
+  const [pomodoroDurations, setPomodoroDurations] = React.useState<DurationSettings>(() => {
     try {
         const saved = localStorage.getItem(POMODORO_SETTINGS_KEY);
         return saved ? JSON.parse(saved) : { work: 25, shortBreak: 5, longBreak: 15 };
@@ -41,7 +43,7 @@ const App: React.FC = () => {
         return { work: 25, shortBreak: 5, longBreak: 15 };
     }
   });
-  const [pomodoroState, setPomodoroState] = useState<PomodoroState>({
+  const [pomodoroState, setPomodoroState] = React.useState<PomodoroState>({
     isActive: false,
     mode: 'work',
     timeLeft: pomodoroDurations.work * 60,
@@ -50,7 +52,7 @@ const App: React.FC = () => {
   });
 
   // Pomodoro Timer Logic (now global)
-  useEffect(() => {
+  React.useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;
 
     const switchMode = () => {
@@ -87,12 +89,12 @@ const App: React.FC = () => {
   }, [pomodoroState.isActive, pomodoroState.timeLeft, pomodoroDurations]);
   
   // Persist Pomodoro Durations to localStorage.
-  useEffect(() => {
+  React.useEffect(() => {
     localStorage.setItem(POMODORO_SETTINGS_KEY, JSON.stringify(pomodoroDurations));
   }, [pomodoroDurations]);
 
   // Listen for 'notes-updated' event to switch to the notes view automatically.
-  useEffect(() => {
+  React.useEffect(() => {
     const handleNotesUpdate = () => {
         setActiveView('notes');
     };
@@ -103,7 +105,7 @@ const App: React.FC = () => {
   }, []);
   
 
-  const handleSetView = useCallback((view: View) => {
+  const handleSetView = React.useCallback((view: View) => {
     setActiveView(view);
   }, []);
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { ScrollableNumberPicker } from './ScrollableNumberPicker';
 import { SettingsIcon, XIcon } from './icons';
 import type { DurationSettings } from '../App';

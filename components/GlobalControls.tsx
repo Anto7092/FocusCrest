@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import type { PomodoroState } from '../types';
 import { TimerIcon, PlayIcon, PauseIcon, XIcon } from './icons';
 import type { DurationSettings } from '../App';

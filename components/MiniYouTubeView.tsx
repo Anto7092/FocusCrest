@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import * as React from 'react';
 import { findEducationalVideos } from '../services/geminiService';
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon } from './icons';
@@ -34,14 +34,14 @@ const WatchView: React.FC<{
 );
 
 export const MiniYouTubeView: React.FC = () => {
-    const [query, setQuery] = useState('');
-    const [videos, setVideos] = useState<YouTubeVideo[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [searchedQuery, setSearchedQuery] = useState('');
-    const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
+    const [query, setQuery] = React.useState('');
+    const [videos, setVideos] = React.useState<YouTubeVideo[]>([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [searchedQuery, setSearchedQuery] = React.useState('');
+    const [selectedVideo, setSelectedVideo] = React.useState<YouTubeVideo | null>(null);
 
-    const handleSearch = useCallback(async (e?: React.FormEvent<HTMLFormElement>) => {
+    const handleSearch = React.useCallback(async (e?: React.FormEvent<HTMLFormElement>) => {
         if (e) e.preventDefault();
         if (!query.trim()) return;
 

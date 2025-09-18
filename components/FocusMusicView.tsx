@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon, MusicIcon } from './icons';
 
@@ -80,12 +80,12 @@ const VideoCard: React.FC<{ video: YouTubeVideo, onSelect: () => void }> = ({ vi
 );
 
 export const FocusMusicView: React.FC = () => {
-    const [videos, setVideos] = useState<YouTubeVideo[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
+    const [videos, setVideos] = React.useState<YouTubeVideo[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [error, setError] = React.useState<string | null>(null);
+    const [selectedVideo, setSelectedVideo] = React.useState<YouTubeVideo | null>(null);
 
-    useEffect(() => {
+    React.useEffect(() => {
         // This feature is now static. It loads the hardcoded list instantly.
         // A small timeout is used to prevent a jarring flash of content on view change.
         const timer = setTimeout(() => {

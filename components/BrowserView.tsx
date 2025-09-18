@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import * as React from 'react';
 import { performEducationalSearch } from '../services/geminiService';
 import { ErrorIcon, AssistantIcon, SaveToNotesIcon } from './icons';
 import type { ChatMessage } from '../types';
@@ -30,7 +30,7 @@ const markdownToHtml = (markdown: string): string => {
 
 // A simple component to render markdown content
 const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
-    const formattedContent = useMemo(() => {
+    const formattedContent = React.useMemo(() => {
         const lines = content.split('\n');
         const elements: JSX.Element[] = [];
         let listItems: JSX.Element[] = [];
@@ -101,14 +101,14 @@ const WelcomeScreen: React.FC = () => (
 );
 
 export const BrowserView: React.FC = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const [currentQuery, setCurrentQuery] = useState('');
-  const [savedMessage, setSavedMessage] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [chatHistory, setChatHistory] = React.useState<ChatMessage[]>([]);
+  const [currentQuery, setCurrentQuery] = React.useState('');
+  const [savedMessage, setSavedMessage] = React.useState<string | null>(null);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, isLoading]);
 

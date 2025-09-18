@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import * as React from 'react';
 import { ChevronUpDownIcon } from './icons';
 
 const ITEM_HEIGHT = 36;
@@ -19,15 +19,15 @@ export const ScrollableNumberPicker: React.FC<ScrollableNumberPickerProps> = ({
     min = 1,
     max = 180,
 }) => {
-    const numbers = useMemo(() => Array.from({ length: max - min + 1 }, (_, i) => i + min), [min, max]);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const isInteractingRef = useRef(false);
-    const interactionTimeoutRef = useRef<number | null>(null);
+    const numbers = React.useMemo(() => Array.from({ length: max - min + 1 }, (_, i) => i + min), [min, max]);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+    const isInteractingRef = React.useRef(false);
+    const interactionTimeoutRef = React.useRef<number | null>(null);
 
     // Effect to programmatically set the scroll position based on the `value` prop.
     // This runs on mount or when the value is changed from the parent, but is blocked
     // by the `isInteractingRef` flag when the user is actively scrolling.
-    useEffect(() => {
+    React.useEffect(() => {
         if (isInteractingRef.current) {
             return;
         }
@@ -46,7 +46,7 @@ export const ScrollableNumberPicker: React.FC<ScrollableNumberPickerProps> = ({
     }, [value, numbers]);
 
     // Effect to handle user-initiated scrolling and update the parent state.
-    useEffect(() => {
+    React.useEffect(() => {
         const element = containerRef.current;
         if (!element) return;
 
