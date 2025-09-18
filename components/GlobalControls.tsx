@@ -1,10 +1,12 @@
 import React from 'react';
 import type { PomodoroState } from '../types';
 import { TimerIcon, PlayIcon, PauseIcon, XIcon } from './icons';
+import type { DurationSettings } from '../App';
 
 interface GlobalControlsProps {
     pomodoroState: PomodoroState;
     setPomodoroState: (state: PomodoroState | ((prevState: PomodoroState) => PomodoroState)) => void;
+    durations: DurationSettings;
 }
 
 const formatTime = (seconds: number) => {
@@ -16,12 +18,18 @@ const formatTime = (seconds: number) => {
 const PomodoroWidget: React.FC<{
     state: PomodoroState;
     setState: (state: PomodoroState | ((prevState: PomodoroState) => PomodoroState)) => void;
-}> = ({ state, setState }) => {
+    durations: DurationSettings;
+}> = ({ state, setState, durations }) => {
     const { isActive, mode, timeLeft, sessionName } = state;
     const modeLabel = mode.replace('B', ' B');
     
     const toggleTimer = () => setState(prev => ({...prev, isActive: !prev.isActive}));
-    const stopTimer = () => setState(prev => ({...prev, isActive: false}));
+    
+    const cancelSession = () => setState(prev => ({
+        ...prev, 
+        isActive: false,
+        timeLeft: durations[prev.mode] * 60,
+    }));
     
     const primaryLabel = sessionName || modeLabel;
     const secondaryLabel = sessionName ? modeLabel : null;
@@ -38,10 +46,10 @@ const PomodoroWidget: React.FC<{
             <div className="flex-shrink-0 font-mono text-xl font-bold text-white pr-2 border-r border-slate-600">
                 {formatTime(timeLeft)}
             </div>
-            <button onClick={toggleTimer} className="p-2 text-white hover:bg-white/10 rounded-full">
+            <button onClick={toggleTimer} className="p-2 text-white hover:bg-white/10 rounded-full" aria-label={isActive ? 'Pause timer' : 'Start timer'}>
                 {isActive ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
             </button>
-             <button onClick={stopTimer} className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-full" aria-label="Stop Timer">
+             <button onClick={cancelSession} className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-full" aria-label="Cancel Session">
                 <XIcon className="w-5 h-5" />
             </button>
         </div>
@@ -52,12 +60,14 @@ const PomodoroWidget: React.FC<{
 export const GlobalControls: React.FC<GlobalControlsProps> = ({
     pomodoroState,
     setPomodoroState,
+    durations,
 }) => {
     return (
         <footer className="flex-shrink-0 w-full bg-slate-900/60 backdrop-blur-lg border-t border-white/10 p-2 flex items-center justify-center md:justify-end gap-4 z-20">
             <PomodoroWidget 
                 state={pomodoroState} 
-                setState={setPomodoroState} 
+                setState={setPomodoroState}
+                durations={durations}
             />
         </footer>
     );

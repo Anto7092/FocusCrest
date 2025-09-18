@@ -12,3 +12,8 @@ export type PomodoroState = {
   sessions: number;
   sessionName: string;
 };
+
+export type ChatMessage = {
+  role: 'user' | 'model';
+  parts: string;
+};

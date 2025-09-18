@@ -68,7 +68,8 @@ export const MiniYouTubeView: React.FC = () => {
               setError("No educational videos found for this topic. Try a different search term.");
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+            setError(`EduTube Error: ${errorMessage}`);
         } finally {
             setIsLoading(false);
             setLoadingMessage('');
@@ -154,10 +155,10 @@ export const MiniYouTubeView: React.FC = () => {
                 )}
                 {error && !isLoading && (
                     <div className="flex justify-center items-center h-full">
-                         <div className="p-6 max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm text-slate-200 border border-emerald-500/20 rounded-lg text-center flex flex-col items-center gap-4">
-                            <InfoIcon className="w-10 h-10 text-emerald-300" />
+                         <div className="p-6 max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm text-slate-200 border border-red-500/30 rounded-lg text-center flex flex-col items-center gap-4">
+                            <ErrorIcon className="w-10 h-10 text-red-300" />
                             <div>
-                                <h3 className="font-bold text-lg mb-2">Stay Focused</h3>
+                                <h3 className="font-bold text-lg mb-2">Error</h3>
                                 <p className="text-sm">{error}</p>
                             </div>
                         </div>

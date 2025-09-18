@@ -76,7 +76,8 @@ export const FocusMusicView: React.FC = () => {
                   setError("Could not find any focus music at the moment. Please try again later.");
                 }
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+                 const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+                 setError(`Focus Music Error: ${errorMessage}`);
             } finally {
                 setIsLoading(false);
             }

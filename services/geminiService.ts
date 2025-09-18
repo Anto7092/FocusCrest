@@ -1,4 +1,4 @@
-import type { YouTubeVideo } from '../types';
+import type { YouTubeVideo, ChatMessage } from '../types';
 
 /**
  * A helper function to call our backend API.
@@ -7,32 +7,42 @@ import type { YouTubeVideo } from '../types';
  * @returns The JSON result from the API.
  */
 async function callApi<T>(action: string, payload: object): Promise<T> {
-    const response = await fetch('/api/gemini', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, payload }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout
 
-    if (!response.ok) {
-        // If the server returned an error, it might be our expected JSON error
-        // or a plain text error from a server crash.
-        const errorText = await response.text();
-        try {
-            // Try to parse it as our expected JSON error format
-            const errorJson = JSON.parse(errorText);
-            throw new Error(errorJson.error || 'An unknown server error occurred.');
-        } catch (e) {
-            // If parsing fails, it's a raw text error. Use that as the message.
-            // This prevents the "Unexpected token" crash.
-            throw new Error(errorText || 'A server error occurred with a non-JSON response.');
+    try {
+        const response = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action, payload }),
+            signal: controller.signal, // Link the abort controller
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            try {
+                const errorJson = JSON.parse(errorText);
+                throw new Error(errorJson.error || 'An unknown server error occurred.');
+            } catch (e) {
+                throw new Error(errorText || 'A server error occurred with a non-JSON response.');
+            }
         }
-    }
 
-    // If response is OK, we expect valid JSON.
-    const data = await response.json();
-    return data.result;
+        const data = await response.json();
+        return data.result;
+    } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+            // This specific error is thrown when the timeout is reached
+            throw new Error('The request timed out. The server is not responding.');
+        }
+        // Re-throw other errors (like network failures)
+        throw error;
+    } finally {
+        // Clear the timeout timer regardless of the outcome
+        clearTimeout(timeoutId);
+    }
 }
 
 
@@ -52,27 +62,21 @@ export async function isEducationalQuery(query: string): Promise<boolean> {
 }
 
 /**
- * Uses our backend with Google Search grounding to provide a direct answer to a query.
- * It first checks for founder-related questions, then validates if the query is educational.
- * @param query The user's search query.
+ * Sends a message to the backend chat service, including conversation history.
+ * It first validates if the query is educational.
+ * @param history The previous messages in the conversation.
+ * @param message The new user message.
  * @returns A promise that resolves to the AI-generated answer as a string.
  */
-export async function performEducationalSearch(query: string): Promise<string> {
-    // First, check for founder-related questions as a special case for a fast response.
-    const lowerCaseQuery = query.toLowerCase();
-    const founderKeywords = ['founder', 'creator', 'who made you', 'who created you', 'who built you'];
-    if (founderKeywords.some(keyword => lowerCaseQuery.includes(keyword))) {
-        return "This application was founded and created by Anto Bredly.";
-    }
-
-    // Next, check if the query is educational before sending it to the search backend.
-    const isEducational = await isEducationalQuery(query);
+export async function performEducationalSearch(history: any[], message: string): Promise<string> {
+    // Check if the query is educational before sending it to the search backend.
+    const isEducational = await isEducationalQuery(message);
     if (!isEducational) {
         throw new Error("This query seems unrelated to your studies. Please focus on your goals.");
     }
 
-    // If educational, proceed with the secure backend search.
-    return await callApi<string>('performSearch', { query });
+    // If educational, proceed with the secure backend chat.
+    return await callApi<string>('performSearch', { history, message });
 }
 
 

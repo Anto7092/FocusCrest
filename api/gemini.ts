@@ -6,14 +6,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
 import type { YouTubeVideo } from '../types';
 
-// Check for required environment variables
-const GEMINI_API_KEY = process.env.API_KEY;
+// SECURELY read API keys from Vercel Environment Variables.
+// These MUST be configured in your Vercel project settings.
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-
-let ai: GoogleGenAI | null = null;
-if (GEMINI_API_KEY) {
-    ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-}
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Main handler function using Vercel's request/response objects
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -22,19 +18,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
     
-    if (!GEMINI_API_KEY || !ai) {
-        return res.status(500).json({ error: 'A server error occurred: The Gemini API key is not configured.' });
-    }
-
     try {
+        // Essential check: Ensure the keys are available on the server environment.
+        if (!GEMINI_API_KEY || !YOUTUBE_API_KEY) {
+            return res.status(500).json({ error: 'A server error occurred: One or more API keys are not configured on the server. Please check Vercel environment variables.' });
+        }
+        
+        // Initialize the client safely inside the handler
+        const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
         const { action, payload } = req.body;
 
         if (!action) {
             return res.status(400).json({ error: 'Missing action in request body' });
-        }
-        
-        if (!YOUTUBE_API_KEY && (action === 'findEducationalVideos' || action === 'findFocusMusic')) {
-            return res.status(500).json({ error: 'A server error occurred: The YouTube API key is not configured.' });
         }
 
         switch (action) {
@@ -43,15 +39,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 return res.status(200).json({ result: isEducational });
 
             case 'performSearch':
-                const answer = await performSearchBackend(payload.query, ai);
+                const answer = await startOrContinueChatBackend(payload.history, payload.message, ai);
                 return res.status(200).json({ result: answer });
             
             case 'findEducationalVideos':
-                const videos = await findEducationalVideosBackend(payload.query);
+                const videos = await findEducationalVideosBackend(payload.query, YOUTUBE_API_KEY);
                 return res.status(200).json({ result: videos });
 
             case 'findFocusMusic':
-                const music = await findFocusMusicBackend();
+                const music = await findFocusMusicBackend(YOUTUBE_API_KEY);
                 return res.status(200).json({ result: music });
 
             default:
@@ -65,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 
-// --- API Logic (moved from frontend) ---
+// --- API Logic ---
 
 async function isEducationalQueryBackend(query: string, genAI: GoogleGenAI): Promise<boolean> {
     const prompt = `Classify the following user query: "${query}"`;
@@ -87,21 +83,21 @@ async function isEducationalQueryBackend(query: string, genAI: GoogleGenAI): Pro
     }
 }
 
-async function performSearchBackend(query: string, genAI: GoogleGenAI): Promise<string> {
-    const prompt = `Based on Google Search results, provide a comprehensive and helpful answer for the following academic query. Format your response clearly using Markdown (e.g., use headings, lists, and bold text to structure the information). Do not include any links, images, or mention specific website sources in your answer. Query: "${query}"`;
-
+async function startOrContinueChatBackend(history: any[], message: string, genAI: GoogleGenAI): Promise<string> {
     try {
-        const response = await genAI.models.generateContent({
+        const chat = genAI.chats.create({
             model: 'gemini-2.5-flash',
-            contents: prompt,
             config: {
-                systemInstruction: "You are Zenith Study, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
+                systemInstruction: "You are Zenith Study, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
                 tools: [{ googleSearch: {} }],
             },
+            history,
         });
+
+        const response = await chat.sendMessage({ message });
         return response.text;
     } catch (error) {
-        console.error("Gemini search failed:", error);
+        console.error("Gemini chat failed:", error);
         throw new Error("The AI-powered search is currently unavailable. Please try again later.");
     }
 }
@@ -117,7 +113,7 @@ function parseISO8601Duration(duration: string): number {
     return hours * 3600 + minutes * 60 + seconds;
 }
 
-async function findEducationalVideosBackend(query: string): Promise<YouTubeVideo[]> {
+async function findEducationalVideosBackend(query: string, apiKey: string): Promise<YouTubeVideo[]> {
     const educationalQuery = `${query} tutorial lecture course documentary explanation class`;
 
     const searchParams = new URLSearchParams({
@@ -126,7 +122,7 @@ async function findEducationalVideosBackend(query: string): Promise<YouTubeVideo
         maxResults: '40',
         type: 'video',
         videoEmbeddable: 'true',
-        key: YOUTUBE_API_KEY!,
+        key: apiKey,
     });
     const searchUrl = `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`;
     const searchResponse = await fetch(searchUrl);
@@ -142,7 +138,7 @@ async function findEducationalVideosBackend(query: string): Promise<YouTubeVideo
     const detailsParams = new URLSearchParams({
         part: 'snippet,contentDetails',
         id: videoIds,
-        key: YOUTUBE_API_KEY!,
+        key: apiKey,
     });
     const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?${detailsParams.toString()}`;
     const detailsResponse = await fetch(detailsUrl);
@@ -152,7 +148,6 @@ async function findEducationalVideosBackend(query: string): Promise<YouTubeVideo
         throw new Error(detailsData.error?.message || 'Failed to fetch video details.');
     }
     
-    // Safety check to prevent crash if 'items' is missing
     if (!detailsData.items) {
         return [];
     }
@@ -170,7 +165,7 @@ async function findEducationalVideosBackend(query: string): Promise<YouTubeVideo
         }));
 }
 
-async function findFocusMusicBackend(): Promise<YouTubeVideo[]> {
+async function findFocusMusicBackend(apiKey: string): Promise<YouTubeVideo[]> {
     const params = new URLSearchParams({
         part: 'snippet',
         q: 'binaural beats for studying and concentration',
@@ -178,7 +173,7 @@ async function findFocusMusicBackend(): Promise<YouTubeVideo[]> {
         videoDuration: 'long',
         type: 'video',
         videoEmbeddable: 'true',
-        key: YOUTUBE_API_KEY!,
+        key: apiKey,
     });
     const url = `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
     const response = await fetch(url);

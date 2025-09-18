@@ -19,8 +19,6 @@ export type DurationSettings = {
 };
 
 // Wrapper component to preserve view state by hiding/showing instead of mounting/unmounting
-// This is defined *outside* the App component to prevent it from being re-created on every render,
-// which was the cause of the state-loss bug.
 const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactNode }> = ({ id, activeView, children }) => {
     const isVisible = activeView === id;
     return (
@@ -90,10 +88,22 @@ const App: React.FC = () => {
   }, [pomodoroState.isActive, pomodoroState.timeLeft, pomodoroDurations]);
   
   // Persist Pomodoro Durations to localStorage.
-  // The logic to update timeLeft when durations change is handled correctly within PomodoroView.
   useEffect(() => {
     localStorage.setItem(POMODORO_SETTINGS_KEY, JSON.stringify(pomodoroDurations));
   }, [pomodoroDurations]);
+
+  // Listen for 'notes-updated' event to open the companion panel automatically.
+  useEffect(() => {
+    const handleNotesUpdate = () => {
+        if (!isCompanionOpen) {
+            setIsCompanionOpen(true);
+        }
+    };
+    window.addEventListener('notes-updated', handleNotesUpdate);
+    return () => {
+        window.removeEventListener('notes-updated', handleNotesUpdate);
+    };
+  }, [isCompanionOpen]);
   
 
   const handleSetView = useCallback((view: View) => {
@@ -106,7 +116,6 @@ const App: React.FC = () => {
 
   const fullDuration = pomodoroDurations[pomodoroState.mode] * 60;
   // A session is in progress if the timer has been started (and timeLeft is less than full).
-  // This ensures controls stay visible when paused.
   const showGlobalControls = pomodoroState.timeLeft < fullDuration;
 
   return (
@@ -147,6 +156,7 @@ const App: React.FC = () => {
           <GlobalControls 
             pomodoroState={pomodoroState}
             setPomodoroState={setPomodoroState}
+            durations={pomodoroDurations}
           />
         )}
       </div>

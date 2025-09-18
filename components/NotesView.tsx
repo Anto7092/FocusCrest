@@ -71,6 +71,23 @@ export const NotesView: React.FC = () => {
         localStorage.setItem(NOTES_STORAGE_KEY, notes);
     }, [notes]);
 
+    // Listen for external updates (e.g., from AI Assistant save)
+    useEffect(() => {
+        const handleNotesUpdate = () => {
+            const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY) || '';
+            setNotes(savedNotes);
+            if (editorRef.current) {
+                editorRef.current.innerHTML = savedNotes;
+            }
+        };
+
+        window.addEventListener('notes-updated', handleNotesUpdate);
+        return () => {
+            window.removeEventListener('notes-updated', handleNotesUpdate);
+        };
+    }, []);
+
+
     // Update state on input without causing a re-render that moves the cursor
     const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
         const newContent = e.currentTarget.innerHTML;
