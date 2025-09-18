@@ -130,3 +130,33 @@ export const SaveToNotesIcon: React.FC<IconProps> = (props) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
     </svg>
 );
+
+export const PenIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+    </svg>
+);
+
+export const TextIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H4.5m3 0h3m-3 0V4.5m0 0v1.125c0 .621.504 1.125 1.125 1.125h3.75c.621 0 1.125-.504 1.125-1.125V4.5m-3.75 0v.75m0-1.125v.75m1.5-1.5V4.5m0 0V3.75m0 0h3m-3 0h-3m3 0h3M3 3.75h.75m-3.75 0h.75m16.5 0h.75m-3.75 0h.75M3 12h18M3 12v9m0 0h18m0 0v-9m0 0H3m18 0v-9m0 0h-3.375a1.125 1.125 0 01-1.125-1.125V3.75m-1.125 0H12m-3.75 0H8.25m1.125 0h3.75M3 12h18" />
+    </svg>
+);
+
+export const EraserIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5-7.5-7.5 7.5-7.5zM11.25 4.5L21 14.25" />
+    </svg>
+);
+
+export const UndoIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+    </svg>
+);
+
+export const RedoIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+    </svg>
+);

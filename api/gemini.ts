@@ -175,7 +175,7 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
 
         if (!detailsData?.items?.length) return [];
 
-        // Step 3: Filter out videos that are 60 seconds or less and take the top 10
+        // Step 3: Filter out videos that are 60 seconds or less and take the top 25
         const fullLengthVideos = detailsData.items
             .filter((item: any) => {
                 const duration = item?.contentDetails?.duration;
@@ -188,7 +188,7 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
                 title: item.snippet.title,
             }));
             
-        return fullLengthVideos.slice(0, 10);
+        return fullLengthVideos.slice(0, 25);
             
     } catch (error) {
         console.error("EduTube Search Error (Backend):", error);

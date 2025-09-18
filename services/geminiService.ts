@@ -97,7 +97,7 @@ export const findEducationalVideos = async (query: string): Promise<YouTubeVideo
         const searchParams = new URLSearchParams({
             part: 'snippet',
             q: educationalQuery,
-            maxResults: '50', // Fetch up to 50 results
+            maxResults: '50', // Fetch up to 50 results to filter from
             type: 'video',
             videoEmbeddable: 'true',
             key: YOUTUBE_API_KEY,
@@ -160,7 +160,7 @@ export const findEducationalVideos = async (query: string): Promise<YouTubeVideo
                 title: item.snippet.title,
             }));
             
-        return fullLengthVideos.slice(0, 10); // Return the top 10 from the filtered list
+        return fullLengthVideos.slice(0, 25); // Return the top 25 from the filtered list
             
     } catch (error) {
         console.error("YouTube API Error:", error);
