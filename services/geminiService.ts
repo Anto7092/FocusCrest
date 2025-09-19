@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { YouTubeVideo } from '../types';
+import type { YouTubeVideo, StudyPlan } from '../types';
 
 // WARNING: API keys are exposed in the frontend as per user request to make the app standalone.
 // This is a major security risk. Do not deploy this publicly with billable keys.
@@ -145,6 +145,68 @@ export const getEducationalSuggestions = async (query: string): Promise<string[]
     } catch (error) {
         console.error("Gemini suggestion generation error:", error);
         return []; // Fail silently to not disrupt user experience with errors
+    }
+};
+
+
+/**
+ * Generates a structured study plan using the Gemini API.
+ * @param topic The subject to study.
+ * @param deadline The time frame for the study plan.
+ * @returns A promise that resolves to a StudyPlan object.
+ */
+export const generateStudyPlan = async (topic: string, deadline: string): Promise<StudyPlan> => {
+    if (!ai) {
+        throw new Error("Gemini AI client is not initialized.");
+    }
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: `Generate a study plan for the topic: "${topic}" with the deadline: "${deadline}".`,
+            config: {
+                systemInstruction: "You are an expert academic planner. Your task is to create a structured, day-by-day study plan. Break down the main topic into manageable sub-topics for each day. For each sub-topic, provide a concise description, a relevant YouTube search query, a name for a Pomodoro focus session, and a deep-diving question to ask an AI assistant. The entire output must be in JSON format.",
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING, description: "A creative title for the study plan." },
+                        plan: {
+                            type: Type.ARRAY,
+                            description: "A list of daily study steps.",
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    day: { type: Type.STRING, description: "The day of the plan (e.g., 'Day 1')." },
+                                    topic: { type: Type.STRING, description: "The specific sub-topic for the day." },
+                                    description: { type: Type.STRING, description: "A brief one-sentence description of the day's topic." },
+                                    youtubeSearch: { type: Type.STRING, description: "A concise, effective search query for YouTube." },
+                                    pomodoroSessionName: { type: Type.STRING, description: "A short, motivating name for a Pomodoro session." },
+                                    assistantQuestion: { type: Type.STRING, description: "An insightful question to ask an AI assistant about the topic." }
+                                },
+                                required: ["day", "topic", "description", "youtubeSearch", "pomodoroSessionName", "assistantQuestion"]
+                            }
+                        }
+                    },
+                    required: ["title", "plan"]
+                }
+            }
+        });
+
+        const jsonString = response.text.trim();
+        const jsonResponse = JSON.parse(jsonString);
+        
+        if (!jsonResponse.title || !Array.isArray(jsonResponse.plan) || jsonResponse.plan.length === 0) {
+            throw new Error("The AI returned an incomplete plan. Please try a different topic or deadline.");
+        }
+        
+        return jsonResponse;
+    } catch (error) {
+        console.error("Gemini plan generation error:", error);
+        if (error instanceof Error && error.message.includes("deadline")) {
+             throw new Error("The AI couldn't generate a plan. Please provide a clearer deadline (e.g., 'in one week', 'by Friday').");
+        }
+        throw new Error("Failed to generate a study plan. The AI may be unavailable or the topic might be too broad. Please try again.");
     }
 };
 

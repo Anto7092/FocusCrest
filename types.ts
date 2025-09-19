@@ -1,4 +1,4 @@
-export type View = 'assistant' | 'youtube' | 'pomodoro' | 'notes' | 'music';
+export type View = 'assistant' | 'youtube' | 'pomodoro' | 'notes' | 'music' | 'planner';
 
 export type YouTubeVideo = {
   videoId: string;
@@ -16,4 +16,19 @@ export type PomodoroState = {
 export type ChatMessage = {
   role: 'user' | 'model';
   parts: string;
+};
+
+// New types for the Study Planner
+export type StudyStep = {
+  day: string; // "Day 1", "Day 2", etc.
+  topic: string;
+  description: string;
+  youtubeSearch: string;
+  pomodoroSessionName: string;
+  assistantQuestion: string;
+};
+
+export type StudyPlan = {
+  title: string;
+  plan: StudyStep[];
 };

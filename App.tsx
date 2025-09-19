@@ -5,6 +5,7 @@ import { MiniYouTubeView } from './components/MiniYouTubeView';
 import { PomodoroView } from './components/PomodoroView';
 import { NotesView } from './components/NotesView';
 import { FocusMusicView } from './components/FocusMusicView';
+import { PlannerView } from './components/PlannerView';
 import { GlobalControls } from './components/GlobalControls';
 import type { View, PomodoroState } from './types';
 import { MenuIcon, XIcon } from './components/icons';
@@ -31,8 +32,13 @@ const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactN
 };
 
 const App: React.FC = () => {
-  const [activeView, setActiveView] = React.useState<View>('assistant');
+  const [activeView, setActiveView] = React.useState<View>('planner');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  
+  // State for planner-to-component communication
+  const [initialYouTubeQuery, setInitialYouTubeQuery] = React.useState<string | null>(null);
+  const [initialAssistantQuery, setInitialAssistantQuery] = React.useState<string | null>(null);
+
 
   // Global Pomodoro State
   const [pomodoroDurations, setPomodoroDurations] = React.useState<DurationSettings>(() => {
@@ -108,6 +114,28 @@ const App: React.FC = () => {
   const handleSetView = React.useCallback((view: View) => {
     setActiveView(view);
   }, []);
+  
+  // Handlers for Planner actions
+  const handleStartYouTubeSearch = (query: string) => {
+    setInitialYouTubeQuery(query);
+    setActiveView('youtube');
+  };
+
+  const handleStartPomodoro = (sessionName: string) => {
+    setPomodoroState(prev => ({
+      ...prev,
+      isActive: true, // Start timer automatically
+      mode: 'work',
+      timeLeft: pomodoroDurations.work * 60,
+      sessionName: sessionName,
+    }));
+    setActiveView('pomodoro');
+  };
+
+  const handleAskAssistant = (query: string) => {
+    setInitialAssistantQuery(query);
+    setActiveView('assistant');
+  };
 
   const fullDuration = pomodoroDurations[pomodoroState.mode] * 60;
   // A session is in progress if the timer has been started (and timeLeft is less than full).
@@ -130,8 +158,25 @@ const App: React.FC = () => {
             {isSidebarOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
           </button>
           <div className="w-full flex-1 min-h-0">
-            <ViewWrapper id="assistant" activeView={activeView}><AssistantView /></ViewWrapper>
-            <ViewWrapper id="youtube" activeView={activeView}><MiniYouTubeView /></ViewWrapper>
+            <ViewWrapper id="planner" activeView={activeView}>
+              <PlannerView 
+                onYouTubeSearch={handleStartYouTubeSearch}
+                onPomodoroStart={handleStartPomodoro}
+                onAssistantAsk={handleAskAssistant}
+              />
+            </ViewWrapper>
+            <ViewWrapper id="assistant" activeView={activeView}>
+              <AssistantView 
+                initialQuery={initialAssistantQuery}
+                onQueryHandled={() => setInitialAssistantQuery(null)}
+              />
+            </ViewWrapper>
+            <ViewWrapper id="youtube" activeView={activeView}>
+              <MiniYouTubeView 
+                initialQuery={initialYouTubeQuery}
+                onSearchHandled={() => setInitialYouTubeQuery(null)}
+              />
+            </ViewWrapper>
             <ViewWrapper id="pomodoro" activeView={activeView}>
               <PomodoroView 
                   durations={pomodoroDurations}

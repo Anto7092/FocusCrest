@@ -3,6 +3,11 @@ import { performEducationalSearch } from '../services/geminiService';
 import { ErrorIcon, AssistantIcon, SaveToNotesIcon } from './icons';
 import type { ChatMessage } from '../types';
 
+interface AssistantViewProps {
+  initialQuery?: string | null;
+  onQueryHandled: () => void;
+}
+
 // A more robust markdown-to-HTML converter for saving notes.
 // This version processes inline markdown before wrapping in block-level tags,
 // which prevents formatting from being misinterpreted as plain text.
@@ -105,13 +110,23 @@ const WelcomeScreen: React.FC = () => (
     </div>
 );
 
-export const BrowserView: React.FC = () => {
+export const BrowserView: React.FC<AssistantViewProps> = ({ initialQuery, onQueryHandled }) => {
   const [error, setError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [chatHistory, setChatHistory] = React.useState<ChatMessage[]>([]);
   const [currentQuery, setCurrentQuery] = React.useState('');
   const [savedMessage, setSavedMessage] = React.useState<string | null>(null);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (initialQuery) {
+        setCurrentQuery(initialQuery);
+        inputRef.current?.focus();
+        onQueryHandled();
+    }
+  }, [initialQuery, onQueryHandled]);
+
 
   React.useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -229,6 +244,7 @@ export const BrowserView: React.FC = () => {
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto">
           <div className="relative">
             <input
+              ref={inputRef}
               type="text"
               value={currentQuery}
               onChange={(e) => setCurrentQuery(e.target.value)}

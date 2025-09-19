@@ -3,6 +3,11 @@ import { findEducationalVideos, isQueryEducational, getEducationalSuggestions } 
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon } from './icons';
 
+interface MiniYouTubeViewProps {
+  initialQuery?: string | null;
+  onSearchHandled: () => void;
+}
+
 // The "watch view" for playing a selected video distraction-free
 const WatchView: React.FC<{
     video: YouTubeVideo;
@@ -33,7 +38,7 @@ const WatchView: React.FC<{
     </div>
 );
 
-export const MiniYouTubeView: React.FC = () => {
+export const MiniYouTubeView: React.FC<MiniYouTubeViewProps> = ({ initialQuery, onSearchHandled }) => {
     const [query, setQuery] = React.useState('');
     const [videos, setVideos] = React.useState<YouTubeVideo[]>([]);
     const [isLoading, setIsLoading] = React.useState(false);
@@ -76,6 +81,15 @@ export const MiniYouTubeView: React.FC = () => {
             setIsLoading(false);
         }
     }, []);
+    
+    // Effect to handle initial search query from planner
+    React.useEffect(() => {
+        if (initialQuery) {
+            setQuery(initialQuery);
+            executeSearch(initialQuery);
+            onSearchHandled();
+        }
+    }, [initialQuery, executeSearch, onSearchHandled]);
 
     // Debounced effect for fetching suggestions as the user types
     React.useEffect(() => {

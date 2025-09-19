@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { View } from '../types';
-import { AssistantIcon, YouTubeIcon, TimerIcon, NotesIcon, MusicIcon, AppLogo } from './icons';
+import { AssistantIcon, YouTubeIcon, TimerIcon, NotesIcon, MusicIcon, AppLogo, PlannerIcon } from './icons';
 
 interface SidebarProps {
   activeView: View;
@@ -37,6 +37,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isS
         <AppLogo className="h-10 text-emerald-400" />
       </div>
       <div className="flex flex-col flex-grow p-4 gap-2">
+        <SidebarButton 
+          label="Study Planner"
+          icon={<PlannerIcon className="w-6 h-6" />}
+          isActive={activeView === 'planner'}
+          onClick={() => setActiveView('planner')}
+        />
         <SidebarButton 
           label="AI Assistant"
           icon={<AssistantIcon className="w-6 h-6" />}
