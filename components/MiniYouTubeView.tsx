@@ -1,23 +1,7 @@
 import * as React from 'react';
-import { findEducationalVideos, isQueryEducational } from '../services/geminiService';
+import { findEducationalVideos, isQueryEducational, getEducationalSuggestions } from '../services/geminiService';
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon } from './icons';
-
-// Predefined list of educational search suggestions
-const EDUCATIONAL_SUGGESTIONS = [
-    'Calculus fundamentals',
-    'History of the Roman Empire',
-    'Introduction to Python programming',
-    'Cellular Biology basics',
-    'Newtonian Physics explained',
-    'Data Structures and Algorithms',
-    'Creative Writing techniques',
-    'Learn Spanish for beginners',
-    'Quantum Mechanics introduction',
-    'JavaScript ES6 features',
-    'World War II documentary',
-    'Organic Chemistry reactions'
-];
 
 // The "watch view" for playing a selected video distraction-free
 const WatchView: React.FC<{
@@ -93,27 +77,49 @@ export const MiniYouTubeView: React.FC = () => {
         }
     }, []);
 
+    // Debounced effect for fetching suggestions as the user types
+    React.useEffect(() => {
+        if (query.trim().length === 0) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+
+        const fetchSuggestions = async () => {
+            try {
+                const results = await getEducationalSuggestions(query);
+                // Only show suggestions if the query is still present (user hasn't cleared it)
+                if (query.trim().length > 0) { 
+                    setSuggestions(results);
+                    setShowSuggestions(results.length > 0);
+                }
+            } catch (err) {
+                console.error("Failed to fetch suggestions:", err);
+                setShowSuggestions(false); // Fail silently without showing an error
+            }
+        };
+
+        const handler = setTimeout(() => {
+            fetchSuggestions();
+        }, 300); // 300ms debounce delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [query]);
+
     const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         executeSearch(query);
     };
 
     const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setQuery(value);
-        if (value.length > 2) {
-            const filtered = EDUCATIONAL_SUGGESTIONS.filter(s => 
-                s.toLowerCase().includes(value.toLowerCase())
-            );
-            setSuggestions(filtered.slice(0, 5));
-            setShowSuggestions(filtered.length > 0);
-        } else {
-            setShowSuggestions(false);
-        }
+        setQuery(e.target.value);
     };
     
     const handleSuggestionClick = (suggestion: string) => {
         setQuery(suggestion);
+        setShowSuggestions(false); // Hide suggestions after selection
         executeSearch(suggestion);
     };
 
@@ -176,7 +182,7 @@ export const MiniYouTubeView: React.FC = () => {
                             type="text"
                             value={query}
                             onChange={handleQueryChange}
-                            onFocus={() => { if (query.length > 2) setShowSuggestions(true); }}
+                            onFocus={() => { if (query.length > 0 && suggestions.length > 0) setShowSuggestions(true); }}
                             onBlur={handleInputBlur}
                             autoComplete="off"
                             className="w-full px-5 py-3 bg-slate-900/30 text-slate-100 border border-white/10 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
@@ -194,7 +200,7 @@ export const MiniYouTubeView: React.FC = () => {
                                 <li key={index}>
                                     <button
                                         type="button"
-                                        onClick={() => handleSuggestionClick(suggestion)}
+                                        onMouseDown={() => handleSuggestionClick(suggestion)}
                                         className="w-full text-left px-5 py-3 text-slate-200 hover:bg-emerald-500/10 transition-colors"
                                     >
                                         {suggestion}

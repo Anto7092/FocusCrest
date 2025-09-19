@@ -105,6 +105,49 @@ export const isQueryEducational = async (query: string): Promise<boolean> => {
     }
 };
 
+/**
+ * Generates educational search suggestions based on a partial query using the Gemini API.
+ * @param query The user's partial search query.
+ * @returns A promise that resolves to an array of suggestion strings.
+ */
+export const getEducationalSuggestions = async (query: string): Promise<string[]> => {
+    if (!ai) {
+        console.error("Gemini AI client is not initialized.");
+        return []; // Fail silently if AI is not initialized
+    }
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: `Based on the user's partial query "${query}", generate a list of 5 relevant and diverse educational YouTube search suggestions. The suggestions should be concise and directly searchable.`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        suggestions: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.STRING,
+                                description: "An educational search suggestion."
+                            },
+                            description: "A list of 5 educational search suggestions."
+                        }
+                    },
+                    required: ["suggestions"]
+                },
+                thinkingConfig: { thinkingBudget: 0 } // Disable thinking for low-latency response
+            }
+        });
+
+        const jsonResponse = JSON.parse(response.text);
+        return jsonResponse.suggestions || [];
+    } catch (error) {
+        console.error("Gemini suggestion generation error:", error);
+        return []; // Fail silently to not disrupt user experience with errors
+    }
+};
+
 
 /**
  * Parses an ISO 8601 duration string into seconds.
