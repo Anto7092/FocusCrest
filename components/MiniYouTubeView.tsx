@@ -1,7 +1,23 @@
 import * as React from 'react';
-import { findEducationalVideos } from '../services/geminiService';
+import { findEducationalVideos, isQueryEducational } from '../services/geminiService';
 import type { YouTubeVideo } from '../types';
 import { PlayIcon, ErrorIcon } from './icons';
+
+// Predefined list of educational search suggestions
+const EDUCATIONAL_SUGGESTIONS = [
+    'Calculus fundamentals',
+    'History of the Roman Empire',
+    'Introduction to Python programming',
+    'Cellular Biology basics',
+    'Newtonian Physics explained',
+    'Data Structures and Algorithms',
+    'Creative Writing techniques',
+    'Learn Spanish for beginners',
+    'Quantum Mechanics introduction',
+    'JavaScript ES6 features',
+    'World War II documentary',
+    'Organic Chemistry reactions'
+];
 
 // The "watch view" for playing a selected video distraction-free
 const WatchView: React.FC<{
@@ -40,18 +56,31 @@ export const MiniYouTubeView: React.FC = () => {
     const [error, setError] = React.useState<string | null>(null);
     const [searchedQuery, setSearchedQuery] = React.useState('');
     const [selectedVideo, setSelectedVideo] = React.useState<YouTubeVideo | null>(null);
+    const [suggestions, setSuggestions] = React.useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = React.useState(false);
 
-    const handleSearch = React.useCallback(async (e?: React.FormEvent<HTMLFormElement>) => {
-        if (e) e.preventDefault();
-        if (!query.trim()) return;
+    const executeSearch = React.useCallback(async (searchQuery: string) => {
+        const trimmedQuery = searchQuery.trim();
+        if (!trimmedQuery) return;
 
+        setShowSuggestions(false);
         setIsLoading(true);
         setError(null);
         setVideos([]);
-        setSearchedQuery(query);
+        setSearchedQuery(trimmedQuery);
 
         try {
-            const results = await findEducationalVideos(query);
+            // Step 1: Check if the query is educational
+            const isEducational = await isQueryEducational(trimmedQuery);
+            
+            if (!isEducational) {
+                setError("This search seems unrelated to educational content. Let's focus on your study goals! Try searching for topics like 'Quantum Physics' or 'JavaScript Tutorials'.");
+                setIsLoading(false);
+                return;
+            }
+
+            // Step 2: If educational, find videos
+            const results = await findEducationalVideos(trimmedQuery);
             setVideos(results);
             if (results.length === 0) {
               setError("No educational videos found for this topic. Try a different search term.");
@@ -62,7 +91,36 @@ export const MiniYouTubeView: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [query]);
+    }, []);
+
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        executeSearch(query);
+    };
+
+    const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setQuery(value);
+        if (value.length > 2) {
+            const filtered = EDUCATIONAL_SUGGESTIONS.filter(s => 
+                s.toLowerCase().includes(value.toLowerCase())
+            );
+            setSuggestions(filtered.slice(0, 5));
+            setShowSuggestions(filtered.length > 0);
+        } else {
+            setShowSuggestions(false);
+        }
+    };
+    
+    const handleSuggestionClick = (suggestion: string) => {
+        setQuery(suggestion);
+        executeSearch(suggestion);
+    };
+
+    const handleInputBlur = () => {
+        // Delay hiding suggestions to allow click events to register
+        setTimeout(() => setShowSuggestions(false), 150);
+    };
     
     if (selectedVideo) {
         return <WatchView video={selectedVideo} onBack={() => setSelectedVideo(null)} />;
@@ -112,12 +170,15 @@ export const MiniYouTubeView: React.FC = () => {
     return (
         <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-hidden">
             <div className="p-4 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10">
-                <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+                <form onSubmit={handleFormSubmit} className="max-w-2xl mx-auto relative">
                     <div className="relative">
                         <input
                             type="text"
                             value={query}
-                            onChange={(e) => setQuery(e.target.value)}
+                            onChange={handleQueryChange}
+                            onFocus={() => { if (query.length > 2) setShowSuggestions(true); }}
+                            onBlur={handleInputBlur}
+                            autoComplete="off"
                             className="w-full px-5 py-3 bg-slate-900/30 text-slate-100 border border-white/10 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
                             placeholder="Search for academic topics like 'Calculus', 'World War II', 'Python basics'..."
                         />
@@ -127,6 +188,21 @@ export const MiniYouTubeView: React.FC = () => {
                             </svg>
                         </button>
                     </div>
+                     {showSuggestions && suggestions.length > 0 && (
+                        <ul className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-white/10 rounded-lg shadow-lg z-20 overflow-hidden">
+                            {suggestions.map((suggestion, index) => (
+                                <li key={index}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSuggestionClick(suggestion)}
+                                        className="w-full text-left px-5 py-3 text-slate-200 hover:bg-emerald-500/10 transition-colors"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </form>
             </div>
             <div className="flex-1 overflow-y-auto p-6">

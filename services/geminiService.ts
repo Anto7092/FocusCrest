@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import type { YouTubeVideo } from '../types';
 
 // WARNING: API keys are exposed in the frontend as per user request to make the app standalone.
@@ -66,6 +66,45 @@ export async function* performEducationalSearch(history: any[], message:string):
         throw new Error(errorMessage);
     }
 }
+
+/**
+ * Checks if a search query is educational using the Gemini API.
+ * @param query The user's search query.
+ * @returns A promise that resolves to a boolean indicating if the query is educational.
+ */
+export const isQueryEducational = async (query: string): Promise<boolean> => {
+    if (!ai) {
+        throw new Error("Gemini AI client is not initialized.");
+    }
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: `Is the following search query educational, academic, or related to learning a skill? Answer in JSON. Query: "${query}"`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        isEducational: {
+                            type: Type.BOOLEAN,
+                            description: "True if the query is educational, false otherwise."
+                        }
+                    },
+                    required: ["isEducational"]
+                }
+            }
+        });
+
+        const jsonResponse = JSON.parse(response.text);
+        return !!jsonResponse.isEducational;
+    } catch (error) {
+        console.error("Gemini classification error:", error);
+        // Fail open: if the check fails, assume it's educational to not block the user.
+        return true;
+    }
+};
+
 
 /**
  * Parses an ISO 8601 duration string into seconds.
