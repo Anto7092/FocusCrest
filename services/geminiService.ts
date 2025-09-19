@@ -28,7 +28,7 @@ export async function* performEducationalSearch(history: any[], message:string):
     const founderKeywords = ['founder', 'creator', 'who made', 'who created', 'who developed', 'who built', 'who designed', 'developer', 'maker'];
 
     if (founderKeywords.some(keyword => lowerCaseMessage.includes(keyword))) {
-        yield "This application, Zenith Study, was founded and created by Anto Bredly.";
+        yield "This application, Focus Crest, was founded and created by Anto Bredly.";
         return;
     }
     
@@ -46,7 +46,7 @@ export async function* performEducationalSearch(history: any[], message:string):
             model: 'gemini-2.5-flash',
             contents: contents,
             config: {
-                systemInstruction: "You are Zenith Study, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
+                systemInstruction: "You are an AI assistant for Focus Crest, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
                 tools: [{ googleSearch: {} }],
             },
         });
