@@ -1,6 +1,7 @@
 import * as React from 'react';
 import type { BackgroundImage, ColorPalette } from '../types';
 import { SettingsIcon, UploadIcon } from './icons';
+import { saveCustomBackground } from '../services/dbService';
 
 interface SettingsViewProps {
   backgroundImages: BackgroundImage[];
@@ -12,7 +13,7 @@ interface SettingsViewProps {
 export const SettingsView: React.FC<SettingsViewProps> = ({ backgroundImages, currentBackground, setBackground, customImagePalette }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
@@ -20,22 +21,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ backgroundImages, cu
           alert("Image is too large. Please choose a file smaller than 5MB.");
           return;
       }
+      
+      try {
+          // Save the file blob to IndexedDB for persistence
+          await saveCustomBackground(file);
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-          const base64Url = e.target?.result as string;
-          if (base64Url) {
-              const customBackground: BackgroundImage = {
-                  id: 'custom',
-                  name: file.name,
-                  url: base64Url,
-                  thumbnailUrl: base64Url,
-                  palette: customImagePalette,
-              };
-              setBackground(customBackground);
-          }
-      };
-      reader.readAsDataURL(file);
+          // Create a temporary object URL for the current session's display
+          const objectUrl = URL.createObjectURL(file);
+          
+          const customBackground: BackgroundImage = {
+              id: 'custom',
+              name: file.name,
+              url: objectUrl,
+              thumbnailUrl: objectUrl,
+              palette: customImagePalette,
+          };
+          setBackground(customBackground);
+
+      } catch (error) {
+          console.error("Failed to save custom background:", error);
+          alert("Could not save the background image. Please try again.");
+      }
   };
 
   return (

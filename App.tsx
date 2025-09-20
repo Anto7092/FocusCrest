@@ -13,6 +13,7 @@ import { MenuIcon, XIcon } from './components/icons';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { IntroAnimation } from './components/IntroAnimation';
+import { getCustomBackground, deleteCustomBackground } from './services/dbService';
 
 const SESSIONS_PER_LONG_BREAK = 4;
 const POMODORO_SETTINGS_KEY = 'study-focus-pomodoro-settings';
@@ -135,51 +136,104 @@ const App: React.FC = () => {
   
   // Dynamic theme state
   const [selectedBackground, setSelectedBackground] = React.useState<BackgroundImage>(BACKGROUND_IMAGES[0]);
-  
-  // Load and apply theme from localStorage on initial load
+  const customBgUrlRef = React.useRef<string | null>(null);
+
+  // Load theme from storage on initial load
   React.useEffect(() => {
-    try {
-      const savedSettings = localStorage.getItem(THEME_SETTINGS_KEY);
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        if (settings.customBackground) { // Check for a saved custom background
-            setSelectedBackground(settings.customBackground);
-        } else if (settings.backgroundId) { // Fallback to a preset background
+    const loadTheme = async () => {
+      try {
+        // Prioritize loading custom background from IndexedDB
+        const customBgBlob = await getCustomBackground();
+        if (customBgBlob) {
+          const objectUrl = URL.createObjectURL(customBgBlob);
+          // Clean up old object URL if it exists
+          if (customBgUrlRef.current) {
+            URL.revokeObjectURL(customBgUrlRef.current);
+          }
+          customBgUrlRef.current = objectUrl;
+
+          const customBackground: BackgroundImage = {
+            id: 'custom',
+            name: (customBgBlob as File).name || 'Custom Image',
+            url: objectUrl,
+            thumbnailUrl: objectUrl,
+            palette: CUSTOM_IMAGE_PALETTE,
+          };
+          setSelectedBackground(customBackground);
+          return; // Stop here if custom background is loaded
+        }
+        
+        // Fallback to loading preset theme from localStorage
+        const savedSettings = localStorage.getItem(THEME_SETTINGS_KEY);
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.backgroundId) {
             const foundBg = BACKGROUND_IMAGES.find(bg => bg.id === settings.backgroundId);
             if (foundBg) {
-                setSelectedBackground(foundBg);
+              setSelectedBackground(foundBg);
             }
+          }
         }
+      } catch (e) {
+        console.error("Failed to load theme:", e);
+        // Use default theme if anything fails
       }
-    } catch {
-      // Use default theme if parsing fails
-    }
+    };
+
+    loadTheme();
+    
+    // Cleanup object URL on component unmount
+    return () => {
+        if (customBgUrlRef.current) {
+            URL.revokeObjectURL(customBgUrlRef.current);
+        }
+    };
   }, []);
 
-  // Effect to apply theme from selected background
+  // Effect to apply theme and persist choice
   React.useEffect(() => {
-    const root = document.documentElement;
-    const { palette, url } = selectedBackground;
+    const applyTheme = async () => {
+      const root = document.documentElement;
+      const { palette, url } = selectedBackground;
 
-    // Apply background image and filter
-    root.style.setProperty('--background-image-url', `url('${url}')`);
-    root.style.setProperty('--background-filter', palette.backgroundFilter);
-    
-    // Apply all colors from the palette to CSS variables
-    Object.entries(palette).forEach(([key, value]) => {
-        const cssVarName = `--${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`;
-        if (key !== 'backgroundFilter') {
-            root.style.setProperty(cssVarName, value);
-        }
-    });
+      // Apply background image and filter
+      root.style.setProperty('--background-image-url', `url('${url}')`);
+      root.style.setProperty('--background-filter', palette.backgroundFilter);
+      
+      // Apply all colors from the palette to CSS variables
+      Object.entries(palette).forEach(([key, value]) => {
+          const cssVarName = `--${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`;
+          if (key !== 'backgroundFilter') {
+              root.style.setProperty(cssVarName, value);
+          }
+      });
 
-    // Persist choice to localStorage
-    if (selectedBackground.id === 'custom') {
-        localStorage.setItem(THEME_SETTINGS_KEY, JSON.stringify({ customBackground: selectedBackground }));
-    } else {
-        localStorage.setItem(THEME_SETTINGS_KEY, JSON.stringify({ backgroundId: selectedBackground.id }));
+      // Persist choice to storage
+      if (selectedBackground.id !== 'custom') {
+          // If a preset is chosen, save its ID to localStorage and delete any custom background from DB
+          localStorage.setItem(THEME_SETTINGS_KEY, JSON.stringify({ backgroundId: selectedBackground.id }));
+          try {
+              await deleteCustomBackground();
+              // Clean up object URL if we are switching away from a custom bg
+              if (customBgUrlRef.current) {
+                  URL.revokeObjectURL(customBgUrlRef.current);
+                  customBgUrlRef.current = null;
+              }
+          } catch (e) {
+              console.error("Failed to delete custom background:", e);
+          }
+      } else {
+          // If a custom background is active, ensure localStorage doesn't point to an old preset
+          localStorage.removeItem(THEME_SETTINGS_KEY);
+      }
+    };
+
+    if (selectedBackground) {
+        applyTheme();
     }
+
   }, [selectedBackground]);
+
 
   // Global Pomodoro State
   const [pomodoroDurations, setPomodoroDurations] = React.useState<DurationSettings>(() => {
