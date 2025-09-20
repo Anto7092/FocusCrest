@@ -191,7 +191,7 @@ export const BrowserView: React.FC<AssistantViewProps> = ({ initialQuery, onQuer
 
 
   return (
-    <div className="flex flex-col h-full bg-slate-800/20">
+    <div className="flex flex-col h-full">
       {error && (
         <div className="p-3 bg-red-500/20 text-red-100 border-b border-red-500/30 flex items-center justify-center gap-3 text-sm z-20">
           <ErrorIcon className="h-5 w-5 text-red-300" />

@@ -87,7 +87,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
     };
 
     return (
-        <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-y-auto p-6 md:p-8">
+        <div className="flex flex-col w-full h-full overflow-y-auto p-6 md:p-8">
             <div className="max-w-4xl mx-auto w-full">
                 <div className="mb-8">
                     {!plan && <WelcomeScreen />}

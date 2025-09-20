@@ -21,7 +21,7 @@ const StepCard: React.FC<{ number: number; title: string; children: React.ReactN
 
 export const GuideView: React.FC = () => {
     return (
-        <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-y-auto p-8 md:p-12 text-slate-100">
+        <div className="flex flex-col w-full h-full overflow-y-auto p-8 md:p-12 text-slate-100">
             <div className="max-w-5xl mx-auto w-full">
                 <header className="mb-12">
                     <h1 className="text-4xl font-bold text-white mb-2">Get Started</h1>

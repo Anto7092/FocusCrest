@@ -1,6 +1,4 @@
 export type View = 'assistant' | 'youtube' | 'pomodoro' | 'notes' | 'music' | 'planner' | 'settings';
-export type Theme = 'light' | 'dark';
-export type AccentColor = 'emerald' | 'sky' | 'rose' | 'violet' | 'amber';
 
 export type YouTubeVideo = {
   videoId: string;
@@ -33,4 +31,46 @@ export type StudyStep = {
 export type StudyPlan = {
   title: string;
   plan: StudyStep[];
+};
+
+export type ColorPalette = {
+    accent100: string;
+    accent200: string;
+    accent300: string;
+    accent400: string;
+    accent500: string;
+    accent600: string;
+    
+    bgSecondary: string;
+    bgTertiary: string;
+    bgQuaternary: string;
+    
+    textPrimary: string;
+    textSecondary: string;
+    textMuted: string;
+    
+    borderPrimary: string;
+    borderSecondary: string;
+
+    shadowAccent: string;
+    
+    paperColor: string;
+    lineColor: string;
+    paperTextColor: string;
+    paperTextBold: string;
+    paperPlaceholder: string;
+    
+    userBubbleBg: string;
+    userBubbleText: string;
+    
+    backgroundFilter: string;
+};
+
+
+export type BackgroundImage = {
+  id: string;
+  name: string;
+  url: string;
+  thumbnailUrl: string;
+  palette: ColorPalette;
 };

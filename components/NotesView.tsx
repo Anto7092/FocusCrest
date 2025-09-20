@@ -407,7 +407,7 @@ export const NotesView: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col w-full h-full bg-slate-900/20 p-6">
+        <div className="flex flex-col w-full h-full p-6">
             <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">Scratch <span className="text-[var(--accent-300)]">Pad</span></h1>
             <div className="flex items-center gap-2 text-[var(--text-secondary)] mb-6 text-sm">
                 <InfoIcon className="w-4 h-4" />

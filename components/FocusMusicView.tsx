@@ -28,7 +28,7 @@ const WatchView: React.FC<{
     video: YouTubeVideo;
     onBack: () => void;
 }> = ({ video, onBack }) => (
-    <div className="flex flex-col w-full h-full bg-slate-900/20">
+    <div className="flex flex-col w-full h-full">
         <div className="p-3 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10">
             <button onClick={onBack} className="flex items-center px-4 py-2 bg-white/10 text-[var(--text-secondary)] rounded-lg hover:bg-white/20 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -103,7 +103,7 @@ export const FocusMusicView: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-hidden">
+        <div className="flex flex-col w-full h-full overflow-hidden">
             <div className="p-4 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10 flex items-center justify-center">
                  <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-3">
                     <MusicIcon className="w-7 h-7 text-[var(--accent-300)]" />

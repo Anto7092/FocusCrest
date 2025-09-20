@@ -8,7 +8,7 @@ import { FocusMusicView } from './components/FocusMusicView';
 import { PlannerView } from './components/PlannerView';
 import { SettingsView } from './components/SettingsView';
 import { GlobalControls } from './components/GlobalControls';
-import type { View, PomodoroState, Theme, AccentColor } from './types';
+import type { View, PomodoroState, BackgroundImage } from './types';
 import { MenuIcon, XIcon } from './components/icons';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
@@ -16,15 +16,100 @@ import { IntroAnimation } from './components/IntroAnimation';
 
 const SESSIONS_PER_LONG_BREAK = 4;
 const POMODORO_SETTINGS_KEY = 'study-focus-pomodoro-settings';
-const THEME_SETTINGS_KEY = 'study-focus-theme-settings';
+const THEME_SETTINGS_KEY = 'study-focus-theme-settings-v2';
 
-const ACCENT_COLORS: Record<AccentColor, { h: number; s: string }> = {
-  emerald: { h: 158, s: '64%' },
-  sky:     { h: 199, s: '89%' },
-  rose:    { h: 347, s: '90%' },
-  violet:  { h: 262, s: '85%' },
-  amber:   { h: 43,  s: '96%' },
-};
+export const BACKGROUND_IMAGES: BackgroundImage[] = [
+    {
+        id: 'misty-mountain',
+        name: 'Misty Mountain',
+        url: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2670&auto=format&fit=crop',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=200&h=120&auto=format&fit=crop',
+        palette: {
+            accent100: 'hsl(195, 40%, 96%)', accent200: 'hsl(195, 50%, 88%)', accent300: 'hsl(195, 60%, 77%)', accent400: 'hsl(195, 70%, 66%)', accent500: 'hsl(195, 80%, 56%)', accent600: 'hsl(195, 90%, 48%)',
+            bgSecondary: 'rgba(12, 26, 46, 0.65)', bgTertiary: '#112233', bgQuaternary: '#1a334d',
+            textPrimary: '#f0f8ff', textSecondary: '#c0d8e8', textMuted: '#809bb1',
+            borderPrimary: 'rgba(45, 85, 125, 0.7)', borderSecondary: '#1a334d', shadowAccent: 'hsl(195, 80%, 56%, 0.1)',
+            paperColor: 'rgba(17, 34, 51, 0.85)', lineColor: 'rgba(45, 85, 125, 0.9)', paperTextColor: '#dceefc', paperTextBold: 'hsl(195, 60%, 77%)', paperPlaceholder: '#809bb1',
+            userBubbleBg: 'hsla(195, 80%, 56%, 0.2)', userBubbleText: '#f0f8ff',
+            backgroundFilter: 'brightness(0.6) saturate(0.9)',
+        }
+    },
+    {
+        id: 'cozy-library',
+        name: 'Cozy Library',
+        url: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2670&auto=format&fit=crop',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=200&h=120&auto=format&fit=crop',
+        palette: {
+            accent100: 'hsl(35, 80%, 96%)', accent200: 'hsl(35, 85%, 88%)', accent300: 'hsl(35, 90%, 77%)', accent400: 'hsl(35, 95%, 66%)', accent500: 'hsl(35, 100%, 56%)', accent600: 'hsl(35, 100%, 48%)',
+            bgSecondary: 'rgba(46, 32, 22, 0.7)', bgTertiary: '#3a291f', bgQuaternary: '#4f3a2d',
+            textPrimary: '#fff5e6', textSecondary: '#e0d1b9', textMuted: '#a89984',
+            borderPrimary: 'rgba(80, 60, 45, 0.7)', borderSecondary: '#4f3a2d', shadowAccent: 'hsl(35, 100%, 56%, 0.1)',
+            paperColor: 'rgba(252, 249, 243, 0.85)', lineColor: 'rgba(224, 215, 203, 0.9)', paperTextColor: '#5c554e', paperTextBold: 'hsl(25, 60%, 45%)', paperPlaceholder: '#a8a29a',
+            userBubbleBg: 'hsl(35, 90%, 96%)', userBubbleText: 'hsl(35, 100%, 48%)',
+            backgroundFilter: 'brightness(0.8) saturate(1.1) contrast(1.1)',
+        }
+    },
+    {
+        id: 'peaceful-forest',
+        name: 'Peaceful Forest',
+        url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2670&auto=format&fit=crop',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=200&h=120&auto=format&fit=crop',
+        palette: {
+            accent100: 'hsl(140, 50%, 96%)', accent200: 'hsl(140, 55%, 88%)', accent300: 'hsl(140, 60%, 77%)', accent400: 'hsl(140, 65%, 66%)', accent500: 'hsl(140, 70%, 56%)', accent600: 'hsl(140, 80%, 48%)',
+            bgSecondary: 'rgba(15, 30, 20, 0.7)', bgTertiary: '#162b21', bgQuaternary: '#244234',
+            textPrimary: '#e6f5ee', textSecondary: '#b9d8ca', textMuted: '#84a899',
+            borderPrimary: 'rgba(45, 80, 60, 0.7)', borderSecondary: '#244234', shadowAccent: 'hsl(140, 70%, 56%, 0.1)',
+            paperColor: 'rgba(22, 43, 33, 0.85)', lineColor: 'rgba(50, 90, 70, 0.9)', paperTextColor: '#d1e5db', paperTextBold: 'hsl(140, 60%, 77%)', paperPlaceholder: '#84a899',
+            userBubbleBg: 'hsla(140, 70%, 56%, 0.2)', userBubbleText: '#e6f5ee',
+            backgroundFilter: 'brightness(0.7) saturate(1.2)',
+        }
+    },
+    {
+        id: 'modern-desk',
+        name: 'Modern Desk',
+        url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2670&auto=format&fit=crop',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=200&h=120&auto=format&fit=crop',
+        palette: {
+            accent100: 'hsl(210, 20%, 96%)', accent200: 'hsl(210, 25%, 88%)', accent300: 'hsl(210, 30%, 77%)', accent400: 'hsl(210, 40%, 66%)', accent500: 'hsl(210, 50%, 56%)', accent600: 'hsl(210, 60%, 48%)',
+            bgSecondary: 'rgba(20, 22, 25, 0.7)', bgTertiary: '#1c1e22', bgQuaternary: '#2d3035',
+            textPrimary: '#f5f7fa', textSecondary: '#d0d5dd', textMuted: '#98a2b3',
+            borderPrimary: 'rgba(60, 65, 75, 0.7)', borderSecondary: '#2d3035', shadowAccent: 'hsl(210, 50%, 56%, 0.1)',
+            paperColor: 'rgba(28, 30, 34, 0.85)', lineColor: 'rgba(70, 75, 85, 0.9)', paperTextColor: '#e4e7eb', paperTextBold: 'hsl(210, 30%, 77%)', paperPlaceholder: '#98a2b3',
+            userBubbleBg: 'hsla(210, 50%, 56%, 0.2)', userBubbleText: '#f5f7fa',
+            backgroundFilter: 'brightness(0.8) saturate(0.2) contrast(1.1)',
+        }
+    },
+    {
+        id: 'night-sky',
+        name: 'Night Sky',
+        url: 'https://images.unsplash.com/photo-1472552944129-b035e9ea3744?q=80&w=2574&auto=format&fit=crop',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1472552944129-b035e9ea3744?q=80&w=200&h=120&auto=format&fit=crop',
+        palette: {
+            accent100: 'hsl(260, 60%, 96%)', accent200: 'hsl(260, 65%, 88%)', accent300: 'hsl(260, 70%, 77%)', accent400: 'hsl(260, 80%, 66%)', accent500: 'hsl(260, 90%, 56%)', accent600: 'hsl(260, 100%, 48%)',
+            bgSecondary: 'rgba(20, 15, 40, 0.7)', bgTertiary: '#1f1a33', bgQuaternary: '#2e274d',
+            textPrimary: '#f5f3ff', textSecondary: '#d9d2ff', textMuted: '#a399cc',
+            borderPrimary: 'rgba(65, 55, 100, 0.7)', borderSecondary: '#2e274d', shadowAccent: 'hsl(260, 90%, 56%, 0.1)',
+            paperColor: 'rgba(31, 26, 51, 0.85)', lineColor: 'rgba(75, 65, 110, 0.9)', paperTextColor: '#e9e6ff', paperTextBold: 'hsl(260, 70%, 77%)', paperPlaceholder: '#a399cc',
+            userBubbleBg: 'hsla(260, 90%, 56%, 0.2)', userBubbleText: '#f5f3ff',
+            backgroundFilter: 'brightness(0.6) saturate(1.2)',
+        }
+    },
+    {
+        id: 'minimalist-interior',
+        name: 'Minimalist Room',
+        url: 'https://images.unsplash.com/photo-1505691938895-1758d7FEB511?q=80&w=2670&auto=format&fit=crop',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1505691938895-1758d7FEB511?q=80&w=200&h=120&auto=format&fit=crop',
+        palette: {
+            accent100: 'hsl(40, 30%, 96%)', accent200: 'hsl(40, 35%, 88%)', accent300: 'hsl(40, 40%, 77%)', accent400: 'hsl(40, 45%, 66%)', accent500: 'hsl(40, 50%, 56%)', accent600: 'hsl(40, 60%, 48%)',
+            bgSecondary: 'rgba(253, 250, 245, 0.7)', bgTertiary: 'rgba(248, 244, 236, 1)', bgQuaternary: 'rgba(238, 233, 225, 1)',
+            textPrimary: '#4a433d', textSecondary: '#6f6861', textMuted: '#9c948b',
+            borderPrimary: 'rgba(224, 215, 203, 0.7)', borderSecondary: 'rgba(200, 190, 180, 1)', shadowAccent: 'hsl(40, 50%, 56%, 0.1)',
+            paperColor: 'rgba(252, 249, 243, 0.85)', lineColor: 'rgba(224, 215, 203, 0.9)', paperTextColor: '#5c554e', paperTextBold: 'hsl(40, 60%, 48%)', paperPlaceholder: '#a8a29a',
+            userBubbleBg: 'hsl(40, 30%, 96%)', userBubbleText: 'hsl(40, 60%, 48%)',
+            backgroundFilter: 'brightness(1.0) saturate(0.9)',
+        }
+    }
+];
 
 export type DurationSettings = {
     work: number;
@@ -52,39 +137,45 @@ const App: React.FC = () => {
   const [initialYouTubeQuery, setInitialYouTubeQuery] = React.useState<string | null>(null);
   const [initialAssistantQuery, setInitialAssistantQuery] = React.useState<string | null>(null);
   
-  // Theme state
-  const [theme, setTheme] = React.useState<Theme>('dark');
-  const [accentColor, setAccentColor] = React.useState<AccentColor>('emerald');
+  // Dynamic theme state
+  const [selectedBackground, setSelectedBackground] = React.useState<BackgroundImage>(BACKGROUND_IMAGES[0]);
   
   // Load and apply theme from localStorage on initial load
   React.useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem(THEME_SETTINGS_KEY);
-      if (savedTheme) {
-        const { theme: saved, accent: savedAccent } = JSON.parse(savedTheme);
-        if (saved) setTheme(saved);
-        if (savedAccent) setAccentColor(savedAccent);
+      const savedSettings = localStorage.getItem(THEME_SETTINGS_KEY);
+      if (savedSettings) {
+        const { backgroundId } = JSON.parse(savedSettings);
+        const foundBg = BACKGROUND_IMAGES.find(bg => bg.id === backgroundId);
+        if (foundBg) {
+            setSelectedBackground(foundBg);
+        }
       }
     } catch {
       // Use default theme if parsing fails
     }
   }, []);
 
-  // Effect to apply theme classes and CSS variables
+  // Effect to apply theme from selected background
   React.useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('theme-light', 'theme-dark');
-    root.classList.add(`theme-${theme}`);
+    const { palette, url } = selectedBackground;
 
-    const accent = ACCENT_COLORS[accentColor];
-    if (accent) {
-      root.style.setProperty('--color-accent-h', accent.h.toString());
-      root.style.setProperty('--color-accent-s', accent.s);
-    }
+    // Apply background image and filter
+    root.style.setProperty('--background-image-url', `url('${url}')`);
+    root.style.setProperty('--background-filter', palette.backgroundFilter);
     
-    // Persist theme choice to localStorage
-    localStorage.setItem(THEME_SETTINGS_KEY, JSON.stringify({ theme, accent: accentColor }));
-  }, [theme, accentColor]);
+    // Apply all colors from the palette to CSS variables
+    Object.entries(palette).forEach(([key, value]) => {
+        const cssVarName = `--${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`;
+        if (key !== 'backgroundFilter') {
+            root.style.setProperty(cssVarName, value);
+        }
+    });
+
+    // Persist choice to localStorage
+    localStorage.setItem(THEME_SETTINGS_KEY, JSON.stringify({ backgroundId: selectedBackground.id }));
+  }, [selectedBackground]);
 
   // Global Pomodoro State
   const [pomodoroDurations, setPomodoroDurations] = React.useState<DurationSettings>(() => {
@@ -189,7 +280,11 @@ const App: React.FC = () => {
                 <NotesView />
               </ViewWrapper>
               <ViewWrapper id="settings" activeView={activeView}>
-                <SettingsView theme={theme} setTheme={setTheme} accentColor={accentColor} setAccentColor={setAccentColor} />
+                <SettingsView 
+                  backgroundImages={BACKGROUND_IMAGES}
+                  currentBackground={selectedBackground}
+                  setBackground={setSelectedBackground}
+                />
               </ViewWrapper>
             </div>
           </main>

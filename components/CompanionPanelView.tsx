@@ -10,7 +10,7 @@ interface CompanionPanelViewProps {
 export const CompanionPanelView: React.FC<CompanionPanelViewProps> = ({ isOpen, onClose }) => {
     return (
         <div className={`
-            flex-shrink-0 bg-slate-900/20 border-l border-white/10 relative 
+            flex-shrink-0 border-l border-white/10 relative 
             transition-all duration-500 ease-in-out overflow-hidden
             ${isOpen ? 'w-full md:w-1/3' : 'w-0'}
         `}>
