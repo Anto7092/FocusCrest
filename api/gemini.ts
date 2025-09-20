@@ -3,8 +3,8 @@
 // to the Google Gemini and YouTube APIs.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI } from "@google/genai";
-import type { YouTubeVideo } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
+import type { YouTubeVideo, StudyPlan } from '../types';
 
 // API keys are sourced from environment variables for security.
 // Ensure YOUTUBE_API_KEY and API_KEY (for Gemini) are set in your Vercel environment.
@@ -44,11 +44,23 @@ const timeout = (ms: number, message: string) =>
 
 async function runAction(action: string, payload: any, ai: GoogleGenAI): Promise<any> {
     switch (action) {
-        case 'performSearch':
-            if (!payload || !Array.isArray(payload.history) || typeof payload.message !== 'string') {
-                throw new Error('Invalid payload for performSearch');
+        case 'generateStudyPlan':
+            if (!payload || typeof payload.topic !== 'string' || typeof payload.deadline !== 'string') {
+                throw new Error('Invalid payload for generateStudyPlan');
             }
-            return performChatSearchBackend(payload.history, payload.message, ai);
+            return generateStudyPlanBackend(payload.topic, payload.deadline, ai);
+        
+        case 'isQueryEducational':
+            if (!payload || typeof payload.query !== 'string') {
+                throw new Error('Invalid payload for isQueryEducational');
+            }
+            return isQueryEducationalBackend(payload.query, ai);
+            
+        case 'getEducationalSuggestions':
+            if (!payload || typeof payload.query !== 'string') {
+                throw new Error('Invalid payload for getEducationalSuggestions');
+            }
+            return getEducationalSuggestionsBackend(payload.query, ai);
 
         case 'findEducationalVideos':
             if (!payload || typeof payload.query !== 'string') {
@@ -75,16 +87,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        // Use the new robust manual parser instead of relying on the faulty req.body
         const body = await getBody(req);
 
-        // Main logic path for all other actions.
         if (!body || !body.action) {
             return res.status(400).json({ error: 'Missing or malformed action in request body' });
         }
         
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         const { action, payload } = body;
+        
+        if (action === 'performSearchStream') {
+            if (!payload || !Array.isArray(payload.history) || typeof payload.message !== 'string') {
+                return res.status(400).json({ error: 'Invalid payload for performSearchStream' });
+            }
+            
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.setHeader('Transfer-Encoding', 'chunked');
+            
+            try {
+                const stream = performSearchStreamBackend(payload.history, payload.message, ai);
+                for await (const chunk of stream) {
+                    res.write(chunk);
+                }
+                return res.end();
+            } catch (streamError) {
+                console.error("Streaming API Error:", streamError);
+                // Can't set headers now, so just end the response. The client will see a failed request.
+                return res.end(); 
+            }
+        }
         
         const result = await Promise.race([
             runAction(action, payload, ai),
@@ -102,21 +133,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 // --- API Logic ---
 
-async function performChatSearchBackend(history: any[], message: string, genAI: GoogleGenAI): Promise<string> {
-    // Intercept questions about the creator to provide a guaranteed, hardcoded answer.
-    const lowerCaseMessage = message.toLowerCase();
-    const founderKeywords = ['founder', 'creator', 'who made', 'who created', 'who developed', 'who built', 'who designed', 'developer', 'maker'];
-
-    if (founderKeywords.some(keyword => lowerCaseMessage.includes(keyword))) {
-        return "This application, Focus Crest, was founded and created by Anto Bredly.";
-    }
-
+async function* performSearchStreamBackend(history: any[], message: string, genAI: GoogleGenAI): AsyncGenerator<string> {
     const contents = [
         ...history,
         { role: 'user', parts: [{ text: message }] }
     ];
 
-    const response = await genAI.models.generateContent({
+    const responseStream = await genAI.models.generateContentStream({
         model: 'gemini-2.5-flash',
         contents: contents,
         config: {
@@ -124,12 +147,101 @@ async function performChatSearchBackend(history: any[], message: string, genAI: 
             tools: [{ googleSearch: {} }],
         },
     });
-
-    if (!response.text) {
-      throw new Error("The AI returned an empty response.");
+    
+    for await (const chunk of responseStream) {
+        if (chunk && chunk.text) {
+            yield chunk.text;
+        }
     }
-    return response.text;
 }
+
+async function generateStudyPlanBackend(topic: string, deadline: string, genAI: GoogleGenAI): Promise<StudyPlan> {
+    const response = await genAI.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Generate a study plan for the topic: "${topic}" with the deadline: "${deadline}".`,
+        config: {
+            systemInstruction: "You are an expert academic planner. Your task is to create a structured, day-by-day study plan. Break down the main topic into manageable sub-topics for each day. For each sub-topic, provide a concise description, a relevant YouTube search query, a name for a Pomodoro focus session, and a deep-diving question to ask an AI assistant. The entire output must be in JSON format.",
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    title: { type: Type.STRING, description: "A creative title for the study plan." },
+                    plan: {
+                        type: Type.ARRAY,
+                        description: "A list of daily study steps.",
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                day: { type: Type.STRING, description: "The day of the plan (e.g., 'Day 1')." },
+                                topic: { type: Type.STRING, description: "The specific sub-topic for the day." },
+                                description: { type: Type.STRING, description: "A brief one-sentence description of the day's topic." },
+                                youtubeSearch: { type: Type.STRING, description: "A concise, effective search query for YouTube." },
+                                pomodoroSessionName: { type: Type.STRING, description: "A short, motivating name for a Pomodoro session." },
+                                assistantQuestion: { type: Type.STRING, description: "An insightful question to ask an AI assistant about the topic." }
+                            },
+                            required: ["day", "topic", "description", "youtubeSearch", "pomodoroSessionName", "assistantQuestion"]
+                        }
+                    }
+                },
+                required: ["title", "plan"]
+            }
+        }
+    });
+
+    const jsonString = response.text.trim();
+    return JSON.parse(jsonString);
+}
+
+
+async function isQueryEducationalBackend(query: string, genAI: GoogleGenAI): Promise<{ isEducational: boolean }> {
+    const response = await genAI.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Is the following search query educational, academic, or related to learning a skill? Answer in JSON. Query: "${query}"`,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    isEducational: {
+                        type: Type.BOOLEAN,
+                        description: "True if the query is educational, false otherwise."
+                    }
+                },
+                required: ["isEducational"]
+            }
+        }
+    });
+
+    return JSON.parse(response.text);
+}
+
+async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGenAI): Promise<{ suggestions: string[] }> {
+    const response = await genAI.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Based on the user's partial query "${query}", generate a list of 5 relevant and diverse educational YouTube search suggestions. The suggestions should be concise and directly searchable.`,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    suggestions: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.STRING,
+                            description: "An educational search suggestion."
+                        },
+                        description: "A list of 5 educational search suggestions."
+                    }
+                },
+                required: ["suggestions"]
+            },
+            thinkingConfig: { thinkingBudget: 0 } // Disable thinking for low-latency response
+        }
+    });
+    
+    return JSON.parse(response.text);
+}
+
 
 /**
  * Parses an ISO 8601 duration string into seconds.
