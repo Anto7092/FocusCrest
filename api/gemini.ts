@@ -6,11 +6,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
-// In production, API keys should be managed securely via environment variables.
-// FIX: Use environment variables for API keys to follow best practices and fix the type error.
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-// FIX: Use environment variables for API keys to follow best practices and fix the type error.
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// WARNING: Hardcoded API keys for development purposes.
+// Replace with environment variables before deploying to production.
+const YOUTUBE_API_KEY = "AIzaSyDpaOJElbybDXwaPX5T1hhaZ1Ngfim9uGQ";
+const GEMINI_API_KEY = "AIzaSyDqF6S3a2C0N8rrMH4pB6mczv0BClBFEJ4";
 
 
 const SERVER_TIMEOUT = 9000; // 9 seconds
@@ -68,7 +67,7 @@ async function runAction(action: string, payload: any, ai: GoogleGenAI): Promise
             if (!payload || typeof payload.query !== 'string') {
                 throw new Error('Invalid payload for findEducationalVideos');
             }
-            if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") {
+            if (!YOUTUBE_API_KEY) {
                 throw new Error("The YouTube API Key is not configured on the server.");
             }
             return findEducationalVideosBackend(payload.query, YOUTUBE_API_KEY);
@@ -84,7 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
     
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+    if (!GEMINI_API_KEY) {
         return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
     }
 
