@@ -31,22 +31,22 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
             >
                  <button 
                     onClick={onClose} 
-                    className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10" 
+                    className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors z-10" 
                     aria-label="Close settings"
                 >
                     <XIcon className="w-6 h-6" />
                 </button>
                 
                 <div className="flex items-center justify-center gap-3 mb-4">
-                    <SettingsIcon className="w-7 h-7 text-emerald-300" />
-                    <h2 className="text-2xl font-bold text-slate-100">Timer Settings</h2>
+                    <SettingsIcon className="w-7 h-7 text-[var(--accent-300)]" />
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)]">Timer Settings</h2>
                 </div>
                 
-                <p className="text-center text-slate-400 mb-8">
+                <p className="text-center text-[var(--text-secondary)] mb-8">
                     Adjust the length of your sessions. All durations are in minutes.
                 </p>
 
-                <div className="flex justify-around items-start gap-4 text-slate-200">
+                <div className="flex justify-around items-start gap-4">
                     <ScrollableNumberPicker 
                         label="Focus" 
                         value={durations.work} 
@@ -67,7 +67,7 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
                 <div className="mt-10 text-center">
                     <button 
                         onClick={onClose}
-                        className="px-10 py-3 bg-emerald-500 text-white font-semibold rounded-full hover:bg-emerald-400 transition-all duration-300 shadow-lg hover:shadow-emerald-500/40 transform hover:scale-105"
+                        className="px-10 py-3 bg-[var(--accent-500)] text-white font-semibold rounded-full hover:bg-[var(--accent-400)] transition-all duration-300 shadow-lg hover:shadow-[0_8px_20px_-5px_hsl(var(--color-accent-h),var(--color-accent-s),var(--color-accent-l-500),0.4)] transform hover:scale-105"
                     >
                         Done
                     </button>

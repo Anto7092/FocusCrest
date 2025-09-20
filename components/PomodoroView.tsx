@@ -78,11 +78,11 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
     const progress = (getDuration(mode) - timeLeft) / getDuration(mode);
     
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full p-6 text-slate-100">
-            <h1 className="text-3xl font-bold text-slate-200 mb-4">
-                Pomodoro <span className="text-emerald-300">Timer</span>
+        <div className="flex flex-col items-center justify-center w-full h-full p-6 text-[var(--text-primary)]">
+            <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
+                Pomodoro <span className="text-[var(--accent-300)]">Timer</span>
             </h1>
-            <div className="flex items-center gap-2 text-slate-300 mb-6 text-sm">
+            <div className="flex items-center gap-2 text-[var(--text-secondary)] mb-6 text-sm">
               <InfoIcon className="w-4 h-4" />
               <p>Boost your productivity by working in focused intervals.</p>
             </div>
@@ -93,7 +93,7 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
                     value={sessionName}
                     onChange={handleSessionNameChange}
                     placeholder="Name your focus session..."
-                    className="w-full px-4 py-2 text-center bg-slate-900/30 text-slate-100 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400 transition-all"
+                    className="w-full px-4 py-2 text-center bg-slate-900/30 text-[var(--text-primary)] border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-500)] placeholder:text-[var(--text-muted)] transition-all"
                     aria-label="Focus session name"
                 />
             </div>
@@ -103,7 +103,7 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
                     <svg className="w-full h-full" viewBox="0 0 100 100">
                         <circle className="stroke-current text-slate-700/50" strokeWidth="4" cx="50" cy="50" r="48" fill="transparent" />
                         <circle
-                            className="stroke-current text-emerald-400 transform -rotate-90 origin-center transition-all duration-500"
+                            className="stroke-current text-[var(--accent-400)] transform -rotate-90 origin-center transition-all duration-500"
                             strokeWidth="4"
                             strokeLinecap="round"
                             cx="50" cy="50" r="48"
@@ -116,28 +116,28 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
 
                 <div className="z-10 text-center">
                     <p className="text-6xl font-mono font-bold tracking-widest">{formatTime(timeLeft)}</p>
-                    <p className="text-lg text-slate-300 mt-2">{getModeLabel(mode)}</p>
+                    <p className="text-lg text-[var(--text-secondary)] mt-2">{getModeLabel(mode)}</p>
                 </div>
             </div>
 
             <div className="flex items-center space-x-4 mt-10">
                  <button 
                     onClick={() => setIsSettingsOpen(true)}
-                    className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-slate-300"
+                    className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-[var(--text-secondary)]"
                     aria-label="Customize durations"
                 >
                     <SettingsIcon className="w-8 h-8" />
                 </button>
                 <button 
                     onClick={toggleTimer} 
-                    className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full hover:from-emerald-400 hover:to-teal-500 transition-all shadow-lg hover:shadow-xl text-white"
+                    className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-[var(--accent-500)] to-[var(--accent-600)] rounded-full hover:from-[var(--accent-400)] hover:to-[var(--accent-500)] transition-all shadow-lg hover:shadow-xl text-white"
                     aria-label={isActive ? 'Pause timer' : 'Start timer'}
                 >
                     {isActive ? <PauseIcon className="w-10 h-10" /> : <PlayIcon className="w-10 h-10" />}
                 </button>
                 <button 
                     onClick={resetTimer} 
-                    className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-slate-300"
+                    className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-[var(--text-secondary)]"
                     aria-label="Reset timer"
                 >
                     <ResetIcon className="w-8 h-8" />
@@ -147,19 +147,19 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
              <div className="mt-12 flex space-x-4">
                 <button 
                     onClick={() => selectMode('work')} 
-                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'work' ? 'bg-emerald-400/20 text-emerald-200' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'}`}
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'work' ? 'bg-[var(--accent-400)]/20 text-[var(--accent-200)]' : 'bg-slate-700/50 text-[var(--text-secondary)] hover:bg-slate-600/50'}`}
                 >
                     Focus ({durations.work} min)
                 </button>
                  <button 
                     onClick={() => selectMode('shortBreak')} 
-                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'shortBreak' ? 'bg-emerald-400/20 text-emerald-200' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'}`}
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'shortBreak' ? 'bg-[var(--accent-400)]/20 text-[var(--accent-200)]' : 'bg-slate-700/50 text-[var(--text-secondary)] hover:bg-slate-600/50'}`}
                 >
                     Short Break ({durations.shortBreak} min)
                 </button>
                  <button 
                     onClick={() => selectMode('longBreak')} 
-                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'longBreak' ? 'bg-emerald-400/20 text-emerald-200' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'}`}
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${mode === 'longBreak' ? 'bg-[var(--accent-400)]/20 text-[var(--accent-200)]' : 'bg-slate-700/50 text-[var(--text-secondary)] hover:bg-slate-600/50'}`}
                 >
                     Long Break ({durations.longBreak} min)
                 </button>

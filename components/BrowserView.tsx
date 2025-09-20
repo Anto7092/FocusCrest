@@ -49,10 +49,10 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
             const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|_.*?_)/g);
             return parts.map((part, index) => {
                 if (part.startsWith('**') && part.endsWith('**')) {
-                    return <strong key={index} className="font-bold text-emerald-300">{part.slice(2, -2)}</strong>;
+                    return <strong key={index} className="font-bold markdown-strong">{part.slice(2, -2)}</strong>;
                 }
                 if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('_') && part.endsWith('_'))) {
-                    return <em key={index} className="italic text-emerald-200">{part.slice(1, -1)}</em>;
+                    return <em key={index} className="italic markdown-em">{part.slice(1, -1)}</em>;
                 }
                 return part;
             });
@@ -72,13 +72,13 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
         lines.forEach((line, index) => {
             if (line.startsWith('### ')) {
                 flushList();
-                elements.push(<h3 key={index} className="text-xl font-semibold text-slate-100 mt-5 mb-2">{parseInline(line.substring(4))}</h3>);
+                elements.push(<h3 key={index} className="text-xl font-semibold text-[var(--text-primary)] mt-5 mb-2">{parseInline(line.substring(4))}</h3>);
             } else if (line.startsWith('## ')) {
                 flushList();
-                elements.push(<h2 key={index} className="text-2xl font-semibold text-slate-100 mt-6 mb-3">{parseInline(line.substring(3))}</h2>);
+                elements.push(<h2 key={index} className="text-2xl font-semibold text-[var(--text-primary)] mt-6 mb-3">{parseInline(line.substring(3))}</h2>);
             } else if (line.startsWith('# ')) {
                 flushList();
-                elements.push(<h1 key={index} className="text-3xl font-bold text-white mt-6 mb-4">{parseInline(line.substring(2))}</h1>);
+                elements.push(<h1 key={index} className="text-3xl font-bold text-[var(--text-primary)] mt-6 mb-4">{parseInline(line.substring(2))}</h1>);
             } else if (line.startsWith('* ') || line.startsWith('- ')) {
                 listItems.push(<li key={index}>{parseInline(line.substring(2))}</li>);
             } else {
@@ -94,17 +94,17 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
         return elements;
     }, [content]);
 
-    return <div className="text-slate-200 leading-relaxed font-sans text-base break-words">{formattedContent}</div>;
+    return <div className="text-[var(--text-secondary)] leading-relaxed font-sans text-base break-words">{formattedContent}</div>;
 };
 
 const WelcomeScreen: React.FC = () => (
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
         <div className="relative w-40 h-40 flex items-center justify-center mb-6">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full opacity-20 blur-2xl"></div>
-            <AssistantIcon className="relative w-28 h-28 text-emerald-400" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-500)] to-[var(--accent-600)] rounded-full opacity-20 blur-2xl"></div>
+            <AssistantIcon className="relative w-28 h-28 text-[var(--accent-400)]" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">AI Assistant</h1>
-        <p className="text-slate-300 max-w-lg mb-8">
+        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">AI Assistant</h1>
+        <p className="text-[var(--text-secondary)] max-w-lg mb-8">
             Start a conversation by asking an academic question to get an AI-powered answer.
         </p>
     </div>
@@ -204,16 +204,16 @@ export const BrowserView: React.FC<AssistantViewProps> = ({ initialQuery, onQuer
         
         {chatHistory.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-2xl p-4 rounded-xl ${msg.role === 'user' ? 'bg-emerald-500/20 text-slate-100 rounded-br-none' : 'bg-slate-700/50 text-slate-200 rounded-bl-none'}`}>
+            <div className={`max-w-2xl p-4 rounded-xl ${msg.role === 'user' ? 'bg-[var(--user-bubble-bg)] text-[var(--user-bubble-text)] rounded-br-none' : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] rounded-bl-none'}`}>
               {msg.role === 'model' ? (
                 <div>
                     {msg.parts ? (
                         <MarkdownRenderer content={msg.parts} />
                     ) : (
                         <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-0"></div>
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-150"></div>
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-300"></div>
+                            <div className="w-2 h-2 bg-[var(--accent-400)] rounded-full animate-pulse delay-0"></div>
+                            <div className="w-2 h-2 bg-[var(--accent-400)] rounded-full animate-pulse delay-150"></div>
+                            <div className="w-2 h-2 bg-[var(--accent-400)] rounded-full animate-pulse delay-300"></div>
                         </div>
                     )}
                     
@@ -221,7 +221,7 @@ export const BrowserView: React.FC<AssistantViewProps> = ({ initialQuery, onQuer
                         <div className="text-right mt-2">
                             <button 
                                 onClick={() => handleSaveToNotes(msg.parts)} 
-                                className="inline-flex items-center gap-2 px-3 py-1 text-xs bg-slate-600/50 text-slate-300 rounded-full hover:bg-slate-500/50 transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-3 py-1 text-xs bg-[var(--bg-quaternary)] text-[var(--text-secondary)] rounded-full hover:bg-[var(--border-secondary)] transition-colors disabled:opacity-50"
                                 disabled={savedMessage === msg.parts}
                                 aria-label="Save to Notes"
                             >
@@ -248,14 +248,14 @@ export const BrowserView: React.FC<AssistantViewProps> = ({ initialQuery, onQuer
               type="text"
               value={currentQuery}
               onChange={(e) => setCurrentQuery(e.target.value)}
-              className="w-full pl-5 pr-14 py-3 bg-slate-900/40 text-slate-100 border border-white/10 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400 disabled:opacity-50"
+              className="w-full pl-5 pr-14 py-3 bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--accent-500)] placeholder:text-[var(--text-muted)] disabled:opacity-50"
               placeholder={isLoading ? "Generating answer..." : "Ask a follow-up question..."}
               disabled={isLoading}
               aria-label="Chat input"
             />
             <button 
               type="submit" 
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full hover:from-emerald-400 hover:to-teal-500 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:saturate-50" 
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-gradient-to-br from-[var(--accent-500)] to-[var(--accent-600)] rounded-full hover:from-[var(--accent-400)] hover:to-[var(--accent-500)] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:saturate-50" 
               aria-label="Send message"
               disabled={isLoading || !currentQuery.trim()}
             >

@@ -19,8 +19,8 @@ const RichTextToolbar: React.FC<{
     onCommand: (command: string) => void;
 }> = ({ isBold, isItalic, isUnderline, onCommand }) => {
     const buttonBase = "p-2 rounded-md transition-colors duration-200";
-    const active = "bg-emerald-400/20 text-emerald-200";
-    const inactive = "text-slate-300 hover:bg-slate-600/50";
+    const active = "bg-[var(--accent-400)]/20 text-[var(--accent-200)]";
+    const inactive = "text-[var(--text-secondary)] hover:bg-slate-600/50";
     return (
         <div className="flex items-center space-x-2">
             <button onClick={() => onCommand('bold')} className={`${buttonBase} ${isBold ? active : inactive}`} aria-pressed={isBold} aria-label="Bold"><BoldIcon className="w-5 h-5" /></button>
@@ -40,8 +40,8 @@ const DrawingToolbar: React.FC<{
     const colors = ['#334155', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#f3f4f6'];
     const widths = [2, 4, 8, 16];
     const buttonBase = "p-2 rounded-md transition-colors duration-200";
-    const active = "bg-emerald-400/20 text-emerald-200";
-    const inactive = "text-slate-300 hover:bg-slate-600/50";
+    const active = "bg-[var(--accent-400)]/20 text-[var(--accent-200)]";
+    const inactive = "text-[var(--text-secondary)] hover:bg-slate-600/50";
     return (
         <div className="flex items-center gap-2 flex-wrap">
             <button onClick={() => setTool('pen')} className={`${buttonBase} ${tool === 'pen' ? active : inactive}`} aria-label="Pen"><PenIcon className="w-5 h-5" /></button>
@@ -51,11 +51,11 @@ const DrawingToolbar: React.FC<{
             <button onClick={onRedo} disabled={!canRedo} className={`${buttonBase} ${inactive} disabled:opacity-50`} aria-label="Redo"><RedoIcon className="w-5 h-5" /></button>
             <div className="h-6 w-px bg-white/10 mx-2"></div>
             <div className="flex items-center gap-2">
-                {colors.map(c => <button key={c} onClick={() => setColor(c)} className={`w-6 h-6 rounded-full transition-transform transform hover:scale-110 ${color === c ? 'ring-2 ring-offset-2 ring-offset-slate-800 ring-emerald-400' : ''}`} style={{ backgroundColor: c }} aria-label={`Color ${c}`}></button>)}
+                {colors.map(c => <button key={c} onClick={() => setColor(c)} className={`w-6 h-6 rounded-full transition-transform transform hover:scale-110 ${color === c ? 'ring-2 ring-offset-2 ring-offset-slate-800 ring-[var(--accent-400)]' : ''}`} style={{ backgroundColor: c }} aria-label={`Color ${c}`}></button>)}
             </div>
             <div className="h-6 w-px bg-white/10 mx-2"></div>
             <div className="flex items-center gap-2">
-                {widths.map(w => <button key={w} onClick={() => setWidth(w)} className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${width === w ? 'bg-emerald-400/20' : 'hover:bg-slate-600/50'}`} aria-label={`Width ${w}`}><div className="bg-slate-300 rounded-full" style={{ width: `${w}px`, height: `${w}px` }}></div></button>)}
+                {widths.map(w => <button key={w} onClick={() => setWidth(w)} className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${width === w ? 'bg-[var(--accent-400)]/20' : 'hover:bg-slate-600/50'}`} aria-label={`Width ${w}`}><div className="bg-slate-300 rounded-full" style={{ width: `${w}px`, height: `${w}px` }}></div></button>)}
             </div>
         </div>
     );
@@ -65,12 +65,12 @@ const PaginationControls: React.FC<{
     currentPage: number; totalPages: number;
     onPrev: () => void; onNext: () => void; onNew: () => void;
 }> = ({ currentPage, totalPages, onPrev, onNext, onNew }) => (
-    <div className="flex-shrink-0 flex items-center justify-center gap-4 p-2 bg-slate-800/50 rounded-b-lg border-t border-white/10 text-slate-300 text-sm">
+    <div className="flex-shrink-0 flex items-center justify-center gap-4 p-2 bg-slate-800/50 rounded-b-lg border-t border-white/10 text-[var(--text-secondary)] text-sm">
         <button onClick={onPrev} disabled={currentPage === 0} className="px-3 py-1 rounded hover:bg-slate-700 disabled:opacity-50">&lt; Prev</button>
         <span className="font-mono">Page {currentPage + 1} of {totalPages}</span>
         <button onClick={onNext} disabled={currentPage === totalPages - 1} className="px-3 py-1 rounded hover:bg-slate-700 disabled:opacity-50">Next &gt;</button>
         <div className="w-px h-5 bg-white/10 mx-2"></div>
-        <button onClick={onNew} className="px-3 py-1 rounded bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30">New Page</button>
+        <button onClick={onNew} className="px-3 py-1 rounded bg-[var(--accent-500)]/20 text-[var(--accent-200)] hover:bg-[var(--accent-500)]/30">New Page</button>
     </div>
 );
 
@@ -288,28 +288,135 @@ export const NotesView: React.FC = () => {
     const handleRedo = () => { if (historyIndex < drawingHistory.length) { const newIndex = historyIndex + 1; restoreCanvasState(drawingHistory[newIndex - 1]); setHistoryIndex(newIndex); } };
     const restoreCanvasState = (dataUrl: string) => { const canvas = canvasRef.current; const ctx = canvas?.getContext('2d'); if (!canvas || !ctx) return; const img = new Image(); img.onload = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0); }; img.src = dataUrl; };
     
+    // Optimized drawing effect for smoother lines and better performance
     React.useEffect(() => {
-        const canvas = canvasRef.current; if (!canvas || mode !== 'draw') return; const ctx = canvas.getContext('2d'); if (!ctx) return;
-        const getCoords = (e: MouseEvent | TouchEvent) => { const r = canvas.getBoundingClientRect(); const cX = 'touches' in e ? e.touches[0].clientX : e.clientX; const cY = 'touches' in e ? e.touches[0].clientY : e.clientY; return { x: cX - r.left, y: cY - r.top }; };
-        let lastPos: { x: number, y: number } | null = null;
-        const start = (e: MouseEvent | TouchEvent) => { e.preventDefault(); isDrawingRef.current = true; lastPos = getCoords(e); };
-        const draw = (e: MouseEvent | TouchEvent) => { if (!isDrawingRef.current || !lastPos) return; e.preventDefault(); const currentPos = getCoords(e); ctx.beginPath(); ctx.globalCompositeOperation = drawingTool === 'eraser' ? 'destination-out' : 'source-over'; ctx.strokeStyle = penColor; ctx.lineWidth = penWidth; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.moveTo(lastPos.x, lastPos.y); ctx.lineTo(currentPos.x, currentPos.y); ctx.stroke(); lastPos = currentPos; };
-        const stop = () => { if (!isDrawingRef.current) return; isDrawingRef.current = false; lastPos = null; const url = canvas.toDataURL(); const newHistory = drawingHistory.slice(0, historyIndex); newHistory.push(url); if (newHistory.length > MAX_HISTORY_SIZE) newHistory.shift(); setDrawingHistory(newHistory); setHistoryIndex(newHistory.length); setDrawingData(d => { const n = [...d]; n[currentPageIndex] = url; return n; }); };
-        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stop); canvas.addEventListener('mouseleave', stop); canvas.addEventListener('touchstart', start, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false }); canvas.addEventListener('touchend', stop);
-        return () => { canvas.removeEventListener('mousedown', start); canvas.removeEventListener('mousemove', draw); canvas.removeEventListener('mouseup', stop); canvas.removeEventListener('mouseleave', stop); canvas.removeEventListener('touchstart', start); canvas.removeEventListener('touchmove', draw); canvas.removeEventListener('touchend', stop); };
+        const canvas = canvasRef.current;
+        if (!canvas || mode !== 'draw') return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const getCoords = (e: MouseEvent | TouchEvent) => {
+            const r = canvas.getBoundingClientRect();
+            const cX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+            const cY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+            return { x: cX - r.left, y: cY - r.top };
+        };
+
+        const points: { x: number, y: number }[] = [];
+        let animationFrameId: number | null = null;
+        let lastPointIndex = 0;
+
+        const render = () => {
+            animationFrameId = null; // Allow scheduling a new frame
+            if (points.length <= lastPointIndex) return;
+            
+            ctx.globalCompositeOperation = drawingTool === 'eraser' ? 'destination-out' : 'source-over';
+            ctx.strokeStyle = penColor;
+            ctx.lineWidth = penWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Process only new points to draw new line segments
+            for (let i = lastPointIndex; i < points.length - 1; i++) {
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                // Calculate midpoint for the curve for a smoother line
+                const midPoint = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+                ctx.quadraticCurveTo(p1.x, p1.y, midPoint.x, midPoint.y);
+            }
+            ctx.stroke(); // Draw all the new segments
+            
+            lastPointIndex = points.length - 1;
+        };
+
+        const requestRender = () => {
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(render);
+            }
+        };
+
+        const start = (e: MouseEvent | TouchEvent) => {
+            e.preventDefault();
+            isDrawingRef.current = true;
+            points.length = 0; // Reset for a new line
+            lastPointIndex = 0;
+            
+            const coords = getCoords(e);
+            points.push(coords);
+            
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+        };
+
+        const move = (e: MouseEvent | TouchEvent) => {
+            if (!isDrawingRef.current) return;
+            e.preventDefault();
+            points.push(getCoords(e));
+            requestRender();
+        };
+
+        const stop = () => {
+            if (!isDrawingRef.current) return;
+            isDrawingRef.current = false;
+
+            // A small timeout ensures the final animation frame has fired before saving
+            setTimeout(() => {
+                // Draw a dot if it was just a click with no movement
+                if (points.length < 3 && canvas && points.length > 0) {
+                     const p = points[0];
+                     ctx.globalCompositeOperation = drawingTool === 'eraser' ? 'destination-out' : 'source-over';
+                     ctx.fillStyle = drawingTool === 'eraser' ? 'rgba(0,0,0,1)' : penColor; // Eraser needs an opaque fill
+                     ctx.beginPath();
+                     ctx.arc(p.x, p.y, penWidth / 2, 0, 2 * Math.PI);
+                     ctx.fill();
+                }
+
+                const url = canvas.toDataURL();
+                const newHistory = drawingHistory.slice(0, historyIndex);
+                newHistory.push(url);
+                if (newHistory.length > MAX_HISTORY_SIZE) newHistory.shift();
+                setDrawingHistory(newHistory);
+                setHistoryIndex(newHistory.length);
+                setDrawingData(d => {
+                    const n = [...d];
+                    n[currentPageIndex] = url;
+                    return n;
+                });
+            }, 50);
+        };
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        canvas.addEventListener('mouseup', stop);
+        canvas.addEventListener('mouseleave', stop);
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        canvas.addEventListener('touchend', stop);
+
+        return () => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            canvas.removeEventListener('mousedown', start);
+            canvas.removeEventListener('mousemove', move);
+            canvas.removeEventListener('mouseup', stop);
+            canvas.removeEventListener('mouseleave', stop);
+            canvas.removeEventListener('touchstart', start);
+            canvas.removeEventListener('touchmove', move);
+            canvas.removeEventListener('touchend', stop);
+        };
     }, [mode, drawingTool, penColor, penWidth, drawingHistory, historyIndex, currentPageIndex]);
+
 
     return (
         <div className="flex flex-col w-full h-full bg-slate-900/20 p-6">
-            <h1 className="text-3xl font-bold text-slate-200 mb-2">Scratch <span className="text-emerald-300">Pad</span></h1>
-            <div className="flex items-center gap-2 text-slate-300 mb-6 text-sm">
+            <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">Scratch <span className="text-[var(--accent-300)]">Pad</span></h1>
+            <div className="flex items-center gap-2 text-[var(--text-secondary)] mb-6 text-sm">
                 <InfoIcon className="w-4 h-4" />
                 <p>Your notes and drawings are automatically saved to your browser.</p>
             </div>
             <div className="flex-grow flex flex-col w-full rounded-lg shadow-inner bg-slate-900/30 ring-1 ring-white/10">
                 <div className="flex items-center space-x-2 p-2 bg-slate-800/50 rounded-t-lg border-b border-white/10 flex-wrap">
-                    <button onClick={() => setMode('text')} className={`p-2 rounded-md transition-colors ${mode === 'text' ? 'bg-emerald-400/20 text-emerald-200' : 'text-slate-300 hover:bg-slate-600/50'}`}><TextIcon className="w-5 h-5"/></button>
-                    <button onClick={() => setMode('draw')} className={`p-2 rounded-md transition-colors ${mode === 'draw' ? 'bg-emerald-400/20 text-emerald-200' : 'text-slate-300 hover:bg-slate-600/50'}`}><PenIcon className="w-5 h-5"/></button>
+                    <button onClick={() => setMode('text')} className={`p-2 rounded-md transition-colors ${mode === 'text' ? 'bg-[var(--accent-400)]/20 text-[var(--accent-200)]' : 'text-[var(--text-secondary)] hover:bg-slate-600/50'}`}><TextIcon className="w-5 h-5"/></button>
+                    <button onClick={() => setMode('draw')} className={`p-2 rounded-md transition-colors ${mode === 'draw' ? 'bg-[var(--accent-400)]/20 text-[var(--accent-200)]' : 'text-[var(--text-secondary)] hover:bg-slate-600/50'}`}><PenIcon className="w-5 h-5"/></button>
                     <div className="h-6 w-px bg-white/10 mx-2"></div>
                     {mode === 'text' ? (
                         <RichTextToolbar isBold={isBold} isItalic={isItalic} isUnderline={isUnderline} onCommand={handleCommand} />
@@ -325,7 +432,7 @@ export const NotesView: React.FC = () => {
                         onMouseUp={updateToolbarState}
                         onKeyUp={updateToolbarState}
                         onFocus={updateToolbarState}
-                        className={`w-full h-full px-6 pt-3 pb-6 text-slate-800 resize-none focus:outline-none font-mono text-lg tracking-wide editor-placeholder overflow-auto ${mode === 'draw' ? 'pointer-events-none' : ''}`}
+                        className={`w-full h-full px-6 pt-3 pb-6 resize-none focus:outline-none font-mono text-lg tracking-wide editor-placeholder overflow-auto ${mode === 'draw' ? 'pointer-events-none' : ''}`}
                         spellCheck="false"
                         data-placeholder="Start typing here..."
                     />

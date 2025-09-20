@@ -1,4 +1,6 @@
-export type View = 'assistant' | 'youtube' | 'pomodoro' | 'notes' | 'music' | 'planner';
+export type View = 'assistant' | 'youtube' | 'pomodoro' | 'notes' | 'music' | 'planner' | 'settings';
+export type Theme = 'light' | 'dark';
+export type AccentColor = 'emerald' | 'sky' | 'rose' | 'violet' | 'amber';
 
 export type YouTubeVideo = {
   videoId: string;

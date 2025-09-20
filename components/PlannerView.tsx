@@ -12,11 +12,11 @@ interface PlannerViewProps {
 const WelcomeScreen: React.FC = () => (
     <div className="text-center">
         <div className="relative w-40 h-40 flex items-center justify-center mb-6 mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full opacity-20 blur-2xl"></div>
-            <PlannerIcon className="relative w-28 h-28 text-emerald-400" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-500)] to-[var(--accent-600)] rounded-full opacity-20 blur-2xl"></div>
+            <PlannerIcon className="relative w-28 h-28 text-[var(--accent-400)]" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">AI Study Planner</h1>
-        <p className="text-slate-300 max-w-lg mx-auto">
+        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">AI Study Planner</h1>
+        <p className="text-[var(--text-secondary)] max-w-lg mx-auto">
             Tell the AI what you want to learn and your deadline. It will create a personalized, step-by-step study plan for you.
         </p>
     </div>
@@ -25,18 +25,18 @@ const WelcomeScreen: React.FC = () => (
 const StudyStepCard: React.FC<{ step: StudyStep; onAction: (type: 'youtube' | 'pomodoro' | 'assistant', value: string) => void }> = ({ step, onAction }) => {
     return (
         <div className="bg-slate-900/40 backdrop-blur-sm border border-white/10 rounded-xl p-6 relative overflow-hidden">
-             <div className="absolute -top-10 -left-10 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl"></div>
+             <div className="absolute -top-10 -left-10 w-28 h-28 bg-[var(--accent-500)]/10 rounded-full blur-2xl"></div>
             <div className="relative">
                 <div className="flex items-center gap-4 mb-3">
                     <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-slate-700 text-slate-100 font-bold border border-white/10 text-lg">
                         {step.day.match(/\d+/)?.[0] || '—'}
                     </div>
                     <div>
-                        <p className="text-sm text-emerald-300 font-medium">{step.day}</p>
-                        <h3 className="text-xl font-semibold text-white">{step.topic}</h3>
+                        <p className="text-sm text-[var(--accent-300)] font-medium">{step.day}</p>
+                        <h3 className="text-xl font-semibold text-[var(--text-primary)]">{step.topic}</h3>
                     </div>
                 </div>
-                <p className="text-slate-300 mb-6 ml-16">{step.description}</p>
+                <p className="text-[var(--text-secondary)] mb-6 ml-16">{step.description}</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-16">
                     <button onClick={() => onAction('youtube', step.youtubeSearch)} className="action-button">
                         <YouTubeIcon className="w-5 h-5" /><span>Find Videos</span>
@@ -95,7 +95,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
 
                 <form onSubmit={handleGeneratePlan} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end mb-8">
                     <div className="md:col-span-2">
-                        <label htmlFor="topic" className="block text-sm font-medium text-slate-300 mb-1">Study Topic</label>
+                        <label htmlFor="topic" className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Study Topic</label>
                         <input
                             id="topic"
                             type="text"
@@ -107,7 +107,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                         />
                     </div>
                     <div className="md:col-span-2">
-                        <label htmlFor="deadline" className="block text-sm font-medium text-slate-300 mb-1">Deadline</label>
+                        <label htmlFor="deadline" className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Deadline</label>
                         <input
                             id="deadline"
                             type="text"
@@ -118,7 +118,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                             disabled={isLoading}
                         />
                     </div>
-                    <button type="submit" className="w-full md:col-span-1 h-11 px-6 py-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold rounded-lg hover:from-emerald-400 hover:to-teal-500 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:saturate-50 flex items-center justify-center" disabled={isLoading}>
+                    <button type="submit" className="w-full md:col-span-1 h-11 px-6 py-2.5 bg-gradient-to-br from-[var(--accent-500)] to-[var(--accent-600)] text-white font-semibold rounded-lg hover:from-[var(--accent-400)] hover:to-[var(--accent-500)] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:saturate-50 flex items-center justify-center" disabled={isLoading}>
                         {isLoading ? (
                              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -129,7 +129,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                 </form>
 
                 {error && !isLoading && (
-                    <div className="p-6 max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm text-slate-200 border border-red-500/30 rounded-lg text-center flex flex-col items-center gap-4 animate-futuristicModalOpen">
+                    <div className="p-6 max-w-md mx-auto bg-slate-800/50 backdrop-blur-sm text-[var(--text-primary)] border border-red-500/30 rounded-lg text-center flex flex-col items-center gap-4 animate-futuristicModalOpen">
                         <ErrorIcon className="w-10 h-10 text-red-300" />
                         <div>
                             <h3 className="font-bold text-lg mb-2">Could Not Generate Plan</h3>
@@ -140,7 +140,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                 
                 {plan && (
                     <div className="animate-dynamicViewTransition">
-                        <h2 className="text-3xl font-bold text-white text-center mb-6">{plan.title}</h2>
+                        <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-6">{plan.title}</h2>
                         <div className="space-y-6">
                             {plan.plan.map((step, index) => (
                                 <StudyStepCard key={index} step={step} onAction={handleAction} />
@@ -156,18 +156,18 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                     height: 44px; /* Consistent height */
                     padding: 0.5rem 1rem;
                     background-color: rgb(15 23 42 / 0.4);
-                    color: #e2e8f0;
+                    color: var(--text-primary);
                     border: 1px solid rgb(255 255 255 / 0.1);
                     border-radius: 0.5rem;
                     transition: all 0.2s ease-in-out;
                 }
                 .form-input:focus {
                     outline: none;
-                    box-shadow: 0 0 0 2px #34d399;
-                    border-color: #34d399;
+                    box-shadow: 0 0 0 2px var(--accent-500);
+                    border-color: var(--accent-500);
                 }
                 .form-input::placeholder {
-                    color: #64748b;
+                    color: var(--text-muted);
                 }
                 .action-button {
                     display: inline-flex;
@@ -176,7 +176,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                     gap: 0.5rem;
                     padding: 0.5rem 1rem;
                     background-color: rgb(15 23 42 / 0.5);
-                    color: #cbd5e1;
+                    color: var(--text-secondary);
                     font-size: 0.875rem;
                     font-weight: 500;
                     border: 1px solid transparent;
@@ -184,9 +184,9 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                     transition: all 0.2s ease-in-out;
                 }
                 .action-button:hover {
-                    background-color: rgb(34 197 94 / 0.1);
-                    color: #a7f3d0;
-                    border-color: rgb(34 197 94 / 0.3);
+                    background-color: hsl(var(--color-accent-h) var(--color-accent-s) var(--color-accent-l-500) / 0.1);
+                    color: var(--accent-300);
+                    border-color: hsl(var(--color-accent-h) var(--color-accent-s) var(--color-accent-l-400) / 0.3);
                 }
             `}</style>
         </div>

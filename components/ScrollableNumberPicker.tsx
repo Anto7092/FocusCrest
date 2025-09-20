@@ -114,14 +114,14 @@ export const ScrollableNumberPicker: React.FC<ScrollableNumberPickerProps> = ({
 
     return (
         <div className="flex flex-col items-center">
-            <label className="text-sm mb-2 font-medium text-slate-300">{label}</label>
+            <label className="text-sm mb-2 font-medium text-[var(--text-secondary)]">{label}</label>
             <div
                 className="relative w-24 bg-slate-800/60 border border-white/10 rounded-lg"
                 style={{ height: `${VISIBLE_ITEMS * ITEM_HEIGHT}px` }}
             >
                 {/* Selection indicator box */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-full h-9 bg-emerald-500/10 border-y border-emerald-500/40 z-10 pointer-events-none"></div>
-                <ChevronUpDownIcon className="absolute top-1/2 -translate-y-1/2 right-1 w-5 h-5 text-slate-400 opacity-50 z-20 pointer-events-none" />
+                <div className="absolute top-1/2 -translate-y-1/2 w-full h-9 bg-[var(--accent-500)]/10 border-y border-[var(--accent-500)]/40 z-10 pointer-events-none"></div>
+                <ChevronUpDownIcon className="absolute top-1/2 -translate-y-1/2 right-1 w-5 h-5 text-[var(--text-muted)] opacity-50 z-20 pointer-events-none" />
                 
                 <div
                     ref={containerRef}
@@ -132,7 +132,7 @@ export const ScrollableNumberPicker: React.FC<ScrollableNumberPickerProps> = ({
                         <div
                             key={num}
                             className={`h-9 flex items-center justify-center text-xl snap-center transition-colors duration-200 ${
-                                num === value ? 'text-emerald-300 font-bold' : 'text-slate-400'
+                                num === value ? 'text-[var(--accent-300)] font-bold' : 'text-[var(--text-muted)]'
                             }`}
                         >
                             {num}

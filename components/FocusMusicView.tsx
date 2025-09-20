@@ -30,7 +30,7 @@ const WatchView: React.FC<{
 }> = ({ video, onBack }) => (
     <div className="flex flex-col w-full h-full bg-slate-900/20">
         <div className="p-3 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10">
-            <button onClick={onBack} className="flex items-center px-4 py-2 bg-white/10 text-slate-200 rounded-lg hover:bg-white/20 transition-colors">
+            <button onClick={onBack} className="flex items-center px-4 py-2 bg-white/10 text-[var(--text-secondary)] rounded-lg hover:bg-white/20 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
@@ -48,14 +48,14 @@ const WatchView: React.FC<{
                     allowFullScreen
                 ></iframe>
             </div>
-            <h1 className="w-full max-w-4xl text-xl font-bold text-white text-left">{video.title}</h1>
+            <h1 className="w-full max-w-4xl text-xl font-bold text-[var(--text-primary)] text-left">{video.title}</h1>
         </div>
     </div>
 );
 
 const VideoCard: React.FC<{ video: YouTubeVideo, onSelect: () => void }> = ({ video, onSelect }) => (
     <div 
-        className="bg-slate-900/30 rounded-lg overflow-hidden cursor-pointer backdrop-blur-sm border border-white/10 hover:border-emerald-400/50 shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 group transform hover:scale-105"
+        className="bg-slate-900/30 rounded-lg overflow-hidden cursor-pointer backdrop-blur-sm border border-white/10 hover:border-[var(--accent-400)]/50 shadow-lg hover:shadow-[var(--shadow-accent)] transition-all duration-300 group transform hover:scale-105"
         onClick={onSelect}
         role="button"
         tabIndex={0}
@@ -74,7 +74,7 @@ const VideoCard: React.FC<{ video: YouTubeVideo, onSelect: () => void }> = ({ vi
             </div>
         </div>
         <div className="p-4">
-            <h3 className="text-base font-semibold text-slate-200">{video.title}</h3>
+            <h3 className="text-base font-semibold text-[var(--text-primary)]">{video.title}</h3>
         </div>
     </div>
 );
@@ -105,9 +105,9 @@ export const FocusMusicView: React.FC = () => {
     return (
         <div className="flex flex-col w-full h-full bg-slate-900/20 overflow-hidden">
             <div className="p-4 bg-slate-900/20 backdrop-blur-lg border-b border-white/10 shadow-sm z-10 flex items-center justify-center">
-                 <h1 className="text-2xl font-bold text-slate-200 flex items-center gap-3">
-                    <MusicIcon className="w-7 h-7 text-emerald-300" />
-                    Focus <span className="font-light text-slate-300">Music</span>
+                 <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-3">
+                    <MusicIcon className="w-7 h-7 text-[var(--accent-300)]" />
+                    Focus <span className="font-light text-[var(--text-secondary)]">Music</span>
                 </h1>
             </div>
             <div className="flex-1 overflow-y-auto p-6">
@@ -118,7 +118,7 @@ export const FocusMusicView: React.FC = () => {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <p className="mt-4 text-lg text-slate-300">Loading music...</p>
+                            <p className="mt-4 text-lg text-[var(--text-secondary)]">Loading music...</p>
                         </div>
                     </div>
                 )}
@@ -135,7 +135,7 @@ export const FocusMusicView: React.FC = () => {
                 )}
                 {!isLoading && videos.length > 0 && (
                      <div className="max-w-7xl mx-auto">
-                        <p className="text-center text-slate-300 mb-6 max-w-2xl mx-auto">
+                        <p className="text-center text-[var(--text-secondary)] mb-6 max-w-2xl mx-auto">
                             A selection of long-form music and ambient sounds to help you concentrate and stay in the zone.
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

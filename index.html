@@ -14,51 +14,160 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+      /* --- THEME & COLOR SYSTEM --- */
+      :root {
+        /* ACCENT COLORS - HSL components are injected by React */
+        --color-accent-h: 158;
+        --color-accent-s: 64%;
+        --color-accent-l-100: 96%;
+        --color-accent-l-200: 88%;
+        --color-accent-l-300: 77%;
+        --color-accent-l-400: 66%;
+        --color-accent-l-500: 56%;
+        --color-accent-l-600: 48%;
+
+        --accent-100: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-100));
+        --accent-200: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-200));
+        --accent-300: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-300));
+        --accent-400: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-400));
+        --accent-500: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-500));
+        --accent-600: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-600));
+      }
+      
+      .theme-dark {
+        --bg-primary: #020617; /* slate-950 */
+        --bg-secondary: #0f172a; /* slate-900 */
+        --bg-tertiary: #1e293b; /* slate-800 */
+        --bg-quaternary: #334155; /* slate-700 */
+
+        --text-primary: #f1f5f9; /* slate-100 */
+        --text-secondary: #cbd5e1; /* slate-300 */
+        --text-muted: #64748b; /* slate-500 */
+        --text-inverted: #0f172a; /* slate-900 */
+
+        --border-primary: #334155; /* slate-700 */
+        --border-secondary: #475569; /* slate-600 */
+        --border-accent: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-400) / 0.5);
+
+        --shadow-accent: hsl(var(--color-accent-h) 95% 54% / 0.1);
+
+        /* Notes View Theming */
+        --paper-color: #1e293b; /* slate-800 */
+        --line-color: rgba(71, 85, 105, 0.9); /* slate-600 */
+        --paper-text-color: #e2e8f0; /* slate-200 */
+        --paper-text-bold: var(--accent-300);
+        --paper-text-italic: var(--accent-300);
+        --paper-text-underline: var(--accent-300);
+        --paper-placeholder: #64748b; /* slate-500 */
+        
+        /* Browser View Bubbles */
+        --user-bubble-bg: hsl(var(--color-accent-h) var(--color-accent-s) var(--color-accent-l-500) / 0.2);
+        --user-bubble-text: var(--text-primary);
+      }
+
+      .theme-light {
+        --bg-primary: #f8fafc; /* slate-50 */
+        --bg-secondary: #ffffff;
+        --bg-tertiary: #f1f5f9; /* slate-100 */
+        --bg-quaternary: #e2e8f0; /* slate-200 */
+
+        --text-primary: #020617; /* slate-950 - Almost Black for max contrast */
+        --text-secondary: #1e293b; /* slate-800 - Dark Grey for readability */
+        --text-muted: #475569; /* slate-600 - Muted Grey for hints */
+        --text-inverted: #ffffff;
+
+        --border-primary: #e2e8f0; /* slate-200 */
+        --border-secondary: #cbd5e1; /* slate-300 */
+        --border-accent: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-400) / 0.5);
+
+        --shadow-accent: hsl(var(--color-accent-h) 95% 54% / 0.1);
+
+        /* Notes View Theming */
+        --paper-color: #ffffff;
+        --line-color: rgba(203, 213, 225, 0.9); /* slate-300 */
+        --paper-text-color: #1e293b; /* slate-800 */
+        --paper-text-bold: var(--accent-600);
+        --paper-text-italic: var(--accent-600);
+        --paper-text-underline: var(--accent-600);
+        --paper-placeholder: #94a3b8; /* slate-400 */
+        
+        /* Browser View Bubbles */
+        --user-bubble-bg: var(--accent-100);
+        --user-bubble-text: var(--accent-600);
+      }
+
       /* Custom Fonts & Global Styles */
       body {
         font-family: 'Inter', sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-secondary);
       }
       .font-mono {
         font-family: 'JetBrains Mono', monospace;
       }
-
+      
       /* --- Intro Animation Styles --- */
-      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes scaleUp { from { transform: scale(0.8); } to { transform: scale(1); } }
-      @keyframes textFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-      #intro-logo #crest-main-shape {
-          animation: fadeIn 1s ease-out both, scaleUp 1s ease-out both;
+      @keyframes draw-path {
+        from { stroke-dashoffset: 1000; }
+        to { stroke-dashoffset: 0; }
       }
+
+      @keyframes fill-in {
+        from { fill-opacity: 0; stroke-opacity: 1; }
+        to { fill-opacity: 1; stroke-opacity: 0; }
+      }
+
+      @keyframes assemble-piece {
+        from { opacity: 0; transform: translateY(15px) scale(0.9); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @keyframes shoot-out {
+          from { opacity: 0; transform: scaleY(0.5); }
+          to { opacity: 1; transform: scaleY(1); }
+      }
+
+      @keyframes reveal-text {
+          from { opacity: 0; transform: translateY(10px); letter-spacing: 6px; }
+          to { opacity: 1; transform: translateY(0); letter-spacing: 2px; }
+      }
+
+      #intro-logo svg * { transform-origin: center center; }
+
+      #intro-logo #crest-main-shape,
       #intro-logo #crest-inner-shape {
-          animation: fadeIn 1s ease-out 0.2s both, scaleUp 1s ease-out 0.2s both;
+          fill-opacity: 0;
+          stroke: var(--accent-300);
+          stroke-width: 1.5;
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+          animation: 
+              draw-path 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+              fill-in 0.7s ease-out forwards;
       }
-      #intro-logo #eye-group {
-          animation: fadeIn 0.8s ease-out 0.5s both, scaleUp 0.8s ease-out 0.5s both;
+      #intro-logo #crest-main-shape { animation-delay: 0s, 1.2s; }
+      #intro-logo #crest-inner-shape { animation-delay: 0.15s, 1.35s; }
+      #intro-logo #eye-group { opacity: 0; animation: assemble-piece 0.8s cubic-bezier(0.23, 1, 0.32, 1) 1.6s forwards; }
+      #intro-logo #light-rays-group { transform-origin: bottom center; }
+      #intro-logo #light-rays-group path { opacity: 0; animation: shoot-out 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+      #intro-logo #light-rays-group path:nth-child(1) { animation-delay: 2.3s; }
+      #intro-logo #light-rays-group path:nth-child(2) { animation-delay: 2.1s; }
+      #intro-logo #light-rays-group path:nth-child(3) { animation-delay: 2.3s; }
+      #intro-logo #logo-text { opacity: 0; animation: reveal-text 1.0s cubic-bezier(0.23, 1, 0.32, 1) 2.5s forwards; }
+      
+      /* --- Transition from Intro to App --- */
+      @keyframes fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; pointer-events: none; }
       }
-      #intro-logo #light-rays-group path {
-          opacity: 0;
-          animation: fadeIn 0.5s ease-out forwards;
-      }
-      #intro-logo #light-rays-group path:nth-child(1) { animation-delay: 1s; }
-      #intro-logo #light-rays-group path:nth-child(2) { animation-delay: 1.2s; }
-      #intro-logo #light-rays-group path:nth-child(3) { animation-delay: 1.4s; }
+      .animate-fadeOut { animation: fade-out 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
 
-      #intro-logo #logo-text {
-          animation: textFadeIn 1s ease-out 1.8s both;
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
-
-      /* App fade-in after intro */
-      @keyframes appFadeIn {
-        from { opacity: 0; filter: blur(5px); }
-        to { opacity: 1; filter: blur(0); }
-      }
-
-      .animate-appFadeIn {
-        animation: appFadeIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
-      }
-      /* --- End Intro Animation Styles --- */
-
+      .animate-fadeIn { animation: fade-in 0.8s cubic-bezier(0.23, 1, 0.32, 1) both; }
+      
       /* Futuristic Animations */
       @keyframes futuristicViewTransition {
         from {
@@ -72,41 +181,26 @@
           filter: blur(0) brightness(1);
         }
       }
-      .animate-dynamicViewTransition {
-        animation: futuristicViewTransition 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
-        transform-style: preserve-3d; /* Enables 3D transforms for child elements */
-      }
+      .animate-dynamicViewTransition { animation: futuristicViewTransition 0.6s cubic-bezier(0.23, 1, 0.32, 1) both; transform-style: preserve-3d; }
 
       @keyframes futuristicModalOpen {
-        from {
-          opacity: 0;
-          transform: perspective(800px) translateY(50px) rotateX(-15deg) scale(0.95);
-          filter: blur(8px);
-        }
-        to {
-          opacity: 1;
-          transform: perspective(800px) translateY(0) rotateX(0deg) scale(1);
-          filter: blur(0);
-        }
+        from { opacity: 0; transform: perspective(800px) translateY(50px) rotateX(-15deg) scale(0.95); filter: blur(8px); }
+        to { opacity: 1; transform: perspective(800px) translateY(0) rotateX(0deg) scale(1); filter: blur(0); }
       }
-      .animate-futuristicModalOpen {
-        animation: futuristicModalOpen 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
-      }
+      .animate-futuristicModalOpen { animation: futuristicModalOpen 0.5s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
       @keyframes backdropFadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
       }
-      .animate-backdropFadeIn {
-        animation: backdropFadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
-      }
-      /* End Futuristic Animations */
+      .animate-backdropFadeIn { animation: backdropFadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
-      .texture-overlay {
+      /* Texture Overlay for dark mode */
+      .theme-dark .texture-overlay {
         position: relative;
-        background-color: #0f172a; /* slate-900 */
+        background-color: var(--bg-secondary);
       }
-      .texture-overlay::before {
+      .theme-dark .texture-overlay::before {
         content: "";
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -117,10 +211,7 @@
 
       /* Notes View Paper Background */
       .paper-background {
-        --paper-color: #fcfaf4;
-        --line-color: rgba(203, 213, 225, 0.9);
-        --line-height: 1.75rem; /* Matches Tailwind's text-lg */
-
+        --line-height: 1.75rem;
         background-color: var(--paper-color);
         background-image: 
           repeating-linear-gradient(
@@ -131,27 +222,31 @@
               var(--line-color) var(--line-height)
           );
         background-size: 100% var(--line-height);
-        background-position-y: 0.75rem; /* Aligns lines with pt-3 on the editor div */
+        background-position-y: 0.75rem;
         line-height: var(--line-height);
-        color: #334155;
+        color: var(--paper-text-color);
       }
       
-      /* Rich text styles on paper */
-      .paper-background b, .paper-background strong { color: #1e3a8a; }
-      .paper-background i, .paper-background em { color: #1e3a8a; }
-      .paper-background u { text-decoration-color: #1e3a8a; text-decoration-thickness: 1.5px; }
+      .paper-background b, .paper-background strong { color: var(--paper-text-bold); }
+      .paper-background i, .paper-background em { color: var(--paper-text-italic); }
+      .paper-background u { text-decoration-color: var(--paper-text-underline); text-decoration-thickness: 1.5px; }
 
-      /* Notes View Placeholder */
       .editor-placeholder:empty::before {
         content: attr(data-placeholder);
-        color: #64748b; /* slate-500 */
+        color: var(--paper-placeholder);
         position: absolute;
         pointer-events: none;
         user-select: none;
-        /* The editor div has px-6 (1.5rem) and pt-3 (0.75rem) */
         left: 1.5rem;
         top: 0.75rem;
       }
+
+      /* Markdown Renderer Theming */
+      .markdown-strong { color: var(--accent-300); }
+      .markdown-em { color: var(--accent-200); }
+      .theme-light .markdown-strong,
+      .theme-light .markdown-em { color: var(--accent-600); }
+
     </style>
 <script type="importmap">
 {
@@ -169,7 +264,7 @@
 }
 </script>
 </head>
-<body class="bg-slate-900 antialiased">
+<body class="antialiased">
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>

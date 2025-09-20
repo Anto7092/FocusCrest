@@ -36,7 +36,7 @@ const PomodoroWidget: React.FC<{
 
     return (
         <div className="flex items-center gap-4 bg-slate-700/50 p-2 rounded-lg">
-            <TimerIcon className="w-6 h-6 text-emerald-300 flex-shrink-0 ml-2" />
+            <TimerIcon className="w-6 h-6 text-[var(--accent-300)] flex-shrink-0 ml-2" />
             <div className="flex-grow flex flex-col text-left min-w-[120px]">
                 <span className="font-semibold text-sm text-white truncate" title={primaryLabel}>
                     {primaryLabel}
