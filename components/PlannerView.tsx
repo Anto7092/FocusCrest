@@ -139,7 +139,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ onYouTubeSearch, onPom
                 )}
                 
                 {plan && (
-                    <div className="animate-dynamicViewTransition">
+                    <div className="animate-viewFadeIn">
                         <h2 className="text-3xl font-bold text-[var(--text-primary)] text-center mb-6">{plan.title}</h2>
                         <div className="space-y-6">
                             {plan.plan.map((step, index) => (

@@ -35,8 +35,8 @@
       }
       
       .theme-dark {
-        --bg-primary: #020617; /* slate-950 */
-        --bg-secondary: #0f172a; /* slate-900 */
+        --bg-primary: transparent; /* slate-950 */
+        --bg-secondary: rgba(15, 23, 42, 0.65); /* slate-900 */
         --bg-tertiary: #1e293b; /* slate-800 */
         --bg-quaternary: #334155; /* slate-700 */
 
@@ -45,14 +45,14 @@
         --text-muted: #64748b; /* slate-500 */
         --text-inverted: #0f172a; /* slate-900 */
 
-        --border-primary: #334155; /* slate-700 */
+        --border-primary: rgba(51, 65, 85, 0.7); /* slate-700 */
         --border-secondary: #475569; /* slate-600 */
         --border-accent: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-400) / 0.5);
 
         --shadow-accent: hsl(var(--color-accent-h) 95% 54% / 0.1);
 
         /* Notes View Theming */
-        --paper-color: #1e293b; /* slate-800 */
+        --paper-color: rgba(30, 41, 59, 0.85); /* slate-800 */
         --line-color: rgba(71, 85, 105, 0.9); /* slate-600 */
         --paper-text-color: #e2e8f0; /* slate-200 */
         --paper-text-bold: var(--accent-300);
@@ -66,30 +66,30 @@
       }
 
       .theme-light {
-        --bg-primary: #f8fafc; /* slate-50 */
-        --bg-secondary: #ffffff;
-        --bg-tertiary: #f1f5f9; /* slate-100 */
-        --bg-quaternary: #e2e8f0; /* slate-200 */
+        --bg-primary: transparent;
+        --bg-secondary: rgba(253, 250, 245, 0.7); /* Warm, creamy off-white */
+        --bg-tertiary: rgba(248, 244, 236, 1);
+        --bg-quaternary: rgba(238, 233, 225, 1);
 
-        --text-primary: #020617; /* slate-950 - Almost Black for max contrast */
-        --text-secondary: #1e293b; /* slate-800 - Dark Grey for readability */
-        --text-muted: #475569; /* slate-600 - Muted Grey for hints */
+        --text-primary: #4a433d; /* Deep, warm brown for high contrast */
+        --text-secondary: #6f6861; /* Mid-tone warm gray */
+        --text-muted: #9c948b; /* Lighter warm gray for hints */
         --text-inverted: #ffffff;
 
-        --border-primary: #e2e8f0; /* slate-200 */
-        --border-secondary: #cbd5e1; /* slate-300 */
+        --border-primary: rgba(224, 215, 203, 0.7); /* Soft, warm border */
+        --border-secondary: rgba(200, 190, 180, 1);
         --border-accent: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l-400) / 0.5);
 
         --shadow-accent: hsl(var(--color-accent-h) 95% 54% / 0.1);
 
-        /* Notes View Theming */
-        --paper-color: #ffffff;
-        --line-color: rgba(203, 213, 225, 0.9); /* slate-300 */
-        --paper-text-color: #1e293b; /* slate-800 */
+        /* Notes View Theming - "Sun-kissed Parchment" */
+        --paper-color: rgba(252, 249, 243, 0.85); /* Very light cream */
+        --line-color: rgba(224, 215, 203, 0.9); /* Soft brown lines */
+        --paper-text-color: #5c554e; /* Gentle brown for notes */
         --paper-text-bold: var(--accent-600);
         --paper-text-italic: var(--accent-600);
         --paper-text-underline: var(--accent-600);
-        --paper-placeholder: #94a3b8; /* slate-400 */
+        --paper-placeholder: #a8a29a; /* Warm gray placeholder */
         
         /* Browser View Bubbles */
         --user-bubble-bg: var(--accent-100);
@@ -99,11 +99,30 @@
       /* Custom Fonts & Global Styles */
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--bg-primary);
         color: var(--text-secondary);
+        position: relative;
+        overflow: hidden; /* Prevent body scrollbars */
       }
       .font-mono {
         font-family: 'JetBrains Mono', monospace;
+      }
+
+      /* Background Image & Overlay */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2670&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
+        transition: filter 0.5s ease-in-out;
+      }
+      .theme-dark body::before {
+        filter: brightness(0.6) saturate(0.9);
+      }
+      .theme-light body::before {
+        filter: brightness(1.0) saturate(1.1);
       }
       
       /* --- Intro Animation Styles --- */
@@ -168,20 +187,18 @@
       }
       .animate-fadeIn { animation: fade-in 0.8s cubic-bezier(0.23, 1, 0.32, 1) both; }
       
-      /* Futuristic Animations */
-      @keyframes futuristicViewTransition {
+      /* View & Content Animations */
+      @keyframes viewFadeIn {
         from {
           opacity: 0;
-          transform: perspective(1200px) rotateX(-30deg) scale(0.9);
-          filter: blur(15px) brightness(1.5);
+          transform: translateY(1rem) scale(0.98);
         }
         to {
           opacity: 1;
-          transform: perspective(1200px) rotateX(0deg) scale(1);
-          filter: blur(0) brightness(1);
+          transform: translateY(0) scale(1);
         }
       }
-      .animate-dynamicViewTransition { animation: futuristicViewTransition 0.6s cubic-bezier(0.23, 1, 0.32, 1) both; transform-style: preserve-3d; }
+      .animate-viewFadeIn { animation: viewFadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
       @keyframes futuristicModalOpen {
         from { opacity: 0; transform: perspective(800px) translateY(50px) rotateX(-15deg) scale(0.95); filter: blur(8px); }
@@ -198,7 +215,7 @@
       /* Texture Overlay for dark mode */
       .theme-dark .texture-overlay {
         position: relative;
-        background-color: var(--bg-secondary);
+        /* background-color: var(--bg-secondary); */ /* No longer needed */
       }
       .theme-dark .texture-overlay::before {
         content: "";
@@ -213,6 +230,7 @@
       .paper-background {
         --line-height: 1.75rem;
         background-color: var(--paper-color);
+        backdrop-filter: blur(10px);
         background-image: 
           repeating-linear-gradient(
               to bottom,

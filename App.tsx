@@ -36,7 +36,7 @@ export type DurationSettings = {
 const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactNode }> = ({ id, activeView, children }) => {
     const isVisible = activeView === id;
     return (
-      <div style={{ display: isVisible ? 'block' : 'none', height: '100%', width: '100%' }} className={isVisible ? 'animate-dynamicViewTransition' : ''}>
+      <div style={{ display: isVisible ? 'block' : 'none', height: '100%', width: '100%' }} className={isVisible ? 'animate-viewFadeIn' : ''}>
         {children}
       </div>
     );
