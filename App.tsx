@@ -9,7 +9,6 @@ import { PlannerView } from './components/PlannerView';
 import { SettingsView } from './components/SettingsView';
 import { GlobalControls } from './components/GlobalControls';
 import type { View, PomodoroState, BackgroundImage, ColorPalette, PomodoroSettings, NotificationSound } from './types';
-import { MenuIcon, XIcon } from './components/icons';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { IntroAnimation } from './components/IntroAnimation';
@@ -26,13 +25,13 @@ export const BACKGROUND_IMAGES: BackgroundImage[] = [
         url: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=2670&auto=format&fit=crop',
         thumbnailUrl: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=200&h=120&auto=format&fit=crop',
         palette: {
-            accent100: 'hsl(195, 40%, 96%)', accent200: 'hsl(195, 50%, 88%)', accent300: 'hsl(195, 60%, 77%)', accent400: 'hsl(195, 70%, 66%)', accent500: 'hsl(195, 80%, 56%)', accent600: 'hsl(195, 90%, 48%)',
-            bgSecondary: 'rgba(12, 26, 46, 0.8)', bgTertiary: '#112233', bgQuaternary: '#1a334d',
-            textPrimary: '#f0f8ff', textSecondary: '#c0d8e8', textMuted: '#809bb1',
-            borderPrimary: 'rgba(45, 85, 125, 0.7)', borderSecondary: '#1a334d', shadowAccent: 'hsl(195, 80%, 56%, 0.1)',
-            paperColor: 'rgba(17, 34, 51, 0.9)', lineColor: 'rgba(45, 85, 125, 0.9)', paperTextColor: '#dceefc', paperTextBold: 'hsl(195, 60%, 77%)', paperPlaceholder: '#809bb1',
-            userBubbleBg: 'hsla(195, 80%, 56%, 0.2)', userBubbleText: '#f0f8ff',
-            backgroundFilter: 'brightness(0.55) saturate(0.9)',
+            accent100: 'hsl(195, 50%, 97%)', accent200: 'hsl(195, 70%, 92%)', accent300: 'hsl(195, 85%, 85%)', accent400: 'hsl(195, 90%, 75%)', accent500: 'hsl(195, 95%, 65%)', accent600: 'hsl(195, 100%, 55%)',
+            bgSecondary: 'rgba(15, 30, 50, 0.7)', bgTertiary: 'rgba(20, 40, 60, 0.85)', bgQuaternary: 'rgba(30, 55, 80, 0.8)',
+            textPrimary: '#ffffff', textSecondary: '#d1e3f0', textMuted: '#9cb3c7',
+            borderPrimary: 'rgba(60, 100, 140, 0.6)', borderSecondary: '#25415c', shadowAccent: 'hsl(195, 95%, 65%, 0.25)',
+            paperColor: 'rgba(12, 28, 48, 0.75)', lineColor: 'rgba(60, 100, 140, 0.5)', paperTextColor: '#e0f0ff', paperTextBold: 'hsl(195, 85%, 85%)', paperPlaceholder: '#9cb3c7',
+            userBubbleBg: 'hsla(195, 95%, 65%, 0.25)', userBubbleText: '#ffffff',
+            backgroundFilter: 'brightness(0.7) saturate(1.0) contrast(1.0)',
         }
     },
     {
@@ -41,13 +40,13 @@ export const BACKGROUND_IMAGES: BackgroundImage[] = [
         url: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2670&auto=format&fit=crop',
         thumbnailUrl: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=200&h=120&auto=format&fit=crop',
         palette: {
-            accent100: 'hsl(35, 80%, 96%)', accent200: 'hsl(35, 85%, 88%)', accent300: 'hsl(35, 90%, 77%)', accent400: 'hsl(35, 95%, 66%)', accent500: 'hsl(35, 100%, 56%)', accent600: 'hsl(35, 100%, 48%)',
-            bgSecondary: 'rgba(46, 32, 22, 0.8)', bgTertiary: '#3a291f', bgQuaternary: '#4f3a2d',
-            textPrimary: '#fff5e6', textSecondary: '#e0d1b9', textMuted: '#a89984',
-            borderPrimary: 'rgba(80, 60, 45, 0.7)', borderSecondary: '#4f3a2d', shadowAccent: 'hsl(35, 100%, 56%, 0.1)',
-            paperColor: 'rgba(252, 249, 243, 0.9)', lineColor: 'rgba(224, 215, 203, 0.9)', paperTextColor: '#5c554e', paperTextBold: 'hsl(25, 60%, 45%)', paperPlaceholder: '#a8a29a',
-            userBubbleBg: 'hsl(35, 90%, 96%)', userBubbleText: '#4f3a2d',
-            backgroundFilter: 'brightness(0.7) saturate(1.1) contrast(1.1)',
+            accent100: 'hsl(35, 80%, 96%)', accent200: 'hsl(35, 90%, 90%)', accent300: 'hsl(30, 95%, 82%)', accent400: 'hsl(28, 100%, 75%)', accent500: 'hsl(25, 100%, 68%)', accent600: 'hsl(22, 100%, 62%)',
+            bgSecondary: 'rgba(40, 28, 20, 0.7)', bgTertiary: 'rgba(55, 40, 30, 0.85)', bgQuaternary: 'rgba(70, 50, 40, 0.8)',
+            textPrimary: '#fffaf0', textSecondary: '#f2e5d5', textMuted: '#bdae9c',
+            borderPrimary: 'rgba(100, 80, 65, 0.6)', borderSecondary: '#5a4235', shadowAccent: 'hsl(25, 100%, 68%, 0.25)',
+            paperColor: 'rgba(45, 35, 28, 0.75)', lineColor: 'rgba(110, 95, 85, 0.5)', paperTextColor: '#f5ede4', paperTextBold: 'hsl(30, 95%, 82%)', paperPlaceholder: '#bdae9c',
+            userBubbleBg: 'hsla(25, 100%, 68%, 0.2)', userBubbleText: '#fffaf0',
+            backgroundFilter: 'brightness(0.75) saturate(1.1) contrast(1.0) sepia(0.1)',
         }
     },
     {
@@ -56,13 +55,13 @@ export const BACKGROUND_IMAGES: BackgroundImage[] = [
         url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2670&auto=format&fit=crop',
         thumbnailUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=200&h=120&auto=format&fit=crop',
         palette: {
-            accent100: 'hsl(140, 50%, 96%)', accent200: 'hsl(140, 55%, 88%)', accent300: 'hsl(140, 60%, 77%)', accent400: 'hsl(140, 65%, 66%)', accent500: 'hsl(140, 70%, 56%)', accent600: 'hsl(140, 80%, 48%)',
-            bgSecondary: 'rgba(15, 30, 20, 0.8)', bgTertiary: '#162b21', bgQuaternary: '#244234',
-            textPrimary: '#e6f5ee', textSecondary: '#b9d8ca', textMuted: '#84a899',
-            borderPrimary: 'rgba(45, 80, 60, 0.7)', borderSecondary: '#244234', shadowAccent: 'hsl(140, 70%, 56%, 0.1)',
-            paperColor: 'rgba(22, 43, 33, 0.9)', lineColor: 'rgba(50, 90, 70, 0.9)', paperTextColor: '#d1e5db', paperTextBold: 'hsl(140, 60%, 77%)', paperPlaceholder: '#84a899',
-            userBubbleBg: 'hsla(140, 70%, 56%, 0.2)', userBubbleText: '#e6f5ee',
-            backgroundFilter: 'brightness(0.6) saturate(1.2)',
+            accent100: 'hsl(140, 60%, 97%)', accent200: 'hsl(140, 65%, 91%)', accent300: 'hsl(145, 70%, 83%)', accent400: 'hsl(150, 75%, 72%)', accent500: 'hsl(155, 80%, 61%)', accent600: 'hsl(160, 90%, 50%)',
+            bgSecondary: 'rgba(18, 35, 25, 0.7)', bgTertiary: 'rgba(25, 50, 38, 0.85)', bgQuaternary: 'rgba(40, 75, 60, 0.8)',
+            textPrimary: '#f0fff5', textSecondary: '#cdebe0', textMuted: '#95b8ab',
+            borderPrimary: 'rgba(50, 90, 70, 0.6)', borderSecondary: '#305745', shadowAccent: 'hsl(155, 80%, 61%, 0.2)',
+            paperColor: 'rgba(20, 40, 30, 0.75)', lineColor: 'rgba(60, 100, 80, 0.5)', paperTextColor: '#dcf0e8', paperTextBold: 'hsl(145, 70%, 83%)', paperPlaceholder: '#95b8ab',
+            userBubbleBg: 'hsla(155, 80%, 61%, 0.2)', userBubbleText: '#f0fff5',
+            backgroundFilter: 'brightness(0.7) saturate(1.2)',
         }
     },
     {
@@ -71,13 +70,13 @@ export const BACKGROUND_IMAGES: BackgroundImage[] = [
         url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2670&auto=format&fit=crop',
         thumbnailUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=200&h=120&auto=format&fit=crop',
         palette: {
-            accent100: 'hsl(210, 20%, 96%)', accent200: 'hsl(210, 25%, 88%)', accent300: 'hsl(210, 30%, 77%)', accent400: 'hsl(210, 40%, 66%)', accent500: 'hsl(210, 50%, 56%)', accent600: 'hsl(210, 60%, 48%)',
-            bgSecondary: 'rgba(20, 22, 25, 0.85)', bgTertiary: '#1c1e22', bgQuaternary: '#2d3035',
-            textPrimary: '#f5f7fa', textSecondary: '#d0d5dd', textMuted: '#98a2b3',
-            borderPrimary: 'rgba(60, 65, 75, 0.7)', borderSecondary: '#2d3035', shadowAccent: 'hsl(210, 50%, 56%, 0.1)',
-            paperColor: 'rgba(28, 30, 34, 0.9)', lineColor: 'rgba(70, 75, 85, 0.9)', paperTextColor: '#e4e7eb', paperTextBold: 'hsl(210, 30%, 77%)', paperPlaceholder: '#98a2b3',
-            userBubbleBg: 'hsla(210, 50%, 56%, 0.2)', userBubbleText: '#f5f7fa',
-            backgroundFilter: 'brightness(0.7) saturate(0.1) contrast(1.0)',
+            accent100: 'hsl(210, 100%, 97%)', accent200: 'hsl(210, 100%, 94%)', accent300: 'hsl(210, 100%, 88%)', accent400: 'hsl(210, 100%, 80%)', accent500: 'hsl(210, 100%, 70%)', accent600: 'hsl(210, 100%, 60%)',
+            bgSecondary: 'rgba(22, 25, 30, 0.7)', bgTertiary: 'rgba(30, 34, 40, 0.85)', bgQuaternary: 'rgba(50, 55, 65, 0.8)',
+            textPrimary: '#ffffff', textSecondary: '#e5e9f0', textMuted: '#a0a8b4',
+            borderPrimary: 'rgba(70, 78, 90, 0.6)', borderSecondary: '#3a414c', shadowAccent: 'hsl(210, 100%, 70%, 0.15)',
+            paperColor: 'rgba(25, 28, 35, 0.75)', lineColor: 'rgba(80, 88, 100, 0.5)', paperTextColor: '#f0f2f5', paperTextBold: 'hsl(210, 100%, 88%)', paperPlaceholder: '#a0a8b4',
+            userBubbleBg: 'hsla(210, 100%, 70%, 0.15)', userBubbleText: '#ffffff',
+            backgroundFilter: 'brightness(0.8) saturate(0.1) contrast(1.1)',
         }
     },
     {
@@ -86,25 +85,25 @@ export const BACKGROUND_IMAGES: BackgroundImage[] = [
         url: 'https://images.unsplash.com/photo-1472552944129-b035e9ea3744?q=80&w=2574&auto=format&fit=crop',
         thumbnailUrl: 'https://images.unsplash.com/photo-1472552944129-b035e9ea3744?q=80&w=200&h=120&auto=format&fit=crop',
         palette: {
-            accent100: 'hsl(260, 60%, 96%)', accent200: 'hsl(260, 65%, 88%)', accent300: 'hsl(260, 70%, 77%)', accent400: 'hsl(260, 80%, 66%)', accent500: 'hsl(260, 90%, 56%)', accent600: 'hsl(260, 100%, 48%)',
-            bgSecondary: 'rgba(20, 15, 40, 0.8)', bgTertiary: '#1f1a33', bgQuaternary: '#2e274d',
-            textPrimary: '#f5f3ff', textSecondary: '#d9d2ff', textMuted: '#a399cc',
-            borderPrimary: 'rgba(65, 55, 100, 0.7)', borderSecondary: '#2e274d', shadowAccent: 'hsl(260, 90%, 56%, 0.1)',
-            paperColor: 'rgba(31, 26, 51, 0.9)', lineColor: 'rgba(75, 65, 110, 0.9)', paperTextColor: '#e9e6ff', paperTextBold: 'hsl(260, 70%, 77%)', paperPlaceholder: '#a399cc',
-            userBubbleBg: 'hsla(260, 90%, 56%, 0.2)', userBubbleText: '#f5f3ff',
-            backgroundFilter: 'brightness(0.5) saturate(1.2)',
+            accent100: 'hsl(270, 80%, 97%)', accent200: 'hsl(270, 90%, 92%)', accent300: 'hsl(275, 95%, 86%)', accent400: 'hsl(280, 100%, 80%)', accent500: 'hsl(285, 100%, 75%)', accent600: 'hsl(290, 100%, 70%)',
+            bgSecondary: 'rgba(25, 20, 45, 0.7)', bgTertiary: 'rgba(35, 30, 60, 0.85)', bgQuaternary: 'rgba(50, 45, 80, 0.8)',
+            textPrimary: '#fcfbff', textSecondary: '#e9e4ff', textMuted: '#b2a8e0',
+            borderPrimary: 'rgba(80, 70, 120, 0.6)', borderSecondary: '#3b335f', shadowAccent: 'hsl(285, 100%, 75%, 0.2)',
+            paperColor: 'rgba(28, 22, 50, 0.75)', lineColor: 'rgba(90, 80, 130, 0.5)', paperTextColor: '#f0edff', paperTextBold: 'hsl(275, 95%, 86%)', paperPlaceholder: '#b2a8e0',
+            userBubbleBg: 'hsla(285, 100%, 75%, 0.2)', userBubbleText: '#fcfbff',
+            backgroundFilter: 'brightness(0.65) saturate(1.3) contrast(1.1)',
         }
     }
 ];
 
 export const CUSTOM_IMAGE_PALETTE: ColorPalette = {
-    accent100: 'hsl(210, 20%, 96%)', accent200: 'hsl(210, 25%, 88%)', accent300: 'hsl(210, 30%, 77%)', accent400: 'hsl(210, 40%, 66%)', accent500: 'hsl(210, 50%, 56%)', accent600: 'hsl(210, 60%, 48%)',
-    bgSecondary: 'rgba(20, 22, 25, 0.85)', bgTertiary: '#1c1e22', bgQuaternary: '#2d3035',
-    textPrimary: '#f5f7fa', textSecondary: '#d0d5dd', textMuted: '#98a2b3',
-    borderPrimary: 'rgba(60, 65, 75, 0.7)', borderSecondary: '#2d3035', shadowAccent: 'hsl(210, 50%, 56%, 0.1)',
-    paperColor: 'rgba(28, 30, 34, 0.9)', lineColor: 'rgba(70, 75, 85, 0.9)', paperTextColor: '#e4e7eb', paperTextBold: 'hsl(210, 30%, 77%)', paperPlaceholder: '#98a2b3',
-    userBubbleBg: 'hsla(210, 50%, 56%, 0.2)', userBubbleText: '#f5f7fa',
-    backgroundFilter: 'brightness(0.7) saturate(0.5) contrast(1.0)',
+    accent100: 'hsl(210, 30%, 97%)', accent200: 'hsl(210, 40%, 92%)', accent300: 'hsl(210, 50%, 85%)', accent400: 'hsl(210, 60%, 75%)', accent500: 'hsl(210, 70%, 65%)', accent600: 'hsl(210, 80%, 55%)',
+    bgSecondary: 'rgba(25, 28, 32, 0.7)', bgTertiary: 'rgba(35, 38, 45, 0.85)', bgQuaternary: 'rgba(50, 55, 65, 0.8)',
+    textPrimary: '#ffffff', textSecondary: '#e1e5eb', textMuted: '#aeb5c0',
+    borderPrimary: 'rgba(70, 78, 90, 0.6)', borderSecondary: '#3a414c', shadowAccent: 'hsl(210, 70%, 65%, 0.2)',
+    paperColor: 'rgba(28, 32, 38, 0.75)', lineColor: 'rgba(80, 88, 100, 0.5)', paperTextColor: '#eceff4', paperTextBold: 'hsl(210, 50%, 85%)', paperPlaceholder: '#aeb5c0',
+    userBubbleBg: 'hsla(210, 70%, 65%, 0.2)', userBubbleText: '#ffffff',
+    backgroundFilter: 'brightness(0.75) saturate(0.2) contrast(1.05)',
 };
 
 export const NOTIFICATION_SOUNDS: NotificationSound[] = [
@@ -134,7 +133,6 @@ const App: React.FC = () => {
   const [showIntroComponent, setShowIntroComponent] = React.useState(true);
   const [startTransition, setStartTransition] = React.useState(false);
   const [activeView, setActiveView] = React.useState<View>('planner');
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   
   // State for planner-to-component communication
   const [initialYouTubeQuery, setInitialYouTubeQuery] = React.useState<string | null>(null);
@@ -327,17 +325,9 @@ const App: React.FC = () => {
         <Sidebar 
           activeView={activeView} 
           setActiveView={handleSetView} 
-          isSidebarOpen={isSidebarOpen}
         />
         <div className="flex-1 flex flex-col min-w-0">
           <main className="flex-1 flex min-h-0 relative">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="absolute top-5 left-5 z-30 p-2 bg-[var(--bg-tertiary)]/[.5] rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-quaternary)]/[.5] hover:text-[var(--text-primary)] transition-all"
-              aria-label={isSidebarOpen ? "Close menu" : "Open menu"}
-            >
-              {isSidebarOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-            </button>
             <div className="w-full flex-1 min-h-0">
               <ViewWrapper id="planner" activeView={activeView}>
                 <PlannerView onYouTubeSearch={handleStartYouTubeSearch} onPomodoroStart={handleStartPomodoro} onAssistantAsk={handleAskAssistant} />

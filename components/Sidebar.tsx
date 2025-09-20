@@ -1,89 +1,100 @@
 import * as React from 'react';
 import type { View } from '../types';
-import { AssistantIcon, YouTubeIcon, TimerIcon, NotesIcon, MusicIcon, AppLogo, PlannerIcon, SettingsIcon } from './icons';
+import { AssistantIcon, YouTubeIcon, TimerIcon, NotesIcon, MusicIcon, PlannerIcon, SettingsIcon } from './icons';
 
-interface SidebarProps {
+interface IconNavProps {
   activeView: View;
   setActiveView: (view: View) => void;
-  isSidebarOpen: boolean;
 }
 
-const SidebarButton: React.FC<{
+const NavIconButton: React.FC<{
   label: string;
   icon: React.ReactNode;
   isActive: boolean;
   onClick: () => void;
 }> = ({ label, icon, isActive, onClick }) => {
-  const baseClasses = "flex items-center w-full px-4 py-3 transition-all duration-300 ease-in-out transform rounded-lg";
-  const activeClasses = "bg-[var(--accent-400)]/20 text-[var(--accent-200)] font-semibold shadow-inner";
-  const inactiveClasses = "text-[var(--text-secondary)] hover:bg-[var(--accent-500)]/10 hover:text-[var(--accent-300)] hover:translate-x-1";
+  const baseClasses = "relative flex items-center justify-center w-12 h-12 transition-all duration-300 ease-in-out transform rounded-lg";
+  const activeClasses = "bg-[var(--accent-400)]/20 text-[var(--accent-200)]";
+  const inactiveClasses = "text-[var(--text-secondary)] hover:bg-[var(--accent-500)]/10 hover:text-[var(--text-secondary)]";
   
   return (
     <button
       onClick={onClick}
       className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
       aria-current={isActive ? 'page' : undefined}
+      aria-label={label}
+      title={label}
     >
-      {icon}
-      <span className="ml-4 font-medium">{label}</span>
+      {/* Active state indicator bar */}
+      {isActive && (
+        <div 
+          className="absolute left-0 top-1/4 h-1/2 w-1 bg-[var(--accent-400)] rounded-r-full"
+          aria-hidden="true"
+        />
+      )}
+      {/* Wrapper to add a drop shadow for contrast against any background */}
+      <div className="[filter:drop-shadow(0_1px_2px_rgba(0,0,0,0.8))]">
+        {icon}
+      </div>
     </button>
   );
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarOpen }) => {
+export const Sidebar: React.FC<IconNavProps> = ({ activeView, setActiveView }) => {
   return (
-    <nav className={`flex-shrink-0 flex flex-col w-64 h-full bg-[var(--bg-secondary)]/40 backdrop-blur-lg border-r border-white/10 shadow-2xl z-20 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : '-ml-64'}`}>
-      <div className="grid place-items-center h-20 px-4 border-b border-white/10">
-        <AppLogo className="h-10 text-[var(--accent-400)]" />
+    <nav className="flex-shrink-0 flex flex-col items-center w-20 h-full z-20">
+      <div className="grid place-items-center h-20 w-full">
+        {/* Added text-shadow for visibility against any background */}
+        <div className="flex flex-col items-center text-center [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]">
+            <span className="font-bold text-sm leading-tight tracking-wider text-[var(--accent-300)]">FOCUS</span>
+            <span className="text-xs leading-tight tracking-wider text-[var(--text-primary)]">CREST</span>
+        </div>
       </div>
-      <div className="flex flex-col flex-grow p-4 gap-2">
-        <SidebarButton 
+      <div className="flex flex-col flex-grow p-4 gap-4">
+        <NavIconButton
           label="Study Planner"
           icon={<PlannerIcon className="w-6 h-6" />}
           isActive={activeView === 'planner'}
           onClick={() => setActiveView('planner')}
         />
-        <SidebarButton 
+        <NavIconButton
           label="AI Assistant"
           icon={<AssistantIcon className="w-6 h-6" />}
           isActive={activeView === 'assistant'}
           onClick={() => setActiveView('assistant')}
         />
-        <SidebarButton 
+        <NavIconButton
           label="EduTube"
           icon={<YouTubeIcon className="w-6 h-6" />}
           isActive={activeView === 'youtube'}
           onClick={() => setActiveView('youtube')}
         />
-        <SidebarButton 
+        <NavIconButton
           label="Pomodoro Timer"
           icon={<TimerIcon className="w-6 h-6" />}
           isActive={activeView === 'pomodoro'}
           onClick={() => setActiveView('pomodoro')}
         />
-        <SidebarButton 
+        <NavIconButton
           label="Scratch Pad"
           icon={<NotesIcon className="w-6 h-6" />}
           isActive={activeView === 'notes'}
           onClick={() => setActiveView('notes')}
         />
-        <SidebarButton 
+        <NavIconButton
           label="Focus Music"
           icon={<MusicIcon className="w-6 h-6" />}
           isActive={activeView === 'music'}
           onClick={() => setActiveView('music')}
         />
       </div>
-      <div className="p-4 border-t border-white/10 mt-auto">
-         <SidebarButton 
+      <div className="p-4 mt-auto">
+         <NavIconButton
           label="Settings"
           icon={<SettingsIcon className="w-6 h-6" />}
           isActive={activeView === 'settings'}
           onClick={() => setActiveView('settings')}
         />
-      </div>
-       <div className="p-4 border-t border-white/10 text-center text-xs text-[var(--text-muted)]">
-        <p>&copy; 2025 - Anto Bredly</p>
       </div>
     </nav>
   );

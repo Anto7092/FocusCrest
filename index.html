@@ -80,53 +80,26 @@
       }
       
       /* --- Intro Animation Styles --- */
-      @keyframes draw-path {
-        from { stroke-dashoffset: 1000; }
-        to { stroke-dashoffset: 0; }
-      }
-
-      @keyframes fill-in {
-        from { fill-opacity: 0; stroke-opacity: 1; }
-        to { fill-opacity: 1; stroke-opacity: 0; }
-      }
-
-      @keyframes assemble-piece {
-        from { opacity: 0; transform: translateY(15px) scale(0.9); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-
-      @keyframes shoot-out {
-          from { opacity: 0; transform: scaleY(0.5); }
-          to { opacity: 1; transform: scaleY(1); }
-      }
-
-      @keyframes reveal-text {
-          from { opacity: 0; transform: translateY(10px); letter-spacing: 6px; }
+      @keyframes animate-text-focus-crest {
+          from { opacity: 0; transform: translateY(10px); letter-spacing: 10px; }
           to { opacity: 1; transform: translateY(0); letter-spacing: 2px; }
       }
 
-      #intro-logo svg * { transform-origin: center center; }
-
-      #intro-logo #crest-main-shape,
-      #intro-logo #crest-inner-shape {
-          fill-opacity: 0;
-          stroke: var(--accent-300);
-          stroke-width: 1.5;
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
-          animation: 
-              draw-path 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards,
-              fill-in 0.7s ease-out forwards;
+      @keyframes draw-line-focus-crest {
+          from { stroke-dashoffset: 120; }
+          to { stroke-dashoffset: 0; }
       }
-      #intro-logo #crest-main-shape { animation-delay: 0s, 1.2s; }
-      #intro-logo #crest-inner-shape { animation-delay: 0.15s, 1.35s; }
-      #intro-logo #eye-group { opacity: 0; animation: assemble-piece 0.8s cubic-bezier(0.23, 1, 0.32, 1) 1.6s forwards; }
-      #intro-logo #light-rays-group { transform-origin: bottom center; }
-      #intro-logo #light-rays-group path { opacity: 0; animation: shoot-out 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-      #intro-logo #light-rays-group path:nth-child(1) { animation-delay: 2.3s; }
-      #intro-logo #light-rays-group path:nth-child(2) { animation-delay: 2.1s; }
-      #intro-logo #light-rays-group path:nth-child(3) { animation-delay: 2.3s; }
-      #intro-logo #logo-text { opacity: 0; animation: reveal-text 1.0s cubic-bezier(0.23, 1, 0.32, 1) 2.5s forwards; }
+
+      #intro-logo #logo-text {
+          opacity: 0;
+          animation: animate-text-focus-crest 1.5s cubic-bezier(0.23, 1, 0.32, 1) 1.0s forwards;
+      }
+
+      #intro-logo #logo-underline {
+          stroke-dasharray: 120; /* The length of the line: 170 - 50 */
+          stroke-dashoffset: 120;
+          animation: draw-line-focus-crest 1.2s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+      }
       
       /* --- Transition from Intro to App --- */
       @keyframes fade-out {

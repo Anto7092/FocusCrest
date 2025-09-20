@@ -3,52 +3,18 @@ import * as React from 'react';
 type IconProps = React.SVGProps<SVGSVGElement>;
 
 export const AppLogo: React.FC<IconProps> = (props) => (
-    <svg {...props} viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg" aria-label="Focus Crest Logo">
+    <svg {...props} viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg" aria-label="Focus Crest Logo">
         <defs>
-            <linearGradient id="crest-grad-main" x1="0.5" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stopColor="var(--accent-400)" />
-                <stop offset="100%" stopColor="var(--accent-600)" />
-            </linearGradient>
-            <linearGradient id="crest-grad-dark" x1="0.5" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stopColor="var(--bg-tertiary)" />
-                <stop offset="100%" stopColor="var(--bg-quaternary)" />
-            </linearGradient>
             <linearGradient id="text-grad" x1="0" y1="0.5" x2="1" y2="0.5">
                  <stop offset="0%" stopColor="var(--accent-300)" />
                  <stop offset="100%" stopColor="var(--accent-400)" />
             </linearGradient>
         </defs>
-
-        <g transform="translate(110, 38)">
-            <path 
-                id="crest-main-shape"
-                d="M 0 42 C -40 25 -50 -10 -50 -20 A 10 10 0 0 1 -40 -30 L 40 -30 A 10 10 0 0 1 50 -20 C 50 -10 40 25 0 42 Z" 
-                fill="url(#crest-grad-dark)"
-            />
-            <path 
-                id="crest-inner-shape"
-                d="M 0 38 C -35 22 -42 -10 -42 -18 A 8 8 0 0 1 -34 -26 L 34 -26 A 8 8 0 0 1 42 -18 C 42 -10 35 22 0 38 Z"
-                fill="url(#crest-grad-main)"
-            />
-
-            <g id="eye-group">
-                <path d="M -28 0 C -10 -20 10 -20 28 0 C 10 20 -10 20 -28 0 Z" fill="var(--bg-tertiary)" />
-                <circle cx="0" cy="0" r="12" fill="var(--accent-300)" />
-                <circle cx="0" cy="0" r="10" fill="url(#crest-grad-main)" />
-                <circle cx="0" cy="0" r="4" fill="var(--bg-tertiary)" />
-            </g>
-            
-            <g id="light-rays-group" fill="var(--accent-300)" opacity="0.9">
-                <path d="M 0 -15 L -8 -30 L 8 -30 Z" transform="rotate(-30 0 -22)" />
-                <path d="M 0 -15 L -6 -30 L 6 -30 Z" transform="rotate(0 0 -22)" />
-                <path d="M 0 -15 L -8 -30 L 8 -30 Z" transform="rotate(30 0 -22)" />
-            </g>
-        </g>
         
         <text 
             id="logo-text"
             x="50%" 
-            y="90" 
+            y="28" 
             textAnchor="middle" 
             fontFamily="'Inter', sans-serif" 
             fontSize="18" 
@@ -57,6 +23,22 @@ export const AppLogo: React.FC<IconProps> = (props) => (
             letterSpacing="2">
             FOCUS CREST
         </text>
+
+        <path
+            id="logo-underline"
+            d="M50 40 L170 40"
+            stroke="url(#text-grad)"
+            strokeWidth="2"
+            strokeLinecap="round"
+        />
+    </svg>
+);
+
+// New icon for the condensed navigation bar
+export const AppLogoSquare: React.FC<IconProps> = (props) => (
+    <svg {...props} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-label="Focus Crest Icon">
+        <path d="M7 3H15V5H9V10H14V12H9V21H7V3Z" />
+        <path d="M21 12C21 7.03 16.97 3 12 3V5C15.86 5 19 8.14 19 12S15.86 19 12 19V21C16.97 21 21 16.97 21 12Z" />
     </svg>
 );
 
