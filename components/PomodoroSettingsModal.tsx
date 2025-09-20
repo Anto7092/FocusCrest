@@ -1,22 +1,46 @@
 import * as React from 'react';
 import { ScrollableNumberPicker } from './ScrollableNumberPicker';
 import { SettingsIcon, XIcon } from './icons';
-import type { DurationSettings } from '../App';
+import type { PomodoroSettings, NotificationSound } from '../types';
 
 interface PomodoroSettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    durations: DurationSettings;
-    onDurationChange: (mode: keyof DurationSettings, value: number) => void;
+    settings: PomodoroSettings;
+    onSettingsChange: (newSettings: PomodoroSettings) => void;
+    sounds: NotificationSound[];
 }
 
 export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
     isOpen,
     onClose,
-    durations,
-    onDurationChange,
+    settings,
+    onSettingsChange,
+    sounds,
 }) => {
     if (!isOpen) return null;
+    
+    const handleDurationChange = (mode: keyof PomodoroSettings['durations'], value: number) => {
+        const newSettings = {
+            ...settings,
+            durations: {
+                ...settings.durations,
+                [mode]: value,
+            }
+        };
+        onSettingsChange(newSettings);
+    };
+
+    const handleSoundChange = (sound: NotificationSound) => {
+        // Play a preview of the sound on selection
+        if (sound.url) {
+            const audio = new Audio(sound.url);
+            audio.play().catch(e => console.error("Sound preview failed", e));
+        }
+        
+        const newSettings = { ...settings, soundId: sound.id };
+        onSettingsChange(newSettings);
+    };
 
     return (
         <div 
@@ -43,25 +67,45 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({
                 </div>
                 
                 <p className="text-center text-[var(--text-secondary)] mb-8">
-                    Adjust the length of your sessions. All durations are in minutes.
+                    Adjust the length of your sessions and the notification sound.
                 </p>
 
                 <div className="flex justify-around items-start gap-4">
                     <ScrollableNumberPicker 
                         label="Focus" 
-                        value={durations.work} 
-                        onChange={(newVal) => onDurationChange('work', newVal)} 
+                        value={settings.durations.work} 
+                        onChange={(newVal) => handleDurationChange('work', newVal)} 
                     />
                     <ScrollableNumberPicker 
                         label="Short Break" 
-                        value={durations.shortBreak} 
-                        onChange={(newVal) => onDurationChange('shortBreak', newVal)} 
+                        value={settings.durations.shortBreak} 
+                        onChange={(newVal) => handleDurationChange('shortBreak', newVal)} 
                     />
                     <ScrollableNumberPicker 
                         label="Long Break" 
-                        value={durations.longBreak} 
-                        onChange={(newVal) => onDurationChange('longBreak', newVal)} 
+                        value={settings.durations.longBreak} 
+                        onChange={(newVal) => handleDurationChange('longBreak', newVal)} 
                     />
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/10">
+                    <h3 className="text-center text-sm font-medium text-[var(--text-secondary)] mb-4">Notification Sound</h3>
+                    <div className="flex justify-center items-center gap-3">
+                        {sounds.map(sound => (
+                            <button
+                                key={sound.id}
+                                onClick={() => handleSoundChange(sound)}
+                                className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
+                                    settings.soundId === sound.id 
+                                        ? 'bg-[var(--accent-400)]/20 text-[var(--accent-200)]' 
+                                        : 'bg-slate-700/50 text-[var(--text-secondary)] hover:bg-slate-600/50'
+                                }`}
+                                aria-pressed={settings.soundId === sound.id}
+                            >
+                                {sound.name}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="mt-10 text-center">

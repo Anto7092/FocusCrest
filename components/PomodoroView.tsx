@@ -1,24 +1,26 @@
 import * as React from 'react';
 import { PlayIcon, PauseIcon, ResetIcon, InfoIcon, SettingsIcon } from './icons';
 import { PomodoroSettingsModal } from './PomodoroSettingsModal';
-import type { PomodoroState } from '../types';
-import type { DurationSettings } from '../App';
+import type { PomodoroState, PomodoroSettings, NotificationSound } from '../types';
 
 interface PomodoroViewProps {
-    durations: DurationSettings;
-    setDurations: (durations: DurationSettings) => void;
+    settings: PomodoroSettings;
+    setSettings: (settings: PomodoroSettings) => void;
     globalState: PomodoroState;
     setGlobalState: (state: PomodoroState | ((prevState: PomodoroState) => PomodoroState)) => void;
+    sounds: NotificationSound[];
 }
 
 export const PomodoroView: React.FC<PomodoroViewProps> = ({
-    durations,
-    setDurations,
+    settings,
+    setSettings,
     globalState,
     setGlobalState,
+    sounds,
 }) => {
     const { isActive, mode, timeLeft, sessionName } = globalState;
     const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+    const { durations } = settings;
 
     const getDuration = React.useCallback((currentMode: PomodoroState['mode']): number => {
         return (durations[currentMode] || durations.work) * 60;
@@ -60,13 +62,12 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
         }));
     };
 
-    const handleDurationChange = (modeToChange: keyof DurationSettings, newMins: number) => {
-        if (newMins > 0 && newMins <= 180) { // Cap at 180 mins
-            const newDurations = { ...durations, [modeToChange]: newMins };
-            setDurations(newDurations);
-
-            if (mode === modeToChange && !isActive) {
-                setGlobalState(prev => ({ ...prev, timeLeft: newMins * 60 }));
+    const handleSettingsChange = (newSettings: PomodoroSettings) => {
+        setSettings(newSettings);
+        // If the current mode's duration was changed and the timer isn't running, update timeLeft
+        if (mode in newSettings.durations && !isActive) {
+            if (newSettings.durations[mode] !== durations[mode]) {
+                 setGlobalState(prev => ({ ...prev, timeLeft: newSettings.durations[mode] * 60 }));
             }
         }
     };
@@ -74,8 +75,6 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
     const handleSessionNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setGlobalState(prev => ({...prev, sessionName: e.target.value}));
     };
-
-    const progress = (getDuration(mode) - timeLeft) / getDuration(mode);
     
     return (
         <div className="flex flex-col items-center justify-center w-full h-full p-6 text-[var(--text-primary)]">
@@ -98,29 +97,12 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
                 />
             </div>
 
-            <div className="relative w-72 h-72 flex flex-col items-center justify-center rounded-full bg-slate-900/40 shadow-2xl border-4 border-slate-700/50">
-                <div className="absolute inset-0">
-                    <svg className="w-full h-full" viewBox="0 0 100 100">
-                        <circle className="stroke-current text-slate-700/50" strokeWidth="4" cx="50" cy="50" r="48" fill="transparent" />
-                        <circle
-                            className="stroke-current text-[var(--accent-400)] transform -rotate-90 origin-center transition-all duration-500"
-                            strokeWidth="4"
-                            strokeLinecap="round"
-                            cx="50" cy="50" r="48"
-                            fill="transparent"
-                            strokeDasharray={2 * Math.PI * 48}
-                            strokeDashoffset={2 * Math.PI * 48 * (1 - progress)}
-                        />
-                    </svg>
-                </div>
-
-                <div className="z-10 text-center">
-                    <p className="text-6xl font-mono font-bold tracking-widest">{formatTime(timeLeft)}</p>
-                    <p className="text-lg text-[var(--text-secondary)] mt-2">{getModeLabel(mode)}</p>
-                </div>
+            <div className="text-center my-12">
+                <p className="text-9xl font-mono font-bold tracking-widest">{formatTime(timeLeft)}</p>
+                <p className="text-xl text-[var(--text-secondary)] mt-2">{getModeLabel(mode)}</p>
             </div>
 
-            <div className="flex items-center space-x-4 mt-10">
+            <div className="flex items-center space-x-4">
                  <button 
                     onClick={() => setIsSettingsOpen(true)}
                     className="w-16 h-16 flex items-center justify-center bg-slate-700/50 rounded-full hover:bg-slate-600/50 transition-colors shadow-md text-[var(--text-secondary)]"
@@ -168,8 +150,9 @@ export const PomodoroView: React.FC<PomodoroViewProps> = ({
             <PomodoroSettingsModal 
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
-                durations={durations}
-                onDurationChange={handleDurationChange}
+                settings={settings}
+                onSettingsChange={handleSettingsChange}
+                sounds={sounds}
             />
         </div>
     );

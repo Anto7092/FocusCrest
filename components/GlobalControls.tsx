@@ -35,21 +35,21 @@ const PomodoroWidget: React.FC<{
     const secondaryLabel = sessionName ? modeLabel : null;
 
     return (
-        <div className="flex items-center gap-4 bg-slate-700/50 p-2 rounded-lg">
+        <div className="flex items-center gap-4 p-2">
             <TimerIcon className="w-6 h-6 text-[var(--accent-300)] flex-shrink-0 ml-2" />
             <div className="flex-grow flex flex-col text-left min-w-[120px]">
-                <span className="font-semibold text-sm text-white truncate" title={primaryLabel}>
+                <span className="font-semibold text-sm text-[var(--text-primary)] truncate" title={primaryLabel}>
                     {primaryLabel}
                 </span>
-                {secondaryLabel && <span className="text-xs text-slate-300 capitalize">{secondaryLabel}</span>}
+                {secondaryLabel && <span className="text-xs text-[var(--text-secondary)] capitalize">{secondaryLabel}</span>}
             </div>
-            <div className="flex-shrink-0 font-mono text-xl font-bold text-white pr-2 border-r border-slate-600">
+            <div className="flex-shrink-0 font-mono text-xl font-bold text-[var(--text-primary)] pr-2 border-r border-[var(--border-secondary)]">
                 {formatTime(timeLeft)}
             </div>
-            <button onClick={toggleTimer} className="p-2 text-white hover:bg-white/10 rounded-full" aria-label={isActive ? 'Pause timer' : 'Start timer'}>
+            <button onClick={toggleTimer} className="p-2 text-[var(--text-primary)] hover:bg-[var(--accent-500)]/10 rounded-full" aria-label={isActive ? 'Pause timer' : 'Start timer'}>
                 {isActive ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
             </button>
-             <button onClick={cancelSession} className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-full" aria-label="Cancel Session">
+             <button onClick={cancelSession} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-500)]/10 rounded-full" aria-label="Cancel Session">
                 <XIcon className="w-5 h-5" />
             </button>
         </div>
@@ -63,7 +63,7 @@ export const GlobalControls: React.FC<GlobalControlsProps> = ({
     durations,
 }) => {
     return (
-        <footer className="flex-shrink-0 w-full bg-slate-900/60 backdrop-blur-lg border-t border-white/10 p-2 flex items-center justify-center md:justify-end gap-4 z-20">
+        <footer className="flex-shrink-0 w-full backdrop-blur-lg border-t border-[var(--border-primary)] p-2 flex items-center justify-center md:justify-end gap-4 z-20">
             <PomodoroWidget 
                 state={pomodoroState} 
                 setState={setPomodoroState}

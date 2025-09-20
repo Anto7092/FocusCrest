@@ -1,3 +1,5 @@
+import { DurationSettings } from "./App";
+
 export type View = 'assistant' | 'youtube' | 'pomodoro' | 'notes' | 'music' | 'planner' | 'settings';
 
 export type YouTubeVideo = {
@@ -73,4 +75,16 @@ export type BackgroundImage = {
   url: string;
   thumbnailUrl: string;
   palette: ColorPalette;
+};
+
+// --- New Types for Pomodoro Sounds ---
+export type NotificationSound = {
+  id: string;
+  name: string;
+  url: string; // Will be a base64 data URI
+};
+
+export type PomodoroSettings = {
+  durations: DurationSettings;
+  soundId: string;
 };

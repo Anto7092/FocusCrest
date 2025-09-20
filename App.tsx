@@ -8,7 +8,7 @@ import { FocusMusicView } from './components/FocusMusicView';
 import { PlannerView } from './components/PlannerView';
 import { SettingsView } from './components/SettingsView';
 import { GlobalControls } from './components/GlobalControls';
-import type { View, PomodoroState, BackgroundImage, ColorPalette } from './types';
+import type { View, PomodoroState, BackgroundImage, ColorPalette, PomodoroSettings, NotificationSound } from './types';
 import { MenuIcon, XIcon } from './components/icons';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
@@ -16,7 +16,7 @@ import { IntroAnimation } from './components/IntroAnimation';
 import { getCustomBackground, deleteCustomBackground } from './services/dbService';
 
 const SESSIONS_PER_LONG_BREAK = 4;
-const POMODORO_SETTINGS_KEY = 'study-focus-pomodoro-settings';
+const POMODORO_SETTINGS_KEY = 'study-focus-pomodoro-settings-v2'; // Updated key
 const THEME_SETTINGS_KEY = 'study-focus-theme-settings-v2';
 
 export const BACKGROUND_IMAGES: BackgroundImage[] = [
@@ -107,6 +107,12 @@ export const CUSTOM_IMAGE_PALETTE: ColorPalette = {
     backgroundFilter: 'brightness(0.7) saturate(0.5) contrast(1.0)',
 };
 
+export const NOTIFICATION_SOUNDS: NotificationSound[] = [
+    { id: 'none', name: 'None', url: '' },
+    { id: 'bell', name: 'Bell', url: 'data:audio/wav;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABgAAABkYXRhJAEAAAD///////9w/3r/cv9u/3T/eP95/3b/av9y/3n/gv+C/3//cf9u/3P/gP+H/4f/f/90/3T/hP+P/5L/kv+L/4T/gv+I/5D/mv+f/5n/lf+T/5f/nP+j/6j/qP+l/6X/pv+n/6v/s/+3/7f/tP+w/6z/r/+5/7//wP/B/8H/v//A/8H/xf/H/8f/w//C/8P/xP/G/8f/yP/J/8n/yP/I/8j/yv/N/8//z//O/83/zf/P/9H/0f/R/8//zv/Q/9L/1A/U/9P/0//V/9f/1//W/9X/1f/X/9j/2v/c/9z/2f/Y/9n/2v/d/9//4P/g/+D/3//f/9//4P/i/+T/5f/l/+T/4v/i/+T/5v/o/+n/6f/o/+f/5//p/+r/7P/u/+//7v/t/+z/7P/t/+//8P/yP/S/9T/1//Y/9r/3P/e/+D/4v/k/+X/5v/o/+n/6v/s/+3/7v/v//A/8X/yP/Q/9T/1//Y/9r/3P/e/+D/4v/k/+b/6P/q/+z/7v/wP/H/8//1//Z/9z/4f/m/+v/8P/y//X/+/8A/wH/Af/+/+7/7v/v//L/9f/6//z//f/9//7/AQIEBgQHBAcGBgYGBgYIBwkKDA0NDgwMCwoKCQkJCgoMCw0ODw8PDw4NDAsKCQgHBgUEAwIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//v8=' },
+    { id: 'chime', name: 'Chime', url: 'data:audio/wav;base64,UklGRmACAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABgAAABkYXRhQACAAGN/iv+V/8b/6v8A/3b7ifpT9W/zI/Of64/gb73/Z/2N/Mv+QAIoB6wJ0gq2DOYOUg9qECQP6g6uCrQJHAecAPn/G/7T/mECIAhSCcMLxQ+tExoVohcNGGYY8hhpF7oTqxA8C0gH5f7N+4P3E/fJ+Kn6V/v0ADgD4gfyCgMOQhCPEJYR+hBHDUII4f3e+jb1k/FT6s/lV+PX32/cn95P6T/7YAFgENgrDDsUSwhgEJAQ+g3GCgAHy/uX8evvh/oY/LD81f0N/e//pQGuBdcKMQ8iFTcaZSJjJ7woHCisJ4kflhqyEgQLpfi36g/p6+3f8G/6//3zAVgHpg2rF10dSSM8KN8qcS2zLnstgikyH7sYlRKHCn3/Q/tb+1X+4QG4BzMNoRVjGzIgyyR8Jz4qlyrHKbYm9yE3GB4P5/xL85nzn/gv+vP+WQK8CK8NlxZlHMci7CTSKOQpBylnJtQheiAQEfsJ2wP0/wX/6f40/aX+4QJUCQYQJRhOJ3wy2jPRNW422jLxK+og/BP5Af786eHi3d3f4OPk6uvv9Pf5+/8AByQRRixONlU8YT8/RjBIfElRSWlGqUQhQjM+OTc3OEM4P0RAREhMTlJYWV1cYGZrbHF0eX2AhIqNkJOWm5+jpquusbS4u8HCyMvP0tXY3uHk6u3w9fn8//8=' },
+    { id: 'digital', name: 'Digital', url: 'data:audio/wav;base64,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'] },
+];
 
 export type DurationSettings = {
     work: number;
@@ -236,18 +242,25 @@ const App: React.FC = () => {
 
 
   // Global Pomodoro State
-  const [pomodoroDurations, setPomodoroDurations] = React.useState<DurationSettings>(() => {
+  const [pomodoroSettings, setPomodoroSettings] = React.useState<PomodoroSettings>(() => {
     try {
         const saved = localStorage.getItem(POMODORO_SETTINGS_KEY);
-        return saved ? JSON.parse(saved) : { work: 25, shortBreak: 5, longBreak: 15 };
+        if (saved) {
+          return JSON.parse(saved);
+        }
     } catch {
-        return { work: 25, shortBreak: 5, longBreak: 15 };
+       // Fallback on error
     }
+    return { 
+        durations: { work: 25, shortBreak: 5, longBreak: 15 },
+        soundId: 'bell' // Default sound
+    };
   });
+  
   const [pomodoroState, setPomodoroState] = React.useState<PomodoroState>({
     isActive: false,
     mode: 'work',
-    timeLeft: pomodoroDurations.work * 60,
+    timeLeft: pomodoroSettings.durations.work * 60,
     sessions: 0,
     sessionName: '',
   });
@@ -259,20 +272,27 @@ const App: React.FC = () => {
         setPomodoroState(prev => ({ ...prev, timeLeft: prev.timeLeft - 1 }));
       }, 1000);
     } else if (pomodoroState.isActive && pomodoroState.timeLeft === 0) {
+        // Play notification sound
+        const sound = NOTIFICATION_SOUNDS.find(s => s.id === pomodoroSettings.soundId);
+        if (sound && sound.url) {
+            const audio = new Audio(sound.url);
+            audio.play().catch(e => console.error("Error playing sound:", e));
+        }
+
         const newSessions = pomodoroState.mode === 'work' ? pomodoroState.sessions + 1 : pomodoroState.sessions;
         const nextMode = pomodoroState.mode === 'work'
           ? (newSessions > 0 && newSessions % SESSIONS_PER_LONG_BREAK === 0 ? 'longBreak' : 'shortBreak')
           : 'work';
         
-        const durationMap = { work: pomodoroDurations.work, shortBreak: pomodoroDurations.shortBreak, longBreak: pomodoroDurations.longBreak };
+        const durationMap = pomodoroSettings.durations;
         setPomodoroState(prev => ({ ...prev, isActive: false, mode: nextMode, sessions: newSessions, timeLeft: durationMap[nextMode] * 60 }));
     }
     return () => { if (timer) clearInterval(timer); };
-  }, [pomodoroState.isActive, pomodoroState.timeLeft, pomodoroDurations]);
+  }, [pomodoroState.isActive, pomodoroState.timeLeft, pomodoroSettings]);
   
   React.useEffect(() => {
-    localStorage.setItem(POMODORO_SETTINGS_KEY, JSON.stringify(pomodoroDurations));
-  }, [pomodoroDurations]);
+    localStorage.setItem(POMODORO_SETTINGS_KEY, JSON.stringify(pomodoroSettings));
+  }, [pomodoroSettings]);
 
   React.useEffect(() => {
     const handleNotesUpdate = () => setActiveView('notes');
@@ -289,12 +309,12 @@ const App: React.FC = () => {
   
   const handleStartYouTubeSearch = (query: string) => { setInitialYouTubeQuery(query); setActiveView('youtube'); };
   const handleStartPomodoro = (sessionName: string) => {
-    setPomodoroState(prev => ({ ...prev, isActive: true, mode: 'work', timeLeft: pomodoroDurations.work * 60, sessionName }));
+    setPomodoroState(prev => ({ ...prev, isActive: true, mode: 'work', timeLeft: pomodoroSettings.durations.work * 60, sessionName }));
     setActiveView('pomodoro');
   };
   const handleAskAssistant = (query: string) => { setInitialAssistantQuery(query); setActiveView('assistant'); };
 
-  const fullDuration = pomodoroDurations[pomodoroState.mode] * 60;
+  const fullDuration = pomodoroSettings.durations[pomodoroState.mode] * 60;
   const showGlobalControls = pomodoroState.timeLeft < fullDuration;
 
   return (
@@ -329,7 +349,13 @@ const App: React.FC = () => {
                 <MiniYouTubeView initialQuery={initialYouTubeQuery} onSearchHandled={() => setInitialYouTubeQuery(null)} />
               </ViewWrapper>
               <ViewWrapper id="pomodoro" activeView={activeView}>
-                <PomodoroView durations={pomodoroDurations} setDurations={setPomodoroDurations} globalState={pomodoroState} setGlobalState={setPomodoroState} />
+                <PomodoroView 
+                    settings={pomodoroSettings}
+                    setSettings={setPomodoroSettings}
+                    globalState={pomodoroState}
+                    setGlobalState={setPomodoroState}
+                    sounds={NOTIFICATION_SOUNDS}
+                />
               </ViewWrapper>
               <ViewWrapper id="music" activeView={activeView}>
                 <FocusMusicView />
@@ -347,8 +373,8 @@ const App: React.FC = () => {
               </ViewWrapper>
             </div>
           </main>
-          {showGlobalControls && (
-            <GlobalControls pomodoroState={pomodoroState} setPomodoroState={setPomodoroState} durations={pomodoroDurations} />
+          {showGlobalControls && activeView !== 'pomodoro' && (
+            <GlobalControls pomodoroState={pomodoroState} setPomodoroState={setPomodoroState} durations={pomodoroSettings.durations} />
           )}
         </div>
       </div>
