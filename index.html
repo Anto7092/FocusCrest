@@ -22,6 +22,43 @@
         font-family: 'JetBrains Mono', monospace;
       }
 
+      /* --- Intro Animation Styles --- */
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes scaleUp { from { transform: scale(0.8); } to { transform: scale(1); } }
+      @keyframes textFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+      #intro-logo #crest-main-shape {
+          animation: fadeIn 1s ease-out both, scaleUp 1s ease-out both;
+      }
+      #intro-logo #crest-inner-shape {
+          animation: fadeIn 1s ease-out 0.2s both, scaleUp 1s ease-out 0.2s both;
+      }
+      #intro-logo #eye-group {
+          animation: fadeIn 0.8s ease-out 0.5s both, scaleUp 0.8s ease-out 0.5s both;
+      }
+      #intro-logo #light-rays-group path {
+          opacity: 0;
+          animation: fadeIn 0.5s ease-out forwards;
+      }
+      #intro-logo #light-rays-group path:nth-child(1) { animation-delay: 1s; }
+      #intro-logo #light-rays-group path:nth-child(2) { animation-delay: 1.2s; }
+      #intro-logo #light-rays-group path:nth-child(3) { animation-delay: 1.4s; }
+
+      #intro-logo #logo-text {
+          animation: textFadeIn 1s ease-out 1.8s both;
+      }
+
+      /* App fade-in after intro */
+      @keyframes appFadeIn {
+        from { opacity: 0; filter: blur(5px); }
+        to { opacity: 1; filter: blur(0); }
+      }
+
+      .animate-appFadeIn {
+        animation: appFadeIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
+      }
+      /* --- End Intro Animation Styles --- */
+
       /* Futuristic Animations */
       @keyframes futuristicViewTransition {
         from {

@@ -11,6 +11,7 @@ import type { View, PomodoroState } from './types';
 import { MenuIcon, XIcon } from './components/icons';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
+import { IntroAnimation } from './components/IntroAnimation';
 
 const SESSIONS_PER_LONG_BREAK = 4;
 const POMODORO_SETTINGS_KEY = 'study-focus-pomodoro-settings';
@@ -32,6 +33,7 @@ const ViewWrapper: React.FC<{ id: View, activeView: View, children: React.ReactN
 };
 
 const App: React.FC = () => {
+  const [isIntroVisible, setIsIntroVisible] = React.useState(true);
   const [activeView, setActiveView] = React.useState<View>('planner');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   
@@ -141,8 +143,12 @@ const App: React.FC = () => {
   // A session is in progress if the timer has been started (and timeLeft is less than full).
   const showGlobalControls = pomodoroState.timeLeft < fullDuration;
 
+  if (isIntroVisible) {
+    return <IntroAnimation onComplete={() => setIsIntroVisible(false)} />;
+  }
+
   return (
-    <div className="flex h-screen bg-slate-950/20 font-sans texture-overlay overflow-x-hidden">
+    <div className="flex h-screen bg-slate-950/20 font-sans texture-overlay overflow-x-hidden animate-appFadeIn">
       <Sidebar 
         activeView={activeView} 
         setActiveView={handleSetView} 

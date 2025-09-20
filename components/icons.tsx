@@ -26,17 +26,19 @@ export const AppLogo: React.FC<IconProps> = (props) => (
         <g transform="translate(110, 38)">
             {/* Main Crest Shape */}
             <path 
+                id="crest-main-shape"
                 d="M 0 42 C -40 25 -50 -10 -50 -20 A 10 10 0 0 1 -40 -30 L 40 -30 A 10 10 0 0 1 50 -20 C 50 -10 40 25 0 42 Z" 
                 fill="url(#new-crest-grad-dark)"
             />
             {/* Inner Crest layer for depth */}
             <path 
+                id="crest-inner-shape"
                 d="M 0 38 C -35 22 -42 -10 -42 -18 A 8 8 0 0 1 -34 -26 L 34 -26 A 8 8 0 0 1 42 -18 C 42 -10 35 22 0 38 Z"
                 fill="url(#new-crest-grad)"
             />
 
             {/* Stylized Eye/Lens */}
-            <g>
+            <g id="eye-group">
                 {/* Outer eye shape */}
                 <path d="M -28 0 C -10 -20 10 -20 28 0 C 10 20 -10 20 -28 0 Z" fill="#134E4A" />
                 {/* Iris */}
@@ -47,7 +49,7 @@ export const AppLogo: React.FC<IconProps> = (props) => (
             </g>
             
             {/* Light Rays / Book Pages */}
-            <g fill="#5EEAD4" opacity="0.9">
+            <g id="light-rays-group" fill="#5EEAD4" opacity="0.9">
                 <path d="M 0 -15 L -8 -30 L 8 -30 Z" transform="rotate(-30 0 -22)" />
                 <path d="M 0 -15 L -6 -30 L 6 -30 Z" transform="rotate(0 0 -22)" />
                 <path d="M 0 -15 L -8 -30 L 8 -30 Z" transform="rotate(30 0 -22)" />
@@ -56,6 +58,7 @@ export const AppLogo: React.FC<IconProps> = (props) => (
         
         {/* Text Part */}
         <text 
+            id="logo-text"
             x="50%" 
             y="90" 
             textAnchor="middle" 
