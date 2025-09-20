@@ -6,10 +6,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from "@google/genai";
 import type { YouTubeVideo } from '../types';
 
-// WARNING: API keys are hardcoded as per user request for testing.
-// This is not secure for production.
-const YOUTUBE_API_KEY = "AIzaSyD8UC1NnpVs2xgytpNjicSDVx05ILsjnjQ";
-const GEMINI_API_KEY = "AIzaSyDqF6S3a2C0N8rrMH4pB6mczv0BClBFEJ4";
+// API keys are sourced from environment variables for security.
+// Ensure YOUTUBE_API_KEY and API_KEY (for Gemini) are set in your Vercel environment.
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const GEMINI_API_KEY = process.env.API_KEY;
 
 const SERVER_TIMEOUT = 9000; // 9 seconds
 
@@ -54,6 +54,9 @@ async function runAction(action: string, payload: any, ai: GoogleGenAI): Promise
             if (!payload || typeof payload.query !== 'string') {
                 throw new Error('Invalid payload for findEducationalVideos');
             }
+            if (!YOUTUBE_API_KEY) {
+                throw new Error("The YouTube API Key is not configured on the server.");
+            }
             return findEducationalVideosBackend(payload.query, YOUTUBE_API_KEY);
 
         default:
@@ -65,6 +68,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+    
+    if (!GEMINI_API_KEY) {
+        return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
     }
 
     try {
@@ -118,7 +125,10 @@ async function performChatSearchBackend(history: any[], message: string, genAI: 
         },
     });
 
-    return response.text || "I am sorry, but I could not generate a response. Please try again.";
+    if (!response.text) {
+      throw new Error("The AI returned an empty response.");
+    }
+    return response.text;
 }
 
 /**
@@ -154,7 +164,10 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
         });
         const searchUrl = `https://www.googleapis.com/youtube/v3/search?${searchParams.toString()}`;
         const searchResponse = await fetch(searchUrl);
-        if (!searchResponse.ok) throw new Error("YouTube API search request failed.");
+        if (!searchResponse.ok) {
+            const errorData = await searchResponse.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || "YouTube API search request failed.");
+        }
         const searchData = await searchResponse.json();
 
         if (!searchData?.items?.length) return [];
@@ -170,7 +183,10 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
         });
         const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?${detailsParams.toString()}`;
         const detailsResponse = await fetch(detailsUrl);
-        if (!detailsResponse.ok) throw new Error("YouTube API details request failed.");
+         if (!detailsResponse.ok) {
+            const errorData = await detailsResponse.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || "YouTube API details request failed.");
+        }
         const detailsData = await detailsResponse.json();
 
         if (!detailsData?.items?.length) return [];
@@ -192,6 +208,7 @@ async function findEducationalVideosBackend(query: string, apiKey: string): Prom
             
     } catch (error) {
         console.error("EduTube Search Error (Backend):", error);
-        return []; // Fail gracefully by returning an empty array
+        // Re-throw the error so it can be caught by the main handler and sent to the client.
+        throw error;
     }
 }

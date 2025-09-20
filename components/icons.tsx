@@ -10,8 +10,8 @@ export const AppLogo: React.FC<IconProps> = (props) => (
                 <stop offset="100%" stopColor="var(--accent-600)" />
             </linearGradient>
             <linearGradient id="crest-grad-dark" x1="0.5" y1="0" x2="0.5" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--color-accent-h), var(--color-accent-s), 35%)" />
-                <stop offset="100%" stopColor="hsl(var(--color-accent-h), var(--color-accent-s), 25%)" />
+                <stop offset="0%" stopColor="var(--bg-tertiary)" />
+                <stop offset="100%" stopColor="var(--bg-quaternary)" />
             </linearGradient>
             <linearGradient id="text-grad" x1="0" y1="0.5" x2="1" y2="0.5">
                  <stop offset="0%" stopColor="var(--accent-300)" />
@@ -32,10 +32,10 @@ export const AppLogo: React.FC<IconProps> = (props) => (
             />
 
             <g id="eye-group">
-                <path d="M -28 0 C -10 -20 10 -20 28 0 C 10 20 -10 20 -28 0 Z" fill="hsl(var(--color-accent-h), var(--color-accent-s), 20%)" />
+                <path d="M -28 0 C -10 -20 10 -20 28 0 C 10 20 -10 20 -28 0 Z" fill="var(--bg-tertiary)" />
                 <circle cx="0" cy="0" r="12" fill="var(--accent-300)" />
                 <circle cx="0" cy="0" r="10" fill="url(#crest-grad-main)" />
-                <circle cx="0" cy="0" r="4" fill="hsl(var(--color-accent-h), var(--color-accent-s), 20%)" />
+                <circle cx="0" cy="0" r="4" fill="var(--bg-tertiary)" />
             </g>
             
             <g id="light-rays-group" fill="var(--accent-300)" opacity="0.9">
@@ -218,5 +218,11 @@ export const UndoIcon: React.FC<IconProps> = (props) => (
 export const RedoIcon: React.FC<IconProps> = (props) => (
     <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+    </svg>
+);
+
+export const UploadIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
     </svg>
 );
