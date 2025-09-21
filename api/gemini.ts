@@ -6,10 +6,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
-// WARNING: Hardcoded API keys for development purposes.
-// Replace with environment variables before deploying to production.
-const YOUTUBE_API_KEY = "AIzaSyDpaOJElbybDXwaPX5T1hhaZ1Ngfim9uGQ";
-const GEMINI_API_KEY = "AIzaSyBRsHTEKCk5x7FjdrESmUNN95eOE-dywkI";
+// API keys are sourced from environment variables for security and flexibility.
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const GEMINI_API_KEY = process.env.API_KEY;
 
 
 const SERVER_TIMEOUT = 9000; // 9 seconds
