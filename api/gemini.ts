@@ -9,7 +9,7 @@ import type { YouTubeVideo, StudyPlan } from '../types';
 // WARNING: Hardcoded API keys for development purposes.
 // Replace with environment variables before deploying to production.
 const YOUTUBE_API_KEY = "AIzaSyDpaOJElbybDXwaPX5T1hhaZ1Ngfim9uGQ";
-const GEMINI_API_KEY = "AIzaSyDqF6S3a2C0N8rrMH4pB6mczv0BClBFEJ4";
+const GEMINI_API_KEY = "AIzaSyBRsHTEKCk5x7FjdrESmUNN95eOE-dywkI";
 
 
 const SERVER_TIMEOUT = 9000; // 9 seconds
