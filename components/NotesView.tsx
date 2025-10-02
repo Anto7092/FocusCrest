@@ -200,18 +200,21 @@ export const NotesView: React.FC = () => {
                 const overflowNodes = allChildren.slice(LINE_LIMIT);
 
                 // Check if there is actual content to move.
-                if (overflowNodes.length === 0 || overflowNodes.every(node => node.textContent?.trim() === '')) {
+                // FIX: Added 'node: Element' type annotation to resolve property access error on 'unknown'.
+                if (overflowNodes.length === 0 || overflowNodes.every((node: Element) => node.textContent?.trim() === '')) {
                     isRepaginatingRef.current = false; // Release lock if nothing to do
                     return;
                 }
 
                 // Create HTML from the DOM nodes.
                 const tempDivCurrent = document.createElement('div');
-                currentNodes.forEach(node => tempDivCurrent.appendChild(node.cloneNode(true)));
+                // FIX: Added 'node: Element' type annotation to resolve property access error on 'unknown'.
+                currentNodes.forEach((node: Element) => tempDivCurrent.appendChild(node.cloneNode(true)));
                 const currentPageHtml = tempDivCurrent.innerHTML;
 
                 const tempDivOverflow = document.createElement('div');
-                overflowNodes.forEach(node => tempDivOverflow.appendChild(node.cloneNode(true)));
+                // FIX: Added 'node: Element' type annotation to resolve property access error on 'unknown'.
+                overflowNodes.forEach((node: Element) => tempDivOverflow.appendChild(node.cloneNode(true)));
                 const overflowHtml = tempDivOverflow.innerHTML;
                 
                 // Update the state for pages.

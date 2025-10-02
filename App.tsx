@@ -274,7 +274,14 @@ const App: React.FC = () => {
         const sound = NOTIFICATION_SOUNDS.find(s => s.id === pomodoroSettings.soundId);
         if (sound && sound.url) {
             const audio = new Audio(sound.url);
-            audio.play().catch(e => console.error("Error playing sound:", e));
+            audio.play().catch(e => {
+                if (e instanceof Error) {
+                    console.error("Error playing sound:", e.message);
+                } else {
+                    // FIX: Explicitly convert the unknown error to a string to satisfy strict type checking.
+                    console.error("An unknown error occurred while playing sound:", String(e));
+                }
+            });
         }
 
         const newSessions = pomodoroState.mode === 'work' ? pomodoroState.sessions + 1 : pomodoroState.sessions;

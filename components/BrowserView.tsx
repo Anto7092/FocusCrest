@@ -42,8 +42,10 @@ const markdownToHtml = (markdown: string): string => {
 const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
     const formattedContent = React.useMemo(() => {
         const lines = content.split('\n');
-        const elements: JSX.Element[] = [];
-        let listItems: JSX.Element[] = [];
+        // FIX: Replaced JSX.Element with React.ReactElement to resolve namespace error.
+        const elements: React.ReactElement[] = [];
+        // FIX: Replaced JSX.Element with React.ReactElement to resolve namespace error.
+        let listItems: React.ReactElement[] = [];
 
         const parseInline = (text: string) => {
             const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|_.*?_)/g);
