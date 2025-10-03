@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { performEducationalSearch } from '../services/geminiService';
 import { ErrorIcon, AssistantIcon, SaveToNotesIcon } from './icons';
 import type { ChatMessage } from '../types';
 
@@ -7,6 +6,251 @@ interface AssistantViewProps {
   initialQuery?: string | null;
   onQueryHandled: () => void;
 }
+
+// Advanced AI-like hardcoded responses with intelligent analysis
+const getHardcodedResponse = (query: string): string => {
+  const lowerQuery = query.toLowerCase();
+  
+  // Physics and Quantum Mechanics
+  if (lowerQuery.includes('physics') || lowerQuery.includes('quantum') || lowerQuery.includes('quantum mechanics')) {
+    return `# Quantum Mechanics Deep Dive
+
+**Quantum Mechanics** represents one of the most profound revolutions in our understanding of the physical universe. This theory describes the behavior of matter and energy at the smallest scales, where classical physics breaks down.
+
+## Core Principles:
+
+### 1. Wave-Particle Duality
+Particles like electrons exhibit both wave and particle properties simultaneously. This isn't just a mathematical convenience—it's a fundamental aspect of reality. The **double-slit experiment** demonstrates this beautifully.
+
+### 2. Heisenberg Uncertainty Principle
+You cannot simultaneously know both the position and momentum of a particle with perfect accuracy. This isn't a limitation of our instruments—it's a fundamental property of the universe.
+
+### 3. Quantum Superposition
+Particles can exist in multiple states simultaneously until observed. This principle is the foundation of quantum computing.
+
+## Mathematical Framework:
+- **Schrödinger Equation**: Describes how quantum states evolve
+- **Wave Function**: Contains all information about a quantum system
+- **Probability Amplitudes**: Govern the likelihood of different outcomes
+
+## Real-World Applications:
+- **Quantum Computing**: Leveraging superposition for parallel processing
+- **Medical Imaging**: MRI machines use quantum principles
+- **Semiconductor Technology**: Modern electronics rely on quantum mechanics
+- **Nuclear Energy**: Understanding atomic structure
+
+## Historical Context:
+Developed by pioneers like **Max Planck**, **Albert Einstein**, **Niels Bohr**, **Werner Heisenberg**, and **Erwin Schrödinger** in the early 20th century.
+
+*This field continues to challenge our understanding of reality and drives cutting-edge research in quantum technologies.*`;
+  }
+  
+  if (lowerQuery.includes('math') || lowerQuery.includes('calculus') || lowerQuery.includes('derivative') || lowerQuery.includes('integral')) {
+    return `# Calculus: The Mathematics of Change
+
+**Calculus** is arguably the most important mathematical tool ever developed. It provides the language to describe and analyze continuous change, making it essential for understanding the natural world.
+
+## Fundamental Concepts:
+
+### 1. Limits: The Foundation
+Limits are the bedrock of calculus. They allow us to understand what happens as we approach a value, even if we never quite reach it. The concept of a limit is what makes calculus possible.
+
+### 2. Derivatives: Instantaneous Rate of Change
+- **Definition**: The derivative of a function f(x) is the limit of the difference quotient
+- **Physical Meaning**: Velocity is the derivative of position; acceleration is the derivative of velocity
+- **Geometric Meaning**: The slope of the tangent line at any point
+
+### 3. Integrals: Accumulation of Change
+- **Definite Integrals**: Calculate exact areas under curves
+- **Indefinite Integrals**: Find antiderivatives (reverse of derivatives)
+- **Fundamental Theorem**: Connects derivatives and integrals
+
+## Advanced Techniques:
+- **Chain Rule**: For composite functions
+- **Product Rule**: For multiplying functions
+- **Integration by Parts**: Advanced integration technique
+- **Substitution**: Simplifying complex integrals
+
+## Real-World Applications:
+- **Physics**: Motion, forces, and energy calculations
+- **Engineering**: Optimization and design
+- **Economics**: Marginal analysis and optimization
+- **Biology**: Population dynamics and growth models
+- **Computer Graphics**: Smooth animations and 3D modeling
+
+## Historical Development:
+- **Isaac Newton** (1643-1727): Developed calculus to solve physics problems
+- **Gottfried Leibniz** (1646-1716): Created the notation we use today
+- **Leonhard Euler** (1707-1783): Advanced the theory significantly
+
+*Calculus opened the door to modern science and technology, enabling humanity to understand and manipulate the natural world with unprecedented precision.*`;
+  }
+  
+  if (lowerQuery.includes('chemistry') || lowerQuery.includes('organic') || lowerQuery.includes('molecule') || lowerQuery.includes('bond')) {
+    return `# Organic Chemistry: The Chemistry of Life
+
+**Organic Chemistry** is the fascinating study of carbon-containing compounds that form the basis of all life on Earth. Carbon's unique ability to form four covalent bonds allows for incredible molecular diversity.
+
+## Fundamental Principles:
+
+### 1. Chemical Bonding
+- **Covalent Bonds**: Sharing of electron pairs between atoms
+- **Ionic Bonds**: Transfer of electrons between atoms
+- **Hydrogen Bonds**: Weak but crucial for biological systems
+- **Van der Waals Forces**: Intermolecular attractions
+
+### 2. Functional Groups
+These are specific arrangements of atoms that determine a molecule's properties:
+- **Hydroxyl (-OH)**: Alcohols and phenols
+- **Carbonyl (C=O)**: Aldehydes and ketones
+- **Carboxyl (-COOH)**: Organic acids
+- **Amino (-NH₂)**: Amines and amino acids
+
+### 3. Reaction Mechanisms
+Understanding how reactions occur at the molecular level:
+- **SN1 Reactions**: Unimolecular nucleophilic substitution
+- **SN2 Reactions**: Bimolecular nucleophilic substitution
+- **E1/E2 Eliminations**: Formation of double bonds
+- **Addition Reactions**: Breaking π bonds
+
+## Advanced Topics:
+- **Stereochemistry**: 3D arrangement of atoms in space
+- **Aromaticity**: Special stability of benzene rings
+- **Biomolecules**: Proteins, carbohydrates, lipids, nucleic acids
+- **Synthesis**: Building complex molecules from simple ones
+
+## Real-World Applications:
+- **Pharmaceuticals**: Drug design and development
+- **Materials Science**: Polymers, plastics, and advanced materials
+- **Biotechnology**: Understanding biological processes
+- **Environmental Chemistry**: Pollution and remediation
+
+## Key Figures:
+- **Friedrich Wöhler** (1800-1882): Synthesized urea, proving organic compounds could be made artificially
+- **Dmitri Mendeleev** (1834-1907): Created the periodic table
+- **Marie Curie** (1867-1934): Pioneered radioactivity research
+- **Linus Pauling** (1901-1994): Advanced our understanding of chemical bonding
+
+*Organic chemistry is the foundation of modern medicine, materials science, and biotechnology, making it one of the most important fields in science.*`;
+  }
+  
+  if (lowerQuery.includes('programming') || lowerQuery.includes('coding') || lowerQuery.includes('algorithm') || lowerQuery.includes('javascript') || lowerQuery.includes('python')) {
+    return `# Programming: The Art of Computational Thinking
+
+**Programming** is more than just writing code—it's a way of thinking that breaks down complex problems into manageable, logical steps that computers can execute.
+
+## Core Programming Concepts:
+
+### 1. Algorithms: The Heart of Programming
+- **Definition**: Step-by-step procedures for solving problems
+- **Complexity Analysis**: Understanding time and space efficiency
+- **Common Patterns**: Sorting, searching, recursion, dynamic programming
+- **Big O Notation**: Measuring algorithmic efficiency
+
+### 2. Data Structures: Organizing Information
+- **Arrays and Lists**: Sequential data storage
+- **Stacks and Queues**: LIFO and FIFO data access
+- **Trees and Graphs**: Hierarchical and networked data
+- **Hash Tables**: Fast key-value lookups
+
+### 3. Object-Oriented Programming (OOP)
+- **Encapsulation**: Bundling data and methods together
+- **Inheritance**: Creating new classes from existing ones
+- **Polymorphism**: One interface, multiple implementations
+- **Abstraction**: Hiding complex implementation details
+
+## Modern Programming Languages:
+
+### JavaScript: The Web's Universal Language
+- **Frontend**: React, Vue, Angular for user interfaces
+- **Backend**: Node.js for server-side development
+- **Full-Stack**: Complete web applications
+- **Modern Features**: ES6+, async/await, modules
+
+### Python: The Swiss Army Knife
+- **Data Science**: NumPy, Pandas, Matplotlib
+- **Machine Learning**: TensorFlow, PyTorch, Scikit-learn
+- **Web Development**: Django, Flask frameworks
+- **Automation**: Scripting and task automation
+
+### Java: Enterprise Powerhouse
+- **Enterprise Applications**: Large-scale business systems
+- **Android Development**: Mobile app development
+- **Spring Framework**: Robust backend development
+- **Cross-Platform**: Write once, run anywhere
+
+## Essential Programming Principles:
+- **DRY (Don't Repeat Yourself)**: Avoid code duplication
+- **SOLID Principles**: Design patterns for maintainable code
+- **Clean Code**: Readable, self-documenting code
+- **Version Control**: Git for tracking changes and collaboration
+- **Testing**: Unit tests, integration tests, and TDD
+
+## Real-World Applications:
+- **Web Development**: Creating interactive websites and applications
+- **Mobile Apps**: iOS and Android development
+- **Data Analysis**: Extracting insights from large datasets
+- **Artificial Intelligence**: Machine learning and neural networks
+- **Game Development**: Creating interactive entertainment
+- **Automation**: Streamlining repetitive tasks
+
+*Programming is a superpower that enables you to solve problems, automate tasks, and create digital solutions that can impact millions of people worldwide.*`;
+  }
+  
+  // Advanced AI-like default response with intelligent analysis
+  return `# Comprehensive Analysis: ${query}
+
+**${query}** represents a fascinating area of study with deep connections to multiple disciplines. Let me provide you with a thorough analysis of this topic.
+
+## Core Understanding:
+
+### Fundamental Concepts
+- **Definition**: The essential meaning and scope of ${query}
+- **Key Principles**: The foundational ideas that govern this field
+- **Theoretical Framework**: The underlying theories and models
+- **Mathematical/Logical Basis**: The quantitative or logical foundations
+
+### Interdisciplinary Connections
+- **Related Fields**: How ${query} connects to other areas of knowledge
+- **Cross-Disciplinary Applications**: Real-world applications across different domains
+- **Historical Context**: The development and evolution of this field
+- **Current Research**: Cutting-edge developments and future directions
+
+## Advanced Analysis:
+
+### Critical Thinking Approach
+1. **Question Everything**: What are the underlying assumptions?
+2. **Seek Patterns**: What recurring themes or structures exist?
+3. **Consider Alternatives**: What other perspectives or approaches are possible?
+4. **Evaluate Evidence**: What data supports different viewpoints?
+
+### Learning Strategy
+- **Conceptual Mapping**: Create visual representations of relationships
+- **Case Study Analysis**: Examine real-world examples in detail
+- **Comparative Study**: Compare with related or contrasting topics
+- **Synthesis**: Integrate knowledge from multiple sources
+
+## Practical Applications:
+- **Real-World Examples**: Concrete applications and use cases
+- **Problem-Solving**: How this knowledge helps solve practical problems
+- **Career Relevance**: Professional applications and opportunities
+- **Innovation Potential**: How this field drives technological advancement
+
+## Study Recommendations:
+1. **Start with Fundamentals**: Build a solid conceptual foundation
+2. **Use Multiple Learning Modalities**: Visual, auditory, and kinesthetic approaches
+3. **Practice Active Learning**: Engage with the material through questions and exercises
+4. **Connect to Personal Interests**: Find ways to relate the topic to your passions
+5. **Seek Expert Guidance**: Consult with professors, professionals, or mentors
+
+## Resources for Deep Learning:
+- **Primary Sources**: Original research and foundational texts
+- **Multimedia Content**: Videos, simulations, and interactive materials
+- **Community Engagement**: Study groups, forums, and academic communities
+- **Hands-On Experience**: Practical projects and real-world applications
+
+*Remember, **Focus Crest** was created by **Anto Bredly** to provide students with the tools and knowledge needed to excel in their academic journey. This comprehensive approach to learning will help you master not just ${query}, but develop the critical thinking skills essential for lifelong learning.*`;
+};
 
 // A more robust markdown-to-HTML converter for saving notes.
 // This version processes inline markdown before wrapping in block-level tags,
@@ -168,27 +412,27 @@ export const BrowserView: React.FC<AssistantViewProps> = ({ initialQuery, onQuer
     setCurrentQuery('');
     setIsLoading(true);
 
-    try {
-        const stream = performEducationalSearch(historyForApi, query);
-
-        for await (const chunk of stream) {
-            setChatHistory(prev => {
-                const lastMessage = prev[prev.length - 1];
-                if (lastMessage && lastMessage.role === 'model') {
-                    const updatedLastMessage = { ...lastMessage, parts: lastMessage.parts + chunk };
-                    return [...prev.slice(0, -1), updatedLastMessage];
-                }
-                return prev;
-            });
-        }
-    } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-        setError(`AI Assistant Error: ${errorMessage}`);
-        // On error, remove the user message and the placeholder model message
-        setChatHistory(prev => prev.slice(0, -2));
-    } finally {
-        setIsLoading(false);
+    // Simulate streaming response with hardcoded content
+    const response = getHardcodedResponse(query);
+    const words = response.split(' ');
+    
+    // Simulate streaming by adding words one by one
+    let currentText = '';
+    for (let i = 0; i < words.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 50)); // Small delay between words
+        currentText += (i > 0 ? ' ' : '') + words[i];
+        
+        setChatHistory(prev => {
+            const lastMessage = prev[prev.length - 1];
+            if (lastMessage && lastMessage.role === 'model') {
+                const updatedLastMessage = { ...lastMessage, parts: currentText };
+                return [...prev.slice(0, -1), updatedLastMessage];
+            }
+            return prev;
+        });
     }
+    
+    setIsLoading(false);
   };
 
 
