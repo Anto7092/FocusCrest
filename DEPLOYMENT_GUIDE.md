@@ -1,52 +1,44 @@
-# Focus Crest - Vercel Deployment Guide
+# Focus Crest - Easy Vercel Deployment Guide
 
-## Overview
-This guide will help you deploy the Focus Crest application to Vercel with all features working correctly.
+## 🚀 Quick Deployment (Recommended)
 
-## Prerequisites
-1. A Vercel account (free tier is sufficient)
-2. A Google Gemini API key
-3. A YouTube Data API v3 key
+### Option 1: One-Click Deploy
+1. **Update API Keys** in `api/gemini.ts`:
+   - Replace `YOUR_GEMINI_API_KEY_HERE` with your Gemini API key
+   - Replace `YOUR_YOUTUBE_API_KEY_HERE` with your YouTube API key
 
-## API Keys Setup
+2. **Deploy with Vercel CLI**:
+   ```bash
+   npm install -g vercel
+   vercel --prod
+   ```
 
-### 1. Google Gemini API Key
-1. Go to [Google AI Studio](https://aistudio.google.com/)
-2. Sign in with your Google account
-3. Create a new API key
-4. Copy the API key
+### Option 2: GitHub Integration
+1. Push your code to GitHub
+2. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+3. Click "New Project" → Import from GitHub
+4. Vercel will auto-detect and deploy
 
-### 2. YouTube Data API v3 Key
+## 🔑 API Keys Setup
+
+### Google Gemini API Key
+1. Visit [Google AI Studio](https://aistudio.google.com/)
+2. Sign in and create a new API key
+3. Copy the key
+
+### YouTube Data API v3 Key
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the YouTube Data API v3
-4. Go to "Credentials" and create an API key
-5. Copy the API key
+2. Create/select project → Enable YouTube Data API v3
+3. Create API key in Credentials section
+4. Copy the key
 
-## Deployment Steps
-
-### Step 1: Update API Keys
-1. Open `api/gemini.ts`
-2. Replace `YOUR_GEMINI_API_KEY_HERE` with your actual Gemini API key
-3. Replace `YOUR_YOUTUBE_API_KEY_HERE` with your actual YouTube API key
-
-### Step 2: Deploy to Vercel
-
-#### Option A: Deploy via Vercel CLI
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel` in the project directory
-3. Follow the prompts to link your project
-
-#### Option B: Deploy via Vercel Dashboard
-1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-2. Click "New Project"
-3. Import your Git repository
-4. Vercel will automatically detect the configuration
-
-### Step 3: Verify Deployment
-1. Check that all routes are working:
-   - Main app: `https://your-domain.vercel.app/`
-   - API endpoint: `https://your-domain.vercel.app/api/gemini`
+## ✅ What's Fixed for Deployment
+- ✅ Simplified vercel.json configuration
+- ✅ Removed complex import maps from HTML
+- ✅ Added @vercel/node dependency
+- ✅ Optimized build configuration
+- ✅ Added .vercelignore file
+- ✅ Created deployment script
 
 ## Features Included
 

@@ -6,9 +6,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
-// Hardcoded API keys for deployment - replace with your actual keys
-const YOUTUBE_API_KEY = "YOUR_YOUTUBE_API_KEY_HERE"; // Replace with your YouTube API key
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Replace with your Gemini API key
+// Hardcoded API keys for deployment
+const YOUTUBE_API_KEY = "AIzaSyDpaOJElbybDXwaPX5T1hhaZ1Ngfim9uGQ";
+const GEMINI_API_KEY = "AIzaSyBRsHTEKCk5x7FjdrESmUNN95eOE-dywkI";
 
 
 const SERVER_TIMEOUT = 28000; // 28 seconds
