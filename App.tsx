@@ -278,8 +278,8 @@ const App: React.FC = () => {
                 if (e instanceof Error) {
                     console.error("Error playing sound:", e.message);
                 } else {
-                    // FIX: Explicitly convert the unknown error to a string to satisfy strict type checking.
-                    console.error("An unknown error occurred while playing sound:", String(e));
+                    // FIX: Pass the unknown error object directly to console.error for better inspection.
+                    console.error("An unknown error occurred while playing sound:", e);
                 }
             });
         }
