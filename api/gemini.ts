@@ -3,7 +3,7 @@
 // to the Google Gemini and YouTube APIs.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
 // Hardcoded API keys for deployment
@@ -132,8 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 async function* performSearchStreamBackend(history: any[], message: string, genAI: GoogleGenerativeAI): AsyncGenerator<string> {
     const model = genAI.getGenerativeModel({ 
         model: "gemini-2.5-flash",
-        systemInstruction: "You are an AI assistant for Focus Crest, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
-        tools: [{ googleSearch: {} }],
+        systemInstruction: "You are an AI assistant for Focus Crest, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Answer the user's query confidently and directly.",
     });
 
     const chat = model.startChat({
@@ -157,34 +156,11 @@ async function generateStudyPlanBackend(topic: string, deadline: string, genAI: 
         model: "gemini-2.5-flash",
         systemInstruction: "You are an expert academic planner. Your task is to create a structured, day-by-day study plan. Break down the main topic into manageable sub-topics for each day. For each sub-topic, provide a concise description, a relevant YouTube search query, a name for a Pomodoro focus session, and a deep-diving question to ask an AI assistant. The entire output must be in JSON format.",
         generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.OBJECT,
-                properties: {
-                    title: { type: SchemaType.STRING, description: "A creative title for the study plan." },
-                    plan: {
-                        type: SchemaType.ARRAY,
-                        description: "A list of daily study steps.",
-                        items: {
-                            type: SchemaType.OBJECT,
-                            properties: {
-                                day: { type: SchemaType.STRING, description: "The day of the plan (e.g., 'Day 1')." },
-                                topic: { type: SchemaType.STRING, description: "The specific sub-topic for the day." },
-                                description: { type: SchemaType.STRING, description: "A brief one-sentence description of the day's topic." },
-                                youtubeSearch: { type: SchemaType.STRING, description: "A concise, effective search query for YouTube." },
-                                pomodoroSessionName: { type: SchemaType.STRING, description: "A short, motivating name for a Pomodoro session." },
-                                assistantQuestion: { type: SchemaType.STRING, description: "An insightful question to ask an AI assistant about the topic." }
-                            },
-                            required: ["day", "topic", "description", "youtubeSearch", "pomodoroSessionName", "assistantQuestion"]
-                        }
-                    }
-                },
-                required: ["title", "plan"]
-            }
+            responseMimeType: "application/json"
         }
     });
 
-    const result = await model.generateContent(`Generate a study plan for the topic: "${topic}" with the deadline: "${deadline}".`);
+    const result = await model.generateContent(`Generate a study plan for the topic: "${topic}" with the deadline: "${deadline}". Return a JSON object with "title" (string) and "plan" (array of objects with "day", "topic", "description", "youtubeSearch", "pomodoroSessionName", "assistantQuestion" fields).`);
     const response = await result.response;
     const text = response.text();
     return JSON.parse(text);
@@ -195,21 +171,11 @@ async function isQueryEducationalBackend(query: string, genAI: GoogleGenerativeA
     const model = genAI.getGenerativeModel({ 
         model: "gemini-2.5-flash",
         generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.OBJECT,
-                properties: {
-                    isEducational: {
-                        type: SchemaType.BOOLEAN,
-                        description: "True if the query is educational, false otherwise."
-                    }
-                },
-                required: ["isEducational"]
-            }
+            responseMimeType: "application/json"
         }
     });
 
-    const result = await model.generateContent(`Is the following search query educational, academic, or related to learning a skill? Answer in JSON. Query: "${query}"`);
+    const result = await model.generateContent(`Is the following search query educational, academic, or related to learning a skill? Answer in JSON with "isEducational" field (boolean). Query: "${query}"`);
     const response = await result.response;
     const text = response.text();
     return JSON.parse(text);
@@ -219,25 +185,11 @@ async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGene
     const model = genAI.getGenerativeModel({ 
         model: "gemini-2.5-flash",
         generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.OBJECT,
-                properties: {
-                    suggestions: {
-                        type: SchemaType.ARRAY,
-                        items: {
-                            type: SchemaType.STRING,
-                            description: "An educational search suggestion."
-                        },
-                        description: "A list of 5 educational search suggestions."
-                    }
-                },
-                required: ["suggestions"]
-            }
+            responseMimeType: "application/json"
         }
     });
     
-    const result = await model.generateContent(`Based on the user's partial query "${query}", generate a list of 5 relevant and diverse educational YouTube search suggestions. The suggestions should be concise and directly searchable.`);
+    const result = await model.generateContent(`Based on the user's partial query "${query}", generate a list of 5 relevant and diverse educational YouTube search suggestions. The suggestions should be concise and directly searchable. Return JSON with "suggestions" field (array of strings).`);
     const response = await result.response;
     const text = response.text();
     return JSON.parse(text);
