@@ -6,35 +6,36 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
-// API keys are sourced from environment variables for security and flexibility.
-const YOUTUBE_API_KEY = 'AIzaSyDpaOJElbybDXwaPX5T1hhaZ1Ngfim9uGQ';
-const GEMINI_API_KEY = 'AIzaSyBRsHTEKCk5x7FjdrESmUNN95eOE-dywkI';
+// Hardcoded API keys for deployment - replace with your actual keys
+const YOUTUBE_API_KEY = "YOUR_YOUTUBE_API_KEY_HERE"; // Replace with your YouTube API key
+const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Replace with your Gemini API key
 
 
-const SERVER_TIMEOUT = 9000; // 9 seconds
+const SERVER_TIMEOUT = 28000; // 28 seconds
 
 /**
  * A robust, manual parser to read the request body stream.
- * This bypasses Vercel's faulty automatic body parser, which was the root cause of the crashes.
+ * This is stricter than the previous version and will reject on any error,
+ * preventing the server from processing invalid requests.
  */
 async function getBody(req: VercelRequest): Promise<any> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         let data = '';
         req.on('data', chunk => {
             data += chunk;
         });
         req.on('end', () => {
+            if (!data) {
+                return reject(new Error("Request body is empty, cannot proceed."));
+            }
             try {
-                // If data is empty, return an empty object to prevent JSON.parse from failing
-                resolve(data ? JSON.parse(data) : {});
+                resolve(JSON.parse(data));
             } catch (e) {
-                // If JSON parsing fails, return an empty object to ensure the app doesn't crash
-                resolve({});
+                reject(new Error(`Failed to parse request body as JSON. Invalid format.`));
             }
         });
-        req.on('error', () => {
-             // On stream error, resolve with empty to prevent hang
-            resolve({});
+        req.on('error', (err) => {
+            reject(err);
         });
     });
 }

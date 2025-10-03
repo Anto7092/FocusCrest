@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { Sidebar } from './components/Sidebar';
 import { BrowserView as AssistantView } from './components/BrowserView';
@@ -9,8 +10,7 @@ import { PlannerView } from './components/PlannerView';
 import { SettingsView } from './components/SettingsView';
 import { GlobalControls } from './components/GlobalControls';
 import type { View, PomodoroState, BackgroundImage, ColorPalette, PomodoroSettings, NotificationSound } from './types';
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/next"
+// Removed Vercel Analytics and Speed Insights for deployment compatibility
 import { IntroAnimation } from './components/IntroAnimation';
 import { getCustomBackground, deleteCustomBackground } from './services/dbService';
 
@@ -278,8 +278,8 @@ const App: React.FC = () => {
                 if (e instanceof Error) {
                     console.error("Error playing sound:", e.message);
                 } else {
-                    // FIX: Pass the unknown error object directly to console.error for better inspection.
-                    console.error("An unknown error occurred while playing sound:", e);
+                    // FIX: Coerce unknown error to string for logging to resolve potential type conflicts.
+                    console.error("An unknown error occurred while playing sound:", String(e));
                 }
             });
         }
