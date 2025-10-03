@@ -145,8 +145,8 @@ async function* performSearchStreamBackend(history: any[], message: string, genA
     const result = await chat.sendMessageStream(message);
     
     for await (const chunk of result.stream) {
-        if (chunk.text) {
-            yield chunk.text;
+        if (chunk.text()) {
+            yield chunk.text();
         }
     }
 }
