@@ -87,6 +87,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
     }
 
+    if (!YOUTUBE_API_KEY) {
+        return res.status(500).json({ error: 'YouTube API key is not configured on the server.' });
+    }
+
     try {
         const body = await getBody(req);
 
@@ -108,13 +112,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             try {
                 const stream = performSearchStreamBackend(payload.history, payload.message, ai);
                 for await (const chunk of stream) {
+                    if (res.destroyed) break;
                     res.write(chunk);
                 }
                 return res.end();
             } catch (streamError) {
                 console.error("Streaming API Error:", streamError);
-                // Can't set headers now, so just end the response. The client will see a failed request.
-                return res.end(); 
+                if (!res.destroyed) {
+                    res.write('Error: Unable to generate response. Please try again.');
+                    res.end();
+                }
+                return;
             }
         }
         
@@ -189,7 +197,10 @@ async function generateStudyPlanBackend(topic: string, deadline: string, genAI: 
         }
     });
 
-    const jsonString = response.text.trim();
+    const jsonString = response.text?.trim();
+    if (!jsonString) {
+        throw new Error('Empty response from AI model');
+    }
     return JSON.parse(jsonString);
 }
 
@@ -213,7 +224,11 @@ async function isQueryEducationalBackend(query: string, genAI: GoogleGenAI): Pro
         }
     });
 
-    return JSON.parse(response.text);
+    const responseText = response.text;
+    if (!responseText) {
+        throw new Error('Empty response from AI model');
+    }
+    return JSON.parse(responseText);
 }
 
 async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGenAI): Promise<{ suggestions: string[] }> {
@@ -240,7 +255,11 @@ async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGenA
         }
     });
     
-    return JSON.parse(response.text);
+    const responseText = response.text;
+    if (!responseText) {
+        throw new Error('Empty response from AI model');
+    }
+    return JSON.parse(responseText);
 }
 
 
