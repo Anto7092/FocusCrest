@@ -3,7 +3,7 @@
 // to the Google Gemini and YouTube APIs.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenerativeAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
 // Hardcoded API keys for deployment
@@ -159,21 +159,21 @@ async function generateStudyPlanBackend(topic: string, deadline: string, genAI: 
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: Type.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
-                    title: { type: Type.STRING, description: "A creative title for the study plan." },
+                    title: { type: SchemaType.STRING, description: "A creative title for the study plan." },
                     plan: {
-                        type: Type.ARRAY,
+                        type: SchemaType.ARRAY,
                         description: "A list of daily study steps.",
                         items: {
-                            type: Type.OBJECT,
+                            type: SchemaType.OBJECT,
                             properties: {
-                                day: { type: Type.STRING, description: "The day of the plan (e.g., 'Day 1')." },
-                                topic: { type: Type.STRING, description: "The specific sub-topic for the day." },
-                                description: { type: Type.STRING, description: "A brief one-sentence description of the day's topic." },
-                                youtubeSearch: { type: Type.STRING, description: "A concise, effective search query for YouTube." },
-                                pomodoroSessionName: { type: Type.STRING, description: "A short, motivating name for a Pomodoro session." },
-                                assistantQuestion: { type: Type.STRING, description: "An insightful question to ask an AI assistant about the topic." }
+                                day: { type: SchemaType.STRING, description: "The day of the plan (e.g., 'Day 1')." },
+                                topic: { type: SchemaType.STRING, description: "The specific sub-topic for the day." },
+                                description: { type: SchemaType.STRING, description: "A brief one-sentence description of the day's topic." },
+                                youtubeSearch: { type: SchemaType.STRING, description: "A concise, effective search query for YouTube." },
+                                pomodoroSessionName: { type: SchemaType.STRING, description: "A short, motivating name for a Pomodoro session." },
+                                assistantQuestion: { type: SchemaType.STRING, description: "An insightful question to ask an AI assistant about the topic." }
                             },
                             required: ["day", "topic", "description", "youtubeSearch", "pomodoroSessionName", "assistantQuestion"]
                         }
@@ -197,10 +197,10 @@ async function isQueryEducationalBackend(query: string, genAI: GoogleGenerativeA
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: Type.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
                     isEducational: {
-                        type: Type.BOOLEAN,
+                        type: SchemaType.BOOLEAN,
                         description: "True if the query is educational, false otherwise."
                     }
                 },
@@ -221,12 +221,12 @@ async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGene
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: Type.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
                     suggestions: {
-                        type: Type.ARRAY,
+                        type: SchemaType.ARRAY,
                         items: {
-                            type: Type.STRING,
+                            type: SchemaType.STRING,
                             description: "An educational search suggestion."
                         },
                         description: "A list of 5 educational search suggestions."
