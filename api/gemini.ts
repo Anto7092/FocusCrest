@@ -3,7 +3,7 @@
 // to the Google Gemini and YouTube APIs.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, Type } from "@google/genai";
 import type { YouTubeVideo, StudyPlan } from '../types';
 
 // Hardcoded API keys for deployment
@@ -43,7 +43,7 @@ async function getBody(req: VercelRequest): Promise<any> {
 const timeout = (ms: number, message: string) =>
     new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms));
 
-async function runAction(action: string, payload: any, ai: GoogleGenAI): Promise<any> {
+async function runAction(action: string, payload: any, ai: GoogleGenerativeAI): Promise<any> {
     switch (action) {
         case 'generateStudyPlan':
             if (!payload || typeof payload.topic !== 'string' || typeof payload.deadline !== 'string') {
@@ -87,9 +87,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
     }
 
-    if (!YOUTUBE_API_KEY) {
-        return res.status(500).json({ error: 'YouTube API key is not configured on the server.' });
-    }
 
     try {
         const body = await getBody(req);
@@ -98,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'Missing or malformed action in request body' });
         }
         
-        const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+        const ai = new GoogleGenerativeAI(GEMINI_API_KEY);
         const { action, payload } = body;
         
         if (action === 'performSearchStream') {
@@ -109,21 +106,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             res.setHeader('Content-Type', 'text/plain; charset=utf-8');
             res.setHeader('Transfer-Encoding', 'chunked');
             
-            try {
-                const stream = performSearchStreamBackend(payload.history, payload.message, ai);
-                for await (const chunk of stream) {
-                    if (res.destroyed) break;
-                    res.write(chunk);
-                }
-                return res.end();
-            } catch (streamError) {
-                console.error("Streaming API Error:", streamError);
-                if (!res.destroyed) {
-                    res.write('Error: Unable to generate response. Please try again.');
-                    res.end();
-                }
-                return;
+            const stream = performSearchStreamBackend(payload.history, payload.message, ai);
+            for await (const chunk of stream) {
+                res.write(chunk);
             }
+            return res.end();
         }
         
         const result = await Promise.race([
@@ -142,34 +129,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 // --- API Logic ---
 
-async function* performSearchStreamBackend(history: any[], message: string, genAI: GoogleGenAI): AsyncGenerator<string> {
-    const contents = [
-        ...history,
-        { role: 'user', parts: [{ text: message }] }
-    ];
-
-    const responseStream = await genAI.models.generateContentStream({
-        model: 'gemini-2.5-flash',
-        contents: contents,
-        config: {
-            systemInstruction: "You are an AI assistant for Focus Crest, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
-            tools: [{ googleSearch: {} }],
-        },
+async function* performSearchStreamBackend(history: any[], message: string, genAI: GoogleGenerativeAI): AsyncGenerator<string> {
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        systemInstruction: "You are an AI assistant for Focus Crest, an expert academic assistant. Your goal is to provide clear, direct, and comprehensive answers to academic questions by synthesizing information from Google Search results. This application was founded and created by Anto Bredly; if asked about your creator, you must state this. Format your response clearly using Markdown (e.g., use headings, lists, and bold/italic text). Do not include any links, images, or mention specific website sources in your answer. Never mention your limitations as an AI. Do not state that you cannot access external links, browse websites, or watch videos. Answer the user's query confidently and directly based on the provided search context.",
+        tools: [{ googleSearch: {} }],
     });
+
+    const chat = model.startChat({
+        history: history.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.parts }]
+        }))
+    });
+
+    const result = await chat.sendMessageStream(message);
     
-    for await (const chunk of responseStream) {
-        if (chunk && chunk.text) {
+    for await (const chunk of result.stream) {
+        if (chunk.text) {
             yield chunk.text;
         }
     }
 }
 
-async function generateStudyPlanBackend(topic: string, deadline: string, genAI: GoogleGenAI): Promise<StudyPlan> {
-    const response = await genAI.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `Generate a study plan for the topic: "${topic}" with the deadline: "${deadline}".`,
-        config: {
-            systemInstruction: "You are an expert academic planner. Your task is to create a structured, day-by-day study plan. Break down the main topic into manageable sub-topics for each day. For each sub-topic, provide a concise description, a relevant YouTube search query, a name for a Pomodoro focus session, and a deep-diving question to ask an AI assistant. The entire output must be in JSON format.",
+async function generateStudyPlanBackend(topic: string, deadline: string, genAI: GoogleGenerativeAI): Promise<StudyPlan> {
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        systemInstruction: "You are an expert academic planner. Your task is to create a structured, day-by-day study plan. Break down the main topic into manageable sub-topics for each day. For each sub-topic, provide a concise description, a relevant YouTube search query, a name for a Pomodoro focus session, and a deep-diving question to ask an AI assistant. The entire output must be in JSON format.",
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.OBJECT,
@@ -197,19 +184,17 @@ async function generateStudyPlanBackend(topic: string, deadline: string, genAI: 
         }
     });
 
-    const jsonString = response.text?.trim();
-    if (!jsonString) {
-        throw new Error('Empty response from AI model');
-    }
-    return JSON.parse(jsonString);
+    const result = await model.generateContent(`Generate a study plan for the topic: "${topic}" with the deadline: "${deadline}".`);
+    const response = await result.response;
+    const text = response.text();
+    return JSON.parse(text);
 }
 
 
-async function isQueryEducationalBackend(query: string, genAI: GoogleGenAI): Promise<{ isEducational: boolean }> {
-    const response = await genAI.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `Is the following search query educational, academic, or related to learning a skill? Answer in JSON. Query: "${query}"`,
-        config: {
+async function isQueryEducationalBackend(query: string, genAI: GoogleGenerativeAI): Promise<{ isEducational: boolean }> {
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.OBJECT,
@@ -224,18 +209,16 @@ async function isQueryEducationalBackend(query: string, genAI: GoogleGenAI): Pro
         }
     });
 
-    const responseText = response.text;
-    if (!responseText) {
-        throw new Error('Empty response from AI model');
-    }
-    return JSON.parse(responseText);
+    const result = await model.generateContent(`Is the following search query educational, academic, or related to learning a skill? Answer in JSON. Query: "${query}"`);
+    const response = await result.response;
+    const text = response.text();
+    return JSON.parse(text);
 }
 
-async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGenAI): Promise<{ suggestions: string[] }> {
-    const response = await genAI.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `Based on the user's partial query "${query}", generate a list of 5 relevant and diverse educational YouTube search suggestions. The suggestions should be concise and directly searchable.`,
-        config: {
+async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGenerativeAI): Promise<{ suggestions: string[] }> {
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.OBJECT,
@@ -250,16 +233,14 @@ async function getEducationalSuggestionsBackend(query: string, genAI: GoogleGenA
                     }
                 },
                 required: ["suggestions"]
-            },
-            thinkingConfig: { thinkingBudget: 0 } // Disable thinking for low-latency response
+            }
         }
     });
     
-    const responseText = response.text;
-    if (!responseText) {
-        throw new Error('Empty response from AI model');
-    }
-    return JSON.parse(responseText);
+    const result = await model.generateContent(`Based on the user's partial query "${query}", generate a list of 5 relevant and diverse educational YouTube search suggestions. The suggestions should be concise and directly searchable.`);
+    const response = await result.response;
+    const text = response.text();
+    return JSON.parse(text);
 }
 
 
